@@ -1,4 +1,4 @@
-interface ObjectReference {
+export interface ObjectReference {
   type: string
 }
 
@@ -13,8 +13,8 @@ abstract class ObjectInfo<
     this.data = data
   }
 
-  serialize(): string {
-    return JSON.stringify(this.reference)
+  serialize() {
+    return this.reference
   }
 }
 

@@ -1,19 +1,28 @@
-import ObjectInfo from '../object/ObjectInfo'
-import Variable from './Variable'
+import { v4 as uuidv4 } from 'uuid'
+import { ObjectInfos } from '../object'
+import Variables from './variables'
 
-type ObjectPath = [number, ...string[]]
+export type ObjectPath = [number, ...string[]]
 
 class VariableConnector {
-  private variable: Variable
-  private object: ObjectInfo
+  readonly id: string
+  private variable: Variables
+  private objectInfo: ObjectInfos
+  private objectPath: ObjectPath
   private updateObject: (value: number) => void
 
-  constructor(variable: Variable, object: ObjectInfo, objectPath: ObjectPath) {
+  constructor(
+    variable: Variables,
+    objectInfo: ObjectInfos,
+    objectPath: ObjectPath,
+    id?: string
+  ) {
+    this.id = id ?? uuidv4()
     this.variable = variable
-    this.object = object
-
+    this.objectInfo = objectInfo
+    this.objectPath = objectPath
     this.updateObject = (value: number) => {
-      let data = this.object.data
+      let data = this.objectInfo.data as any
       for (let index = 0; index < objectPath.length - 1; index++) {
         const key = objectPath[index]
         data = data[key]
@@ -23,8 +32,29 @@ class VariableConnector {
     this.variable.dispatcher.addListener('VALUE_CHANGED', this.updateObject)
   }
 
+  getVariable() {
+    return this.variable
+  }
+
+  getObjectInfo(): ObjectInfos {
+    return this.objectInfo
+  }
+
+  getObjectPath() {
+    return this.objectPath
+  }
+
   destroy() {
     this.variable.dispatcher.removeListener('VALUE_CHANGED', this.updateObject)
+  }
+
+  serialize() {
+    return {
+      id: this.id,
+      variableId: this.variable.serialize().id,
+      objectReference: this.objectInfo.serialize(),
+      objectPath: this.objectPath,
+    }
   }
 }
 

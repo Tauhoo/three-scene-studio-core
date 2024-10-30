@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import ObjectInfo from './ObjectInfo'
+import DataStorage from '../utils/DataStorage'
 
 export interface CameraObjectReference {
   type: 'OBJECT_3D_CAMERA'
@@ -26,3 +27,16 @@ export const getDefaultCamera = (): THREE.Camera => {
 }
 
 export default CameraObjectInfo
+
+export class CameraObjectInfoStorage extends DataStorage<
+  CameraObjectReference,
+  CameraObjectInfo
+> {
+  constructor(cameras: THREE.Camera[]) {
+    super(reference => reference.id.toString())
+    cameras.forEach(camera => {
+      const cameraObjectInfo = new CameraObjectInfo(camera)
+      this.set(cameraObjectInfo.reference, cameraObjectInfo)
+    })
+  }
+}

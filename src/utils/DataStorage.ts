@@ -5,6 +5,11 @@ class DataStorage<K, V> {
     this.keyConverter = keyConverter
   }
 
+  has(reference: K) {
+    const key = this.keyConverter(reference)
+    return key in this.dataMap
+  }
+
   set(reference: K, value: V) {
     const key = this.keyConverter(reference)
     this.dataMap[key] = value
@@ -12,7 +17,12 @@ class DataStorage<K, V> {
 
   get(reference: K) {
     const key = this.keyConverter(reference)
-    return this.dataMap[key]
+    return this.dataMap[key] ?? null
+  }
+
+  delete(reference: K) {
+    const key = this.keyConverter(reference)
+    delete this.dataMap[key]
   }
 
   getAll() {

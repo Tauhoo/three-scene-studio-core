@@ -1,6 +1,6 @@
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 
-type VariableEventPacket =
+export type VariableEventPacket =
   | {
       type: 'VALUE_CHANGED'
       data: number
@@ -14,7 +14,7 @@ type VariableEventPacket =
       data: string
     }
 
-class Variable<
+abstract class Variable<
   T extends string = string,
   D extends EventDispatcher<VariableEventPacket> = EventDispatcher<VariableEventPacket>
 > {
@@ -66,6 +66,14 @@ class Variable<
   set ref(ref: string) {
     this._ref = ref
     this.dispatcher.dispatch('REF_CHANGED', ref)
+  }
+
+  abstract serialize(): {
+    type: string
+    id: string
+    name: string
+    value: number
+    ref: string
   }
 }
 

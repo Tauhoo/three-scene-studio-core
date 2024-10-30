@@ -2,6 +2,7 @@ import SceneObjectInfo from './SceneObjectInfo'
 import CameraObjectInfo, { getDefaultCamera } from './CameraObjectInfo'
 import AnimationObjectInfo from './AnimationObjectInfo'
 import MeshObjectInfo from './MeshObjectInfo'
+import LightObjectInfo from './LightObjectInfo'
 
 export {
   SceneObjectInfo,
@@ -11,10 +12,11 @@ export {
   getDefaultCamera,
 }
 
-export type ObjectInfo =
+export type ObjectInfos =
   | SceneObjectInfo
   | CameraObjectInfo
   | AnimationObjectInfo
+  | LightObjectInfo
   | MeshObjectInfo
-export type ObjectType = ObjectInfo['reference']['type']
-export type ObjectReference = ObjectInfo['reference']
+export type ObjectType = ObjectInfos['reference']['type']
+export type ObjectReference = ObjectInfos['reference']
