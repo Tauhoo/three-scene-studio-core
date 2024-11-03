@@ -1,36 +1,34 @@
-import { ObjectInfos } from '../object'
-import ObjectInfo from '../object/ObjectInfo'
-import ObjectInfoManager from '../object/ObjectInfoManager'
-import Variable from './Variable'
+import * as z from 'zod'
+import { ObjectInfoManager } from '../object/ObjectInfoManager'
 import VariableConnector, { ObjectPath } from './VariableConnector'
-import VariableConnectorStorage from './VariableConnectorStorage'
+import VariableConnectorStorage, {
+  variableConnectorStorageConfigSchema,
+} from './VariableConnectorStorage'
 import VariableManager from './VariableManager'
-import Variables from './variables'
+import { Variable } from '.'
+import { ObjectInfo } from '../object'
 
-type VariableConnectorManagerConfig = ReturnType<
-  VariableConnectorManager['serialize']
+export const VariableConnectorManagerConfigSchema = z.object({
+  variableConnectorStorage: variableConnectorStorageConfigSchema,
+})
+export type VariableConnectorManagerConfig = z.infer<
+  typeof VariableConnectorManagerConfigSchema
 >
 
 class VariableConnectorManager {
   private variableConnectorStorage: VariableConnectorStorage
-  private objectInfoManager: ObjectInfoManager
-  private variableManager: VariableManager
 
   constructor(
     objectInfoManager: ObjectInfoManager,
-    variableManager: VariableManager,
-    config: VariableConnectorManagerConfig
+    variableManager: VariableManager
   ) {
-    this.objectInfoManager = objectInfoManager
-    this.variableManager = variableManager
     this.variableConnectorStorage = new VariableConnectorStorage(
       objectInfoManager,
-      variableManager,
-      config.variableConnectorStorage
+      variableManager
     )
   }
 
-  connect(variable: Variables, object: ObjectInfos, objectPath: ObjectPath) {
+  connect(variable: Variable, object: ObjectInfo, objectPath: ObjectPath) {
     const connector = new VariableConnector(variable, object, objectPath)
     this.variableConnectorStorage.set(connector.id, connector)
     return connector
@@ -38,6 +36,10 @@ class VariableConnectorManager {
 
   destroy(id: string) {
     this.variableConnectorStorage.delete(id)
+  }
+
+  loadConfig(config: VariableConnectorManagerConfig) {
+    this.variableConnectorStorage.loadConfig(config.variableConnectorStorage)
   }
 
   serialize() {

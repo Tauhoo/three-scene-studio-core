@@ -1,19 +1,32 @@
+import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
-import { ObjectInfos } from '../object'
-import Variables from './variables'
+import { ObjectInfo, objectReferenceSchema } from '../object'
+import { Variable } from '.'
 
-export type ObjectPath = [number, ...string[]]
+export const objectPathSchema = z.array(z.string())
+export type ObjectPath = z.infer<typeof objectPathSchema>
+
+export const variableConnectorConfigSchema = z.object({
+  id: z.string(),
+  variableId: z.string(),
+  objectReference: objectReferenceSchema,
+  objectPath: objectPathSchema,
+})
+
+export type VariableConnectorConfig = z.infer<
+  typeof variableConnectorConfigSchema
+>
 
 class VariableConnector {
   readonly id: string
-  private variable: Variables
-  private objectInfo: ObjectInfos
+  private variable: Variable
+  private objectInfo: ObjectInfo
   private objectPath: ObjectPath
   private updateObject: (value: number) => void
 
   constructor(
-    variable: Variables,
-    objectInfo: ObjectInfos,
+    variable: Variable,
+    objectInfo: ObjectInfo,
     objectPath: ObjectPath,
     id?: string
   ) {
@@ -36,7 +49,7 @@ class VariableConnector {
     return this.variable
   }
 
-  getObjectInfo(): ObjectInfos {
+  getObjectInfo(): ObjectInfo {
     return this.objectInfo
   }
 

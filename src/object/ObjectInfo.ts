@@ -2,7 +2,7 @@ export interface ObjectReference {
   type: string
 }
 
-abstract class ObjectInfo<
+export abstract class ObjectInfo<
   T extends ObjectReference = ObjectReference,
   D = any
 > {
@@ -17,5 +17,3 @@ abstract class ObjectInfo<
     return this.reference
   }
 }
-
-export default ObjectInfo

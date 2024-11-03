@@ -1,17 +1,21 @@
-import { CameraObjectInfo, SceneObjectInfo } from './object'
-import ObjectInfoManager from './object/ObjectInfoManager'
+import * as z from 'zod'
+import { CameraObjectInfo, ObjectInfoManager, SceneObjectInfo } from './object'
 import Switcher from './utils/Switcher'
-import VariableConnectorManager from './variable/VariableConnectorManager'
-import VariableManager from './variable/VariableManager'
+import VariableConnectorManager, {
+  VariableConnectorManagerConfigSchema,
+} from './variable/VariableConnectorManager'
+import VariableManager, {
+  variableManagerConfigSchema,
+} from './variable/VariableManager'
+import { GLTF } from './loader'
 
-type ThreeSceneStudioManagerConfig = ReturnType<
-  ThreeSceneStudioManager['serialize']
+const ThreeSceneStudioManagerConfigSchema = z.object({
+  variableConnectorManagerConfig: VariableConnectorManagerConfigSchema,
+  variableManagerConfig: variableManagerConfigSchema,
+})
+type ThreeSceneStudioManagerConfig = z.infer<
+  typeof ThreeSceneStudioManagerConfigSchema
 >
-
-interface ThreeSceneStudioManagerOptions {
-  objectInfoManager: ObjectInfoManager
-  config: ThreeSceneStudioManagerConfig
-}
 
 class ThreeSceneStudioManager {
   readonly objectInfoManager: ObjectInfoManager
@@ -20,8 +24,8 @@ class ThreeSceneStudioManager {
   readonly variableConnectorManager: VariableConnectorManager
   readonly variableManager: VariableManager
 
-  constructor(options: ThreeSceneStudioManagerOptions) {
-    this.objectInfoManager = options.objectInfoManager
+  constructor() {
+    this.objectInfoManager = new ObjectInfoManager()
 
     const cameras = this.objectInfoManager.getObjectInfos('OBJECT_3D_CAMERA')
     this.cameraSwitcher = new Switcher(cameras)
@@ -29,18 +33,25 @@ class ThreeSceneStudioManager {
     const scenes = this.objectInfoManager.getObjectInfos('OBJECT_3D_SCENE')
     this.sceneSwitcher = new Switcher(scenes)
 
-    this.variableManager = new VariableManager(options.config.variableManager)
+    this.variableManager = new VariableManager()
     this.variableConnectorManager = new VariableConnectorManager(
       this.objectInfoManager,
-      this.variableManager,
-      options.config.variableConnectorManager
+      this.variableManager
     )
+  }
+
+  loadConfig(gltf: GLTF, config: ThreeSceneStudioManagerConfig) {
+    this.objectInfoManager.loadGLTF(gltf)
+    this.variableConnectorManager.loadConfig(
+      config.variableConnectorManagerConfig
+    )
+    this.variableManager.loadConfig(config.variableManagerConfig)
   }
 
   serialize() {
     return {
-      variableConnectorManager: this.variableConnectorManager.serialize(),
-      variableManager: this.variableManager.serialize(),
+      variableConnectorManagerConfig: this.variableConnectorManager.serialize(),
+      variableManagerConfig: this.variableManager.serialize(),
     }
   }
 }

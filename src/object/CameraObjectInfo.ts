@@ -1,13 +1,19 @@
 import * as THREE from 'three'
-import ObjectInfo from './ObjectInfo'
+import { ObjectInfo } from './ObjectInfo'
 import DataStorage from '../utils/DataStorage'
+import * as z from 'zod'
 
-export interface CameraObjectReference {
-  type: 'OBJECT_3D_CAMERA'
-  id: number
-}
+export const cameraObjectReferenceSchema = z.object({
+  type: z.literal('OBJECT_3D_CAMERA'),
+  id: z.number(),
+})
 
-class CameraObjectInfo extends ObjectInfo<CameraObjectReference, THREE.Camera> {
+export type CameraObjectReference = z.infer<typeof cameraObjectReferenceSchema>
+
+export class CameraObjectInfo extends ObjectInfo<
+  CameraObjectReference,
+  THREE.Camera
+> {
   constructor(data: THREE.Camera) {
     super(
       {
@@ -19,24 +25,22 @@ class CameraObjectInfo extends ObjectInfo<CameraObjectReference, THREE.Camera> {
   }
 }
 
-export const getDefaultCamera = (): THREE.Camera => {
-  const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 100)
-  camera.position.set(0, 0, 10)
-  camera.lookAt(0, 0, 0)
-  return camera
-}
-
-export default CameraObjectInfo
-
 export class CameraObjectInfoStorage extends DataStorage<
   CameraObjectReference,
   CameraObjectInfo
 > {
-  constructor(cameras: THREE.Camera[]) {
+  constructor() {
     super(reference => reference.id.toString())
+  }
+
+  setNative(camera: THREE.Camera) {
+    const cameraObjectInfo = new CameraObjectInfo(camera)
+    this.set(cameraObjectInfo.reference, cameraObjectInfo)
+  }
+
+  setMultipleNative(cameras: THREE.Camera[]) {
     cameras.forEach(camera => {
-      const cameraObjectInfo = new CameraObjectInfo(camera)
-      this.set(cameraObjectInfo.reference, cameraObjectInfo)
+      this.setNative(camera)
     })
   }
 }

@@ -10,6 +10,12 @@ class DataStorage<K, V> {
     return key in this.dataMap
   }
 
+  setMultiple(entries: [K, V][]) {
+    entries.forEach(([reference, value]) => {
+      this.set(reference, value)
+    })
+  }
+
   set(reference: K, value: V) {
     const key = this.keyConverter(reference)
     this.dataMap[key] = value

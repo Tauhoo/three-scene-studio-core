@@ -1,13 +1,18 @@
+import * as z from 'zod'
 import * as THREE from 'three'
-import ObjectInfo from './ObjectInfo'
+import { ObjectInfo } from './ObjectInfo'
 import DataStorage from '../utils/DataStorage'
 
-export interface AnimationObjectReference {
-  type: 'OBJECT_3D_ANIMATION'
-  uuid: string
-}
+export const animationObjectReferenceSchema = z.object({
+  type: z.literal('OBJECT_3D_ANIMATION'),
+  uuid: z.string(),
+})
 
-class AnimationObjectInfo extends ObjectInfo<
+export type AnimationObjectReference = z.infer<
+  typeof animationObjectReferenceSchema
+>
+
+export class AnimationObjectInfo extends ObjectInfo<
   AnimationObjectReference,
   THREE.AnimationClip
 > {
@@ -22,17 +27,22 @@ class AnimationObjectInfo extends ObjectInfo<
   }
 }
 
-export default AnimationObjectInfo
-
 export class AnimationObjectInfoStorage extends DataStorage<
   AnimationObjectReference,
   AnimationObjectInfo
 > {
-  constructor(animations: THREE.AnimationClip[]) {
+  constructor() {
     super(reference => reference.uuid)
+  }
+
+  setNative(animation: THREE.AnimationClip) {
+    const animationObjectInfo = new AnimationObjectInfo(animation)
+    this.set(animationObjectInfo.reference, animationObjectInfo)
+  }
+
+  setMultipleNative(animations: THREE.AnimationClip[]) {
     animations.forEach(animation => {
-      const animationObjectInfo = new AnimationObjectInfo(animation)
-      this.set(animationObjectInfo.reference, animationObjectInfo)
+      this.setNative(animation)
     })
   }
 }

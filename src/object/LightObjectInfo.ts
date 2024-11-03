@@ -1,14 +1,20 @@
 import * as THREE from 'three'
-import ObjectInfo from './ObjectInfo'
+import { ObjectInfo } from './ObjectInfo'
 import DataStorage from '../utils/DataStorage'
+import * as z from 'zod'
 
-export interface LightObjectReference {
-  type: 'OBJECT_3D_LIGHT'
-  sceneId: number
-  uuid: string
-}
+export const lightObjectReferenceSchema = z.object({
+  type: z.literal('OBJECT_3D_LIGHT'),
+  sceneId: z.number(),
+  uuid: z.string(),
+})
 
-class LightObjectInfo extends ObjectInfo<LightObjectReference, THREE.Light> {
+export type LightObjectReference = z.infer<typeof lightObjectReferenceSchema>
+
+export class LightObjectInfo extends ObjectInfo<
+  LightObjectReference,
+  THREE.Light
+> {
   constructor(data: THREE.Light, sceneId: number) {
     super(
       {
@@ -21,19 +27,24 @@ class LightObjectInfo extends ObjectInfo<LightObjectReference, THREE.Light> {
   }
 }
 
-export default LightObjectInfo
-
 export class LightObjectInfoStorage extends DataStorage<
   LightObjectReference,
   LightObjectInfo
 > {
-  constructor(scenes: THREE.Group<THREE.Object3DEventMap>[]) {
+  constructor() {
     super(reference => reference.uuid)
+  }
+
+  setNative(light: THREE.Light, sceneId: number) {
+    const lightObjectInfo = new LightObjectInfo(light, sceneId)
+    this.set(lightObjectInfo.reference, lightObjectInfo)
+  }
+
+  setMultipleNative(scenes: THREE.Group<THREE.Object3DEventMap>[]) {
     scenes.forEach(scene => {
       scene.traverse(child => {
         if (child instanceof THREE.Light) {
-          const lightObjectInfo = new LightObjectInfo(child, scene.id)
-          this.set(lightObjectInfo.reference, lightObjectInfo)
+          this.setNative(child, scene.id)
         }
       })
     })

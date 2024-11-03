@@ -1,15 +1,21 @@
-import Variables from './variables'
-import VariableStorage from './VariableStorage'
+import * as z from 'zod'
+import VariableStorage, { variableStorageConfigSchema } from './VariableStorage'
+import { Variable } from '.'
 
-type VariableManagerConfig = ReturnType<VariableManager['serialize']>
+export const variableManagerConfigSchema = z.object({
+  variableStorageConfig: variableStorageConfigSchema,
+})
+
+export type VariableManagerConfig = z.infer<typeof variableManagerConfigSchema>
+
 class VariableManager {
   private variableStorage: VariableStorage
 
-  constructor(config: VariableManagerConfig) {
-    this.variableStorage = new VariableStorage(config.variableStorage)
+  constructor() {
+    this.variableStorage = new VariableStorage()
   }
 
-  addVariable(variable: Variables) {
+  addVariable(variable: Variable) {
     this.variableStorage.set(variable.id, variable)
   }
 
@@ -21,9 +27,13 @@ class VariableManager {
     return Object.values(this.variableStorage.getAll())
   }
 
-  serialize() {
+  loadConfig(config: VariableManagerConfig) {
+    this.variableStorage.loadConfig(config.variableStorageConfig)
+  }
+
+  serialize(): VariableManagerConfig {
     return {
-      variableStorage: this.variableStorage.serialize(),
+      variableStorageConfig: this.variableStorage.serialize(),
     }
   }
 }

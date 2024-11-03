@@ -1,14 +1,25 @@
+import * as z from 'zod'
 import DataStorage from '../utils/DataStorage'
-import Variables from './variables'
+import { createVariableFromConfig, Variable, variableConfigSchema } from '.'
 
-type VariableStorageConfig = ReturnType<VariableStorage['serialize']>
+export const variableStorageConfigSchema = z.object({
+  variables: z.array(variableConfigSchema),
+})
 
-class VariableStorage extends DataStorage<string, Variables> {
-  constructor(config: VariableStorageConfig) {
+export type VariableStorageConfig = z.infer<typeof variableStorageConfigSchema>
+
+class VariableStorage extends DataStorage<string, Variable> {
+  constructor() {
     super(id => id)
   }
 
-  serialize() {
+  loadConfig(config: VariableStorageConfig) {
+    config.variables.forEach(variableConfig =>
+      this.set(variableConfig.id, createVariableFromConfig(variableConfig))
+    )
+  }
+
+  serialize(): VariableStorageConfig {
     return { variables: this.getAll().map(variable => variable.serialize()) }
   }
 }

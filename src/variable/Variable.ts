@@ -1,4 +1,4 @@
-import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
+import EventDispatcher from '../utils/EventDispatcher'
 
 export type VariableEventPacket =
   | {
@@ -14,7 +14,7 @@ export type VariableEventPacket =
       data: string
     }
 
-abstract class Variable<
+export abstract class Variable<
   T extends string = string,
   D extends EventDispatcher<VariableEventPacket> = EventDispatcher<VariableEventPacket>
 > {
@@ -76,5 +76,3 @@ abstract class Variable<
     ref: string
   }
 }
-
-export default Variable

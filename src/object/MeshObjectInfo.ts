@@ -1,39 +1,50 @@
 import * as THREE from 'three'
-import ObjectInfo from './ObjectInfo'
+import { ObjectInfo } from './ObjectInfo'
 import DataStorage from '../utils/DataStorage'
+import * as z from 'zod'
 
-export interface MeshObjectReference {
-  type: 'OBJECT_3D_MESH'
-  sceneId: number
-  id: number
-}
+export const meshObjectReferenceSchema = z.object({
+  type: z.literal('OBJECT_3D_MESH'),
+  sceneId: z.number(),
+  id: z.number(),
+})
 
-class MeshObjectInfo extends ObjectInfo<MeshObjectReference, THREE.Mesh> {
-  constructor(data: THREE.Mesh, scene: THREE.Group<THREE.Object3DEventMap>) {
+export type MeshObjectReference = z.infer<typeof meshObjectReferenceSchema>
+
+export class MeshObjectInfo extends ObjectInfo<
+  MeshObjectReference,
+  THREE.Mesh
+> {
+  constructor(data: THREE.Mesh, sceneId: number) {
     super(
       {
         type: 'OBJECT_3D_MESH',
         id: data.id,
-        sceneId: scene.id,
+        sceneId,
       },
       data
     )
   }
 }
 
-export default MeshObjectInfo
-
 export class MeshObjectInfoStorage extends DataStorage<
   MeshObjectReference,
   MeshObjectInfo
 > {
-  constructor(scenes: THREE.Group<THREE.Object3DEventMap>[]) {
+  constructor() {
     super(reference => reference.id.toString())
+  }
+
+  setNative(mesh: THREE.Mesh, sceneId: number) {
+    const meshObjectInfo = new MeshObjectInfo(mesh, sceneId)
+    this.set(meshObjectInfo.reference, meshObjectInfo)
+  }
+
+  setMultipleNative(scenes: THREE.Group<THREE.Object3DEventMap>[]) {
     scenes.forEach(scene => {
       scene.traverse(child => {
         if (child instanceof THREE.Mesh) {
-          const meshObjectInfo = new MeshObjectInfo(child, scene)
-          this.set(meshObjectInfo.reference, meshObjectInfo)
+          this.setNative(child, scene.id)
         }
       })
     })
