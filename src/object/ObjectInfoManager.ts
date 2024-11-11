@@ -1,18 +1,27 @@
+import * as THREE from 'three'
 import { GLTF } from '../loader'
 import { ObjectInfo, ObjectReference, ObjectType } from '.'
 import { AnimationObjectInfoStorage } from './AnimationObjectInfo'
 import { CameraObjectInfoStorage } from './CameraObjectInfo'
 import { LightObjectInfoStorage } from './LightObjectInfo'
 import { MeshObjectInfoStorage } from './MeshObjectInfo'
-import { SceneObjectInfoStorage } from './SceneObjectInfo'
+import { SceneObjectInfo, SceneObjectInfoStorage } from './SceneObjectInfo'
+import EventDispatcher from '../utils/EventDispatcher'
 
-export class ObjectInfoManager {
+type ObjectInfoManagerEvent = {
+  type: 'OBJECT_INFO_ADDED'
+  data: ObjectInfo
+}
+
+export class ObjectInfoManager extends EventDispatcher<ObjectInfoManagerEvent> {
   private animationObjectInfoStorage: AnimationObjectInfoStorage
   private cameraObjectInfoStorage: CameraObjectInfoStorage
   private lightObjectInfoStorage: LightObjectInfoStorage
   private meshObjectInfoStorage: MeshObjectInfoStorage
   private sceneObjectInfoStorage: SceneObjectInfoStorage
+
   constructor() {
+    super()
     this.animationObjectInfoStorage = new AnimationObjectInfoStorage()
     this.cameraObjectInfoStorage = new CameraObjectInfoStorage()
     this.lightObjectInfoStorage = new LightObjectInfoStorage()
@@ -90,5 +99,14 @@ export class ObjectInfoManager {
       >[]
     }
     return []
+  }
+
+  createSceneObjectInfo(name: string) {
+    const newScene = new THREE.Scene()
+    newScene.name = name
+    const info = new SceneObjectInfo(newScene)
+    this.sceneObjectInfoStorage.set(info.reference, info)
+    this.dispatch('OBJECT_INFO_ADDED', info)
+    return info
   }
 }

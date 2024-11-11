@@ -9,15 +9,15 @@ import VariableManager, {
 } from './variable/VariableManager'
 import { GLTF } from './loader'
 
-const ThreeSceneStudioManagerConfigSchema = z.object({
+export const threeSceneStudioManagerConfigSchema = z.object({
   variableConnectorManagerConfig: VariableConnectorManagerConfigSchema,
   variableManagerConfig: variableManagerConfigSchema,
 })
-type ThreeSceneStudioManagerConfig = z.infer<
-  typeof ThreeSceneStudioManagerConfigSchema
+export type ThreeSceneStudioManagerConfig = z.infer<
+  typeof threeSceneStudioManagerConfigSchema
 >
 
-class ThreeSceneStudioManager {
+export class ThreeSceneStudioManager {
   readonly objectInfoManager: ObjectInfoManager
   readonly cameraSwitcher: Switcher<CameraObjectInfo>
   readonly sceneSwitcher: Switcher<SceneObjectInfo>
@@ -55,5 +55,3 @@ class ThreeSceneStudioManager {
     }
   }
 }
-
-export default ThreeSceneStudioManager

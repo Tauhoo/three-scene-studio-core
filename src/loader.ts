@@ -8,14 +8,17 @@ import {
 } from './utils/response'
 import { GLTF } from 'three/examples/jsm/Addons'
 
-interface Options {
+export interface GLTFLoaderOptions {
   dracoFilePath?: string
   onProgress?: (progress: number) => void
 }
 
 export { GLTF }
 
-export const loadGltfFile = (url: string, options: Options) => {
+export const loadGltfFile = (
+  url: string,
+  options: GLTFLoaderOptions
+): Promise<SuccessResponse<GLTF> | ErrorResponse<'LOAD_GLTF_FILE_ERROR'>> => {
   return new Promise<
     SuccessResponse<GLTF> | ErrorResponse<'LOAD_GLTF_FILE_ERROR'>
   >((resolve, reject) => {

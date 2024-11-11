@@ -6,7 +6,7 @@ import * as z from 'zod'
 export const lightObjectReferenceSchema = z.object({
   type: z.literal('OBJECT_3D_LIGHT'),
   sceneId: z.number(),
-  uuid: z.string(),
+  id: z.number(),
 })
 
 export type LightObjectReference = z.infer<typeof lightObjectReferenceSchema>
@@ -20,7 +20,7 @@ export class LightObjectInfo extends ObjectInfo<
       {
         type: 'OBJECT_3D_LIGHT',
         sceneId,
-        uuid: data.uuid,
+        id: data.id,
       },
       data
     )
@@ -32,7 +32,7 @@ export class LightObjectInfoStorage extends DataStorage<
   LightObjectInfo
 > {
   constructor() {
-    super(reference => reference.uuid)
+    super(reference => reference.id.toString())
   }
 
   setNative(light: THREE.Light, sceneId: number) {
