@@ -25,6 +25,10 @@ export class MeshObjectInfo extends ObjectInfo<
       data
     )
   }
+
+  get name() {
+    return this.data.name
+  }
 }
 
 export class MeshObjectInfoStorage extends DataStorage<

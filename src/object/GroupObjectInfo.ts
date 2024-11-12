@@ -29,6 +29,10 @@ export class GroupObjectInfo extends ObjectInfo<
     )
     this.children = getChildren(data, sceneId)
   }
+
+  get name() {
+    return this.data.name
+  }
 }
 
 export const getChildren = (

@@ -25,6 +25,10 @@ export class LightObjectInfo extends ObjectInfo<
       data
     )
   }
+
+  get name() {
+    return this.data.name
+  }
 }
 
 export class LightObjectInfoStorage extends DataStorage<
