@@ -2,6 +2,8 @@ import * as THREE from 'three'
 import { ObjectInfo } from './ObjectInfo'
 import DataStorage from '../utils/DataStorage'
 import * as z from 'zod'
+import { ObjectInSceneInfo } from '.'
+import { getChildren } from './children'
 
 export const lightObjectReferenceSchema = z.object({
   type: z.literal('OBJECT_3D_LIGHT'),
@@ -15,6 +17,7 @@ export class LightObjectInfo extends ObjectInfo<
   LightObjectReference,
   THREE.Light
 > {
+  readonly children: ObjectInSceneInfo[] = []
   constructor(data: THREE.Light, sceneId: number) {
     super(
       {
@@ -24,6 +27,7 @@ export class LightObjectInfo extends ObjectInfo<
       },
       data
     )
+    this.children = getChildren(data, sceneId)
   }
 
   get name() {

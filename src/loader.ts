@@ -7,20 +7,26 @@ import {
   successResponse,
 } from './utils/response'
 import { GLTF } from 'three/examples/jsm/Addons'
+import {
+  AnimationObjectInfo,
+  CameraObjectInfo,
+  SceneObjectInfo,
+} from './object'
 
 export interface GLTFLoaderOptions {
   dracoFilePath?: string
   onProgress?: (progress: number) => void
 }
 
-export { GLTF }
+export type GLTFLoadResult = {
+  animations: AnimationObjectInfo[]
+  scenes: SceneObjectInfo[]
+  cameras: CameraObjectInfo[]
+}
 
-export const loadGltfFile = (
-  url: string,
-  options: GLTFLoaderOptions
-): Promise<SuccessResponse<GLTF> | ErrorResponse<'LOAD_GLTF_FILE_ERROR'>> => {
+export const loadGltfFile = (url: string, options: GLTFLoaderOptions) => {
   return new Promise<
-    SuccessResponse<GLTF> | ErrorResponse<'LOAD_GLTF_FILE_ERROR'>
+    SuccessResponse<GLTFLoadResult> | ErrorResponse<'LOAD_GLTF_FILE_ERROR'>
   >((resolve, reject) => {
     const loader = new GLTFLoader()
     if (options.dracoFilePath) {
@@ -31,7 +37,16 @@ export const loadGltfFile = (
 
     loader.load(
       url,
-      gltf => resolve(successResponse(gltf)),
+      gltf => {
+        const result: GLTFLoadResult = {
+          animations: gltf.animations.map(
+            animation => new AnimationObjectInfo(animation)
+          ),
+          scenes: gltf.scenes.map(scene => SceneObjectInfo.fromGroup(scene)),
+          cameras: gltf.cameras.map(camera => new CameraObjectInfo(camera)),
+        }
+        resolve(successResponse(result))
+      },
       // called as loading progresses
       xhr => {
         if (options.onProgress) options.onProgress(xhr.loaded / xhr.total)

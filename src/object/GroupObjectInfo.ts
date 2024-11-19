@@ -1,9 +1,8 @@
 import * as THREE from 'three'
 import { ObjectInfo } from './ObjectInfo'
 import * as z from 'zod'
-import { LightObjectInfo } from './LightObjectInfo'
-import { MeshObjectInfo } from './MeshObjectInfo'
 import { ObjectInSceneInfo } from '.'
+import { getChildren } from './children'
 
 export const groupObjectReferenceSchema = z.object({
   type: z.literal('OBJECT_3D_GROUP'),
@@ -33,23 +32,4 @@ export class GroupObjectInfo extends ObjectInfo<
   get name() {
     return this.data.name
   }
-}
-
-export const getChildren = (
-  data: THREE.Group | THREE.Scene,
-  sceneId: number
-): ObjectInSceneInfo[] => {
-  return data.children
-    .map(child => {
-      if (child instanceof THREE.Mesh) {
-        return new MeshObjectInfo(child, sceneId)
-      }
-      if (child instanceof THREE.Group) {
-        return new GroupObjectInfo(child, sceneId)
-      }
-      if (child instanceof THREE.Light) {
-        return new LightObjectInfo(child, sceneId)
-      }
-    })
-    .filter(child => child !== undefined)
 }

@@ -23,6 +23,9 @@ export class CameraObjectInfo extends ObjectInfo<
       data
     )
   }
+  get name() {
+    return this.data.name
+  }
 }
 
 export class CameraObjectInfoStorage extends DataStorage<

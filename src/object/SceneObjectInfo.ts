@@ -2,7 +2,8 @@ import * as THREE from 'three'
 import { ObjectInfo } from './ObjectInfo'
 import DataStorage from '../utils/DataStorage'
 import * as z from 'zod'
-import { getChildren, ObjectInSceneInfo } from '.'
+import { getChildren } from './children'
+import { ObjectInSceneInfo } from '.'
 
 export const sceneObjectReferenceSchema = z.object({
   type: z.literal('OBJECT_3D_SCENE'),
@@ -15,6 +16,15 @@ export class SceneObjectInfo extends ObjectInfo<
   SceneObjectReference,
   THREE.Scene
 > {
+  static fromGroup(group: THREE.Group) {
+    const scene = new THREE.Scene()
+    group.children.forEach(child => {
+      scene.add(child)
+    })
+    scene.name = group.name === '' ? 'No name' : group.name
+    return new SceneObjectInfo(scene)
+  }
+
   readonly children: ObjectInSceneInfo[] = []
   constructor(data: THREE.Scene) {
     super(
@@ -25,6 +35,11 @@ export class SceneObjectInfo extends ObjectInfo<
       data
     )
     this.children = getChildren(data, data.id)
+  }
+
+  addObjectInSceneInfo(objectInfo: ObjectInSceneInfo) {
+    this.children.push(objectInfo)
+    this.data.add(objectInfo.data)
   }
 
   get name() {

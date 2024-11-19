@@ -7,7 +7,7 @@ import VariableConnectorManager, {
 import VariableManager, {
   variableManagerConfigSchema,
 } from './variable/VariableManager'
-import { GLTF } from './loader'
+import { GLTFLoadResult } from './loader'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
   variableConnectorManagerConfig: VariableConnectorManagerConfigSchema,
@@ -40,8 +40,8 @@ export class ThreeSceneStudioManager {
     )
   }
 
-  loadConfig(gltf: GLTF, config: ThreeSceneStudioManagerConfig) {
-    this.objectInfoManager.loadGLTF(gltf)
+  loadConfig(result: GLTFLoadResult, config: ThreeSceneStudioManagerConfig) {
+    // implement load gltf
     this.variableConnectorManager.loadConfig(
       config.variableConnectorManagerConfig
     )

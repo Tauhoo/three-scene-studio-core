@@ -1,10 +1,12 @@
 import * as THREE from 'three'
-import { GLTF } from '../loader'
-import { ObjectInfo, ObjectReference, ObjectType } from '.'
-import { AnimationObjectInfoStorage } from './AnimationObjectInfo'
-import { CameraObjectInfoStorage } from './CameraObjectInfo'
-import { LightObjectInfoStorage } from './LightObjectInfo'
-import { MeshObjectInfoStorage } from './MeshObjectInfo'
+import { ObjectInfo, ObjectInSceneInfo, ObjectReference, ObjectType } from '.'
+import {
+  AnimationObjectInfo,
+  AnimationObjectInfoStorage,
+} from './AnimationObjectInfo'
+import { CameraObjectInfo, CameraObjectInfoStorage } from './CameraObjectInfo'
+import { LightObjectInfo, LightObjectInfoStorage } from './LightObjectInfo'
+import { MeshObjectInfo, MeshObjectInfoStorage } from './MeshObjectInfo'
 import { SceneObjectInfo, SceneObjectInfoStorage } from './SceneObjectInfo'
 import EventDispatcher from '../utils/EventDispatcher'
 
@@ -27,14 +29,6 @@ export class ObjectInfoManager extends EventDispatcher<ObjectInfoManagerEvent> {
     this.lightObjectInfoStorage = new LightObjectInfoStorage()
     this.meshObjectInfoStorage = new MeshObjectInfoStorage()
     this.sceneObjectInfoStorage = new SceneObjectInfoStorage()
-  }
-
-  loadGLTF(gltf: GLTF) {
-    this.animationObjectInfoStorage.setMultipleNative(gltf.animations)
-    this.cameraObjectInfoStorage.setMultipleNative(gltf.cameras)
-    this.lightObjectInfoStorage.setMultipleNative(gltf.scenes)
-    this.meshObjectInfoStorage.setMultipleNative(gltf.scenes)
-    this.sceneObjectInfoStorage.setMultipleNative(gltf.scenes)
   }
 
   getObjectInfoByReference<T extends ObjectReference>(
@@ -108,5 +102,26 @@ export class ObjectInfoManager extends EventDispatcher<ObjectInfoManagerEvent> {
     this.sceneObjectInfoStorage.set(info.reference, info)
     this.dispatch('OBJECT_INFO_ADDED', info)
     return info
+  }
+
+  addObjectInSceneInfo(
+    objectInfo: ObjectInSceneInfo,
+    sceneInfo: SceneObjectInfo
+  ) {
+    if (objectInfo.reference.type === 'OBJECT_3D_MESH') {
+      this.meshObjectInfoStorage.set(
+        objectInfo.reference,
+        objectInfo as MeshObjectInfo
+      )
+      sceneInfo.addObjectInSceneInfo(objectInfo)
+    } else if (objectInfo.reference.type === 'OBJECT_3D_LIGHT') {
+      this.lightObjectInfoStorage.set(
+        objectInfo.reference,
+        objectInfo as LightObjectInfo
+      )
+      sceneInfo.addObjectInSceneInfo(objectInfo)
+    } else if (objectInfo.reference.type === 'OBJECT_3D_GROUP') {
+      sceneInfo.addObjectInSceneInfo(objectInfo)
+    }
   }
 }
