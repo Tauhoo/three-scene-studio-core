@@ -1,12 +1,7 @@
 import * as THREE from 'three'
-import { ObjectInfo, ObjectInSceneInfo, ObjectReference, ObjectType } from '.'
-import {
-  AnimationObjectInfo,
-  AnimationObjectInfoStorage,
-} from './AnimationObjectInfo'
+import { ObjectInfo, ObjectReference, ObjectType } from '.'
+import { AnimationObjectInfoStorage } from './AnimationObjectInfo'
 import { CameraObjectInfo, CameraObjectInfoStorage } from './CameraObjectInfo'
-import { LightObjectInfo, LightObjectInfoStorage } from './LightObjectInfo'
-import { MeshObjectInfo, MeshObjectInfoStorage } from './MeshObjectInfo'
 import { SceneObjectInfo, SceneObjectInfoStorage } from './SceneObjectInfo'
 import EventDispatcher from '../utils/EventDispatcher'
 
@@ -18,16 +13,12 @@ type ObjectInfoManagerEvent = {
 export class ObjectInfoManager extends EventDispatcher<ObjectInfoManagerEvent> {
   private animationObjectInfoStorage: AnimationObjectInfoStorage
   private cameraObjectInfoStorage: CameraObjectInfoStorage
-  private lightObjectInfoStorage: LightObjectInfoStorage
-  private meshObjectInfoStorage: MeshObjectInfoStorage
   private sceneObjectInfoStorage: SceneObjectInfoStorage
 
   constructor() {
     super()
     this.animationObjectInfoStorage = new AnimationObjectInfoStorage()
     this.cameraObjectInfoStorage = new CameraObjectInfoStorage()
-    this.lightObjectInfoStorage = new LightObjectInfoStorage()
-    this.meshObjectInfoStorage = new MeshObjectInfoStorage()
     this.sceneObjectInfoStorage = new SceneObjectInfoStorage()
   }
 
@@ -46,16 +37,6 @@ export class ObjectInfoManager extends EventDispatcher<ObjectInfoManagerEvent> {
       >
     } else if (reference.type === 'OBJECT_3D_ANIMATION') {
       return this.animationObjectInfoStorage.get(reference) as Extract<
-        ObjectInfo,
-        { reference: T }
-      >
-    } else if (reference.type === 'OBJECT_3D_MESH') {
-      return this.meshObjectInfoStorage.get(reference) as Extract<
-        ObjectInfo,
-        { reference: T }
-      >
-    } else if (reference.type === 'OBJECT_3D_LIGHT') {
-      return this.lightObjectInfoStorage.get(reference) as Extract<
         ObjectInfo,
         { reference: T }
       >
@@ -81,16 +62,6 @@ export class ObjectInfoManager extends EventDispatcher<ObjectInfoManagerEvent> {
         ObjectInfo,
         { reference: { type: T } }
       >[]
-    } else if (type === 'OBJECT_3D_MESH') {
-      return this.meshObjectInfoStorage.getAll() as Extract<
-        ObjectInfo,
-        { reference: { type: T } }
-      >[]
-    } else if (type === 'OBJECT_3D_LIGHT') {
-      return this.lightObjectInfoStorage.getAll() as Extract<
-        ObjectInfo,
-        { reference: { type: T } }
-      >[]
     }
     return []
   }
@@ -104,24 +75,13 @@ export class ObjectInfoManager extends EventDispatcher<ObjectInfoManagerEvent> {
     return info
   }
 
-  addObjectInSceneInfo(
-    objectInfo: ObjectInSceneInfo,
-    sceneInfo: SceneObjectInfo
-  ) {
-    if (objectInfo.reference.type === 'OBJECT_3D_MESH') {
-      this.meshObjectInfoStorage.set(
-        objectInfo.reference,
-        objectInfo as MeshObjectInfo
-      )
-      sceneInfo.addObjectInSceneInfo(objectInfo)
-    } else if (objectInfo.reference.type === 'OBJECT_3D_LIGHT') {
-      this.lightObjectInfoStorage.set(
-        objectInfo.reference,
-        objectInfo as LightObjectInfo
-      )
-      sceneInfo.addObjectInSceneInfo(objectInfo)
-    } else if (objectInfo.reference.type === 'OBJECT_3D_GROUP') {
-      sceneInfo.addObjectInSceneInfo(objectInfo)
-    }
+  addSceneObjectInfo(sceneInfo: SceneObjectInfo) {
+    this.sceneObjectInfoStorage.set(sceneInfo.reference, sceneInfo)
+    this.dispatch('OBJECT_INFO_ADDED', sceneInfo)
+  }
+
+  addCameraObjectInfo(cameraInfo: CameraObjectInfo) {
+    this.cameraObjectInfoStorage.set(cameraInfo.reference, cameraInfo)
+    this.dispatch('OBJECT_INFO_ADDED', cameraInfo)
   }
 }

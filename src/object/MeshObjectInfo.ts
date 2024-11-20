@@ -17,7 +17,7 @@ export class MeshObjectInfo extends ObjectInfo<
   MeshObjectReference,
   THREE.Mesh
 > {
-  readonly children: ObjectInSceneInfo[] = []
+  children: ObjectInSceneInfo[] = []
   constructor(data: THREE.Mesh, sceneId: number) {
     super(
       {

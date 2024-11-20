@@ -25,7 +25,7 @@ export class SceneObjectInfo extends ObjectInfo<
     return new SceneObjectInfo(scene)
   }
 
-  readonly children: ObjectInSceneInfo[] = []
+  children: ObjectInSceneInfo[] = []
   constructor(data: THREE.Scene) {
     super(
       {

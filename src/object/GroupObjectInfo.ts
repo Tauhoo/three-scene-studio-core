@@ -16,7 +16,7 @@ export class GroupObjectInfo extends ObjectInfo<
   GroupObjectReference,
   THREE.Group
 > {
-  readonly children: ObjectInSceneInfo[] = []
+  children: ObjectInSceneInfo[] = []
   constructor(data: THREE.Group, sceneId: number) {
     super(
       {

@@ -17,7 +17,7 @@ export class LightObjectInfo extends ObjectInfo<
   LightObjectReference,
   THREE.Light
 > {
-  readonly children: ObjectInSceneInfo[] = []
+  children: ObjectInSceneInfo[] = []
   constructor(data: THREE.Light, sceneId: number) {
     super(
       {
