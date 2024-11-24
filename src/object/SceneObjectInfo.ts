@@ -21,7 +21,7 @@ export class SceneObjectInfo extends ObjectInfo<
     group.children.forEach(child => {
       scene.add(child)
     })
-    scene.name = group.name === '' ? 'No name' : group.name
+    scene.name = group.name
     return new SceneObjectInfo(scene)
   }
 
@@ -44,6 +44,10 @@ export class SceneObjectInfo extends ObjectInfo<
 
   get name() {
     return this.data.name
+  }
+
+  set name(name: string) {
+    this.data.name = name
   }
 }
 
