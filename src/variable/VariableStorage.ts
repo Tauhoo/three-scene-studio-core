@@ -28,8 +28,10 @@ class VariableStorage {
   loadConfig(config: VariableStorageConfig) {
     config.variables.forEach(variableConfig => {
       const variable = createVariableFromConfig(variableConfig)
-      this.refStorage.set(variableConfig.ref, variable)
-      this.idStorage.set(variableConfig.id, variable)
+      if (variable) {
+        this.refStorage.set(variableConfig.ref, variable)
+        this.idStorage.set(variableConfig.id, variable)
+      }
     })
   }
 

@@ -1,4 +1,5 @@
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
+import { v4 as uuidv4 } from 'uuid'
 
 export type VariableEventPacket = {
   type: 'VALUE_CHANGED'
@@ -14,9 +15,9 @@ export abstract class Variable<
   private _value: number
   readonly dispatcher: EventDispatcher<D>
 
-  constructor(type: T, id: string, value: number) {
+  constructor(type: T, value: number, id?: string) {
     this.type = type
-    this.id = id
+    this.id = id ?? uuidv4()
     this._value = value
     this.dispatcher = new EventDispatcher<D>()
   }

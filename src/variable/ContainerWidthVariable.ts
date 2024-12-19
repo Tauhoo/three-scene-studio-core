@@ -16,8 +16,8 @@ export type ContainerWidthVariableConfig = z.infer<
 >
 
 export class ContainerWidthVariable extends ReferrableVariable<'CONTAINER_WIDTH'> {
-  constructor(id: string, name: string, value: number, ref: string) {
-    super('CONTAINER_WIDTH', id, name, value, ref)
+  constructor(name: string, value: number, ref: string, id?: string) {
+    super('CONTAINER_WIDTH', name, value, ref, id)
   }
 
   serialize(): ContainerWidthVariableConfig {

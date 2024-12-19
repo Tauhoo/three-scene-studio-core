@@ -21,8 +21,8 @@ export abstract class ReferrableVariable<
   private _name: string
   private _ref: string
 
-  constructor(type: T, id: string, name: string, value: number, ref: string) {
-    super(type, id, value)
+  constructor(type: T, name: string, value: number, ref: string, id?: string) {
+    super(type, value, id)
     this._name = name
     this._ref = ref
   }

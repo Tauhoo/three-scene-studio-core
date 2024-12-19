@@ -11,9 +11,13 @@ import {
   ExternalVariable,
   externalVariableConfigSchema,
 } from './ExternalVariable'
+import { parseExpression } from '../utils/expression'
+import {
+  FormulaVariable,
+  formulaVariableConfigSchema,
+} from './FormularVariable'
 
 export * from './VariableConnector'
-export * from './VariableConnectorManager'
 export * from './VariableConnectorStorage'
 export * from './VariableManager'
 export * from './VariableStorage'
@@ -40,24 +44,24 @@ export function createVariableFromConfig(config: VariableConfig): Variable {
   switch (config.type) {
     case 'EXTERNAL':
       return new ExternalVariable(
-        config.id,
         config.name,
         config.value,
-        config.ref
+        config.ref,
+        config.id
       )
     case 'CONTAINER_WIDTH':
       return new ContainerWidthVariable(
-        config.id,
         config.name,
         config.value,
-        config.ref
+        config.ref,
+        config.id
       )
     case 'CONTAINER_HEIGHT':
       return new ContainerHeightVariable(
-        config.id,
         config.name,
         config.value,
-        config.ref
+        config.ref,
+        config.id
       )
   }
 }
