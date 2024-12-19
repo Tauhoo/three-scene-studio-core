@@ -1,5 +1,4 @@
-import EventDispatcher from '../utils/EventDispatcher'
-import { Variable, VariableEventPacket } from './Variable'
+import { ReferrableVariable } from './ReferrableVariable'
 import * as z from 'zod'
 
 export const containerHeightVariableConfigSchema = z.object({
@@ -14,10 +13,9 @@ export type ContainerHeightVariableConfig = z.infer<
   typeof containerHeightVariableConfigSchema
 >
 
-export class ContainerHeightVariable extends Variable<'CONTAINER_HEIGHT'> {
+export class ContainerHeightVariable extends ReferrableVariable<'CONTAINER_HEIGHT'> {
   constructor(id: string, name: string, value: number, ref: string) {
-    const dispatcher = new EventDispatcher<VariableEventPacket>()
-    super('CONTAINER_HEIGHT', id, name, value, ref, dispatcher)
+    super('CONTAINER_HEIGHT', id, name, value, ref)
   }
 
   serialize(): ContainerHeightVariableConfig {

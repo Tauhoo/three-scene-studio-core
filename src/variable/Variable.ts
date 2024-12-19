@@ -1,44 +1,24 @@
-import EventDispatcher from '../utils/EventDispatcher'
+import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 
-export type VariableEventPacket =
-  | {
-      type: 'VALUE_CHANGED'
-      data: number
-    }
-  | {
-      type: 'NAME_CHANGED'
-      data: string
-    }
-  | {
-      type: 'REF_CHANGED'
-      data: string
-    }
+export type VariableEventPacket = {
+  type: 'VALUE_CHANGED'
+  data: number
+}
 
 export abstract class Variable<
-  T extends string = string,
-  D extends EventDispatcher<VariableEventPacket> = EventDispatcher<VariableEventPacket>
+  T extends string,
+  D extends EventPacket<string, any> | VariableEventPacket = VariableEventPacket
 > {
   readonly type: T
   readonly id: string
-  private _name: string
   private _value: number
-  private _ref: string
-  readonly dispatcher: D
+  readonly dispatcher: EventDispatcher<D>
 
-  constructor(
-    type: T,
-    id: string,
-    name: string,
-    value: number,
-    ref: string,
-    dispatcher: D
-  ) {
+  constructor(type: T, id: string, value: number) {
     this.type = type
     this.id = id
-    this._name = name
     this._value = value
-    this._ref = ref
-    this.dispatcher = dispatcher
+    this.dispatcher = new EventDispatcher<D>()
   }
 
   get value() {
@@ -50,29 +30,9 @@ export abstract class Variable<
     this.dispatcher.dispatch('VALUE_CHANGED', value)
   }
 
-  get name() {
-    return this._name
-  }
-
-  set name(name: string) {
-    this._name = name
-    this.dispatcher.dispatch('NAME_CHANGED', name)
-  }
-
-  get ref() {
-    return this._ref
-  }
-
-  set ref(ref: string) {
-    this._ref = ref
-    this.dispatcher.dispatch('REF_CHANGED', ref)
-  }
-
   abstract serialize(): {
     type: string
     id: string
-    name: string
     value: number
-    ref: string
   }
 }

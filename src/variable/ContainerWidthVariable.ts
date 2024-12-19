@@ -1,4 +1,5 @@
 import EventDispatcher from '../utils/EventDispatcher'
+import { ReferrableVariable } from './ReferrableVariable'
 import { Variable, VariableEventPacket } from './Variable'
 import * as z from 'zod'
 
@@ -14,10 +15,9 @@ export type ContainerWidthVariableConfig = z.infer<
   typeof containerWidthVariableConfigSchema
 >
 
-export class ContainerWidthVariable extends Variable<'CONTAINER_WIDTH'> {
+export class ContainerWidthVariable extends ReferrableVariable<'CONTAINER_WIDTH'> {
   constructor(id: string, name: string, value: number, ref: string) {
-    const dispatcher = new EventDispatcher<VariableEventPacket>()
-    super('CONTAINER_WIDTH', id, name, value, ref, dispatcher)
+    super('CONTAINER_WIDTH', id, name, value, ref)
   }
 
   serialize(): ContainerWidthVariableConfig {

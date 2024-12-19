@@ -9,12 +9,12 @@ type ListenerMap<P extends EventPacket<string, any>> = {
   ) => void)[]
 }
 
-class EventDispatcher<P extends EventPacket<string, any>> {
+class EventDispatcher<P extends EventPacket<string & {}, any>> {
   private listenerMap: ListenerMap<P> = {}
 
   dispatch<K extends P['type']>(
     type: K,
-    data: P extends { type: K } ? P['data'] : never
+    data: Extract<P, { type: K }>['data']
   ) {
     if (this.listenerMap[type] === undefined) return
     this.listenerMap[type].forEach(listener => listener(data))
@@ -22,7 +22,7 @@ class EventDispatcher<P extends EventPacket<string, any>> {
 
   addListener<K extends P['type']>(
     type: K,
-    listener: (data: P extends { type: K } ? P['data'] : never) => void
+    listener: (data: Extract<P, { type: K }>['data']) => void
   ) {
     if (this.listenerMap[type]) {
       this.listenerMap[type].push(listener)
@@ -33,7 +33,7 @@ class EventDispatcher<P extends EventPacket<string, any>> {
 
   removeListener<K extends P['type']>(
     type: K,
-    listener: (data: P extends { type: K } ? P['data'] : never) => void
+    listener: (data: Extract<P, { type: K }>['data']) => void
   ) {
     if (this.listenerMap[type]) {
       this.listenerMap[type] = this.listenerMap[type].filter(
