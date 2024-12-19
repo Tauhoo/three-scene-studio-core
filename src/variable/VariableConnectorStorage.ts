@@ -2,10 +2,11 @@ import * as z from 'zod'
 import { ObjectInfoManager } from '../object/ObjectInfoManager'
 import DataStorage from '../utils/DataStorage'
 import VariableConnector, {
+  ObjectPath,
   variableConnectorConfigSchema,
 } from './VariableConnector'
-import VariableManager from './VariableManager'
 import VariableStorage from './VariableStorage'
+import { ObjectReference } from '../object'
 
 export const variableConnectorStorageConfigSchema = z.object({
   connectors: z.array(variableConnectorConfigSchema),
@@ -14,22 +15,37 @@ export type VariableConnectorStorageConfig = z.infer<
   typeof variableConnectorStorageConfigSchema
 >
 
-class VariableConnectorStorage extends DataStorage<string, VariableConnector> {
-  private variableStorage: VariableStorage
+type PathStorageKey = {
+  objectPath: ObjectPath
+  objectReference: ObjectReference
+}
+
+class VariableConnectorStorage {
+  private pathStorage: DataStorage<PathStorageKey, VariableConnector>
 
   constructor() {
-    super(id => id)
-    this.variableStorage = new VariableStorage()
+    this.pathStorage = new DataStorage<PathStorageKey, VariableConnector>(
+      key => JSON.stringify(key.objectReference) + key.objectPath.join('.')
+    )
+  }
+
+  set(connector: VariableConnector) {
+    this.pathStorage.set(
+      {
+        objectPath: connector.getObjectPath(),
+        objectReference: connector.getObjectInfo().reference as ObjectReference,
+      },
+      connector
+    )
   }
 
   loadConfig(
     config: VariableConnectorStorageConfig,
-    objectInfoManager: ObjectInfoManager
+    objectInfoManager: ObjectInfoManager,
+    variableStorage: VariableStorage
   ) {
     config.connectors.forEach(connector => {
-      const variable = this.variableStorage.getVariableById(
-        connector.variableId
-      )
+      const variable = variableStorage.getVariableById(connector.variableId)
       const object = objectInfoManager.getObjectInfoByReference(
         connector.objectReference
       )
@@ -37,14 +53,15 @@ class VariableConnectorStorage extends DataStorage<string, VariableConnector> {
       if (variable === null || object === null) {
         return
       }
-      this.set(
-        connector.id,
-        new VariableConnector(variable, object, objectPath)
-      )
+      this.set(new VariableConnector(variable, object, objectPath))
     })
   }
   serialize(): VariableConnectorStorageConfig {
-    return { connectors: this.getAll().map(connector => connector.serialize()) }
+    return {
+      connectors: this.pathStorage
+        .getAll()
+        .map(connector => connector.serialize()),
+    }
   }
 }
 

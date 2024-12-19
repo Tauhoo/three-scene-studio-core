@@ -29,7 +29,8 @@ class VariableManager {
     this.variableStorage.loadConfig(config.variableStorageConfig)
     this.variableConnectorStorage.loadConfig(
       config.variableConnectorStorageConfig,
-      objectInfoManager
+      objectInfoManager,
+      this.variableStorage
     )
   }
 
