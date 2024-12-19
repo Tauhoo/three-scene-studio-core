@@ -9,6 +9,7 @@ import { GLTFLoadResult } from './loader'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
   variableManagerConfig: variableManagerConfigSchema,
+  referableVariableManagerConfig: variableManagerConfigSchema,
 })
 export type ThreeSceneStudioManagerConfig = z.infer<
   typeof threeSceneStudioManagerConfigSchema
@@ -19,6 +20,7 @@ export class ThreeSceneStudioManager {
   readonly cameraSwitcher: Switcher<CameraObjectInfo>
   readonly sceneSwitcher: Switcher<SceneObjectInfo>
   readonly variableManager: VariableManager
+  readonly referableVariableManager: VariableManager
 
   constructor() {
     this.objectInfoManager = new ObjectInfoManager()
@@ -30,6 +32,7 @@ export class ThreeSceneStudioManager {
     this.sceneSwitcher = new Switcher(scenes)
 
     this.variableManager = new VariableManager()
+    this.referableVariableManager = new VariableManager()
   }
 
   loadConfig(result: GLTFLoadResult, config: ThreeSceneStudioManagerConfig) {
@@ -38,11 +41,16 @@ export class ThreeSceneStudioManager {
       config.variableManagerConfig,
       this.objectInfoManager
     )
+    this.referableVariableManager.loadConfig(
+      config.referableVariableManagerConfig,
+      this.objectInfoManager
+    )
   }
 
   serialize() {
     return {
       variableManagerConfig: this.variableManager.serialize(),
+      referableVariableManagerConfig: this.referableVariableManager.serialize(),
     }
   }
 }
