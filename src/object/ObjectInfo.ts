@@ -13,7 +13,7 @@ export abstract class ObjectInfo<
     this.data = data
   }
 
-  serialize() {
+  serialize(): ObjectReference {
     return this.reference
   }
 }

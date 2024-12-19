@@ -1,6 +1,6 @@
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
-import { ObjectInfo, objectReferenceSchema } from '../object'
+import { ObjectInfo, ObjectReference, objectReferenceSchema } from '../object'
 import { Variable } from '.'
 
 export const objectPathSchema = z.array(z.string())
@@ -61,11 +61,11 @@ class VariableConnector {
     this.variable.dispatcher.removeListener('VALUE_CHANGED', this.updateObject)
   }
 
-  serialize() {
+  serialize(): VariableConnectorConfig {
     return {
       id: this.id,
       variableId: this.variable.serialize().id,
-      objectReference: this.objectInfo.serialize(),
+      objectReference: this.objectInfo.serialize() as ObjectReference,
       objectPath: this.objectPath,
     }
   }

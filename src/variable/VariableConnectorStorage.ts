@@ -5,6 +5,7 @@ import VariableConnector, {
   variableConnectorConfigSchema,
 } from './VariableConnector'
 import VariableManager from './VariableManager'
+import VariableStorage from './VariableStorage'
 
 export const variableConnectorStorageConfigSchema = z.object({
   connectors: z.array(variableConnectorConfigSchema),
@@ -14,21 +15,22 @@ export type VariableConnectorStorageConfig = z.infer<
 >
 
 class VariableConnectorStorage extends DataStorage<string, VariableConnector> {
-  private objectInfoManager: ObjectInfoManager
-  private variableManager: VariableManager
-  constructor(
-    objectInfoManager: ObjectInfoManager,
-    variableManager: VariableManager
-  ) {
+  private variableStorage: VariableStorage
+
+  constructor() {
     super(id => id)
-    this.objectInfoManager = objectInfoManager
-    this.variableManager = variableManager
+    this.variableStorage = new VariableStorage()
   }
 
-  loadConfig(config: VariableConnectorStorageConfig) {
+  loadConfig(
+    config: VariableConnectorStorageConfig,
+    objectInfoManager: ObjectInfoManager
+  ) {
     config.connectors.forEach(connector => {
-      const variable = this.variableManager.getVariable(connector.variableId)
-      const object = this.objectInfoManager.getObjectInfoByReference(
+      const variable = this.variableStorage.getVariableById(
+        connector.variableId
+      )
+      const object = objectInfoManager.getObjectInfoByReference(
         connector.objectReference
       )
       const objectPath = connector.objectPath
@@ -41,7 +43,7 @@ class VariableConnectorStorage extends DataStorage<string, VariableConnector> {
       )
     })
   }
-  serialize() {
+  serialize(): VariableConnectorStorageConfig {
     return { connectors: this.getAll().map(connector => connector.serialize()) }
   }
 }

@@ -8,19 +8,35 @@ export const variableStorageConfigSchema = z.object({
 
 export type VariableStorageConfig = z.infer<typeof variableStorageConfigSchema>
 
-class VariableStorage extends DataStorage<string, Variable> {
+class VariableStorage {
+  private refStorage: DataStorage<string, Variable>
+  private idStorage: DataStorage<string, Variable>
+
   constructor() {
-    super(id => id)
+    this.refStorage = new DataStorage<string, Variable>(ref => ref)
+    this.idStorage = new DataStorage<string, Variable>(id => id)
+  }
+
+  getVariableByRef(ref: string) {
+    return this.refStorage.get(ref)
+  }
+
+  getVariableById(id: string) {
+    return this.idStorage.get(id)
   }
 
   loadConfig(config: VariableStorageConfig) {
-    config.variables.forEach(variableConfig =>
-      this.set(variableConfig.id, createVariableFromConfig(variableConfig))
-    )
+    config.variables.forEach(variableConfig => {
+      const variable = createVariableFromConfig(variableConfig)
+      this.refStorage.set(variableConfig.ref, variable)
+      this.idStorage.set(variableConfig.id, variable)
+    })
   }
 
   serialize(): VariableStorageConfig {
-    return { variables: this.getAll().map(variable => variable.serialize()) }
+    return {
+      variables: this.idStorage.getAll().map(variable => variable.serialize()),
+    }
   }
 }
 
