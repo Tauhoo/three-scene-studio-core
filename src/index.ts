@@ -5,3 +5,4 @@ export * from './variable'
 
 // utils
 export * from './utils/EventDispatcher'
+export * from './utils/objectPath'

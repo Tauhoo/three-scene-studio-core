@@ -2,6 +2,7 @@ import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfo, ObjectReference, objectReferenceSchema } from '../object'
 import { Variable } from '.'
+import { assignValue } from '../utils/objectPath'
 
 export const objectPathSchema = z.array(z.string())
 export type ObjectPath = z.infer<typeof objectPathSchema>
@@ -36,11 +37,7 @@ class VariableConnector {
     this.objectPath = objectPath
     this.updateObject = (value: number) => {
       let data = this.objectInfo.data as any
-      for (let index = 0; index < objectPath.length - 1; index++) {
-        const key = objectPath[index]
-        data = data[key]
-      }
-      data[objectPath[objectPath.length - 1]] = value
+      assignValue(data, this.objectPath, value)
     }
     this.variable.dispatcher.addListener('VALUE_CHANGED', this.updateObject)
   }
