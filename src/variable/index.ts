@@ -31,16 +31,20 @@ export type Variable =
   | ExternalVariable
   | ContainerWidthVariable
   | ContainerHeightVariable
+  | FormulaVariable
 export type VariableType = Variable['type']
 
 export const variableConfigSchema = z.union([
   externalVariableConfigSchema,
   containerWidthVariableConfigSchema,
   containerHeightVariableConfigSchema,
+  formulaVariableConfigSchema,
 ])
 export type VariableConfig = z.infer<typeof variableConfigSchema>
 
-export function createVariableFromConfig(config: VariableConfig): Variable {
+export function createVariableFromConfig(
+  config: VariableConfig
+): Variable | null {
   switch (config.type) {
     case 'EXTERNAL':
       return new ExternalVariable(
@@ -63,5 +67,11 @@ export function createVariableFromConfig(config: VariableConfig): Variable {
         config.ref,
         config.id
       )
+    case 'FORMULA':
+      const formula = parseExpression(config.formula)
+      if (formula.status === 'ERROR') {
+        return null
+      }
+      return new FormulaVariable(formula.data, config.id)
   }
 }

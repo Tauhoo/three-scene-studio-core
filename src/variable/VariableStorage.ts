@@ -1,6 +1,7 @@
 import * as z from 'zod'
 import DataStorage from '../utils/DataStorage'
 import { createVariableFromConfig, Variable, variableConfigSchema } from '.'
+import { ReferrableVariable } from './ReferrableVariable'
 
 export const variableStorageConfigSchema = z.object({
   variables: z.array(variableConfigSchema),
@@ -29,8 +30,10 @@ class VariableStorage {
     config.variables.forEach(variableConfig => {
       const variable = createVariableFromConfig(variableConfig)
       if (variable) {
-        this.refStorage.set(variableConfig.ref, variable)
-        this.idStorage.set(variableConfig.id, variable)
+        if (variable instanceof ReferrableVariable) {
+          this.refStorage.set(variable.ref, variable)
+        }
+        this.idStorage.set(variable.id, variable)
       }
     })
   }
