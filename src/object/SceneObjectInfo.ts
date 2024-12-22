@@ -1,8 +1,6 @@
 import * as THREE from 'three'
-import { ObjectInfo } from './ObjectInfo'
 import DataStorage from '../utils/DataStorage'
 import * as z from 'zod'
-import { getChildren } from './children'
 import { ObjectInSceneInfo } from '.'
 
 export const sceneObjectReferenceSchema = z.object({
@@ -12,7 +10,7 @@ export const sceneObjectReferenceSchema = z.object({
 
 export type SceneObjectReference = z.infer<typeof sceneObjectReferenceSchema>
 
-export class SceneObjectInfo extends ObjectInfo<
+export class SceneObjectInfo extends ObjectInSceneInfo<
   SceneObjectReference,
   THREE.Scene
 > {
@@ -25,21 +23,20 @@ export class SceneObjectInfo extends ObjectInfo<
     return new SceneObjectInfo(scene)
   }
 
-  children: ObjectInSceneInfo[] = []
   constructor(data: THREE.Scene) {
     super(
       {
         type: 'OBJECT_3D_SCENE',
         id: data.id,
       },
-      data
+      data,
+      data.id
     )
-    this.children = getChildren(data, data.id)
   }
 
   addObjectInSceneInfo(objectInfo: ObjectInSceneInfo) {
     this.children.push(objectInfo)
-    this.data.add(objectInfo.data)
+    this.data.add(objectInfo.data as THREE.Object3D)
   }
 
   get name() {

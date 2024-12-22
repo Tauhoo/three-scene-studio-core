@@ -12,11 +12,10 @@ export const groupObjectReferenceSchema = z.object({
 
 export type GroupObjectReference = z.infer<typeof groupObjectReferenceSchema>
 
-export class GroupObjectInfo extends ObjectInfo<
+export class GroupObjectInfo extends ObjectInSceneInfo<
   GroupObjectReference,
   THREE.Group
 > {
-  children: ObjectInSceneInfo[] = []
   constructor(data: THREE.Group, sceneId: number) {
     super(
       {
@@ -24,9 +23,9 @@ export class GroupObjectInfo extends ObjectInfo<
         id: data.id,
         sceneId: sceneId,
       },
-      data
+      data,
+      sceneId
     )
-    this.children = getChildren(data, sceneId)
   }
 
   get name() {

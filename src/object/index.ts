@@ -12,6 +12,7 @@ import { MeshObjectInfo, meshObjectReferenceSchema } from './MeshObjectInfo'
 import { LightObjectInfo, lightObjectReferenceSchema } from './LightObjectInfo'
 import { GroupObjectInfo } from './GroupObjectInfo'
 export * from './ObjectInfo'
+export * from './ObjectInSceneInfo'
 export * from './SceneObjectInfo'
 export * from './CameraObjectInfo'
 export * from './AnimationObjectInfo'
@@ -29,7 +30,7 @@ export type SystemObjectInfo =
   | MeshObjectInfo
   | GroupObjectInfo
 
-export type ObjectInSceneInfo =
+export type SystemObjectInSceneInfo =
   | LightObjectInfo
   | MeshObjectInfo
   | GroupObjectInfo

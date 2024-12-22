@@ -13,11 +13,10 @@ export const lightObjectReferenceSchema = z.object({
 
 export type LightObjectReference = z.infer<typeof lightObjectReferenceSchema>
 
-export class LightObjectInfo extends ObjectInfo<
+export class LightObjectInfo extends ObjectInSceneInfo<
   LightObjectReference,
   THREE.Light
 > {
-  children: ObjectInSceneInfo[] = []
   constructor(data: THREE.Light, sceneId: number) {
     super(
       {
@@ -25,9 +24,9 @@ export class LightObjectInfo extends ObjectInfo<
         sceneId,
         id: data.id,
       },
-      data
+      data,
+      sceneId
     )
-    this.children = getChildren(data, sceneId)
   }
 
   get name() {

@@ -19,6 +19,10 @@ export class FormulaVariable extends Variable<'FORMULA'> {
     this.formulaInfo = formulaInfo
   }
 
+  getFormulaInfo() {
+    return this.formulaInfo
+  }
+
   serialize(): FormulaVariableConfig {
     return {
       type: this.type,

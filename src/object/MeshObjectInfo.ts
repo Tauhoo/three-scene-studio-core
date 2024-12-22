@@ -13,11 +13,10 @@ export const meshObjectReferenceSchema = z.object({
 
 export type MeshObjectReference = z.infer<typeof meshObjectReferenceSchema>
 
-export class MeshObjectInfo extends ObjectInfo<
+export class MeshObjectInfo extends ObjectInSceneInfo<
   MeshObjectReference,
   THREE.Mesh
 > {
-  children: ObjectInSceneInfo[] = []
   constructor(data: THREE.Mesh, sceneId: number) {
     super(
       {
@@ -25,9 +24,9 @@ export class MeshObjectInfo extends ObjectInfo<
         id: data.id,
         sceneId,
       },
-      data
+      data,
+      sceneId
     )
-    this.children = getChildren(data, sceneId)
   }
 
   get name() {

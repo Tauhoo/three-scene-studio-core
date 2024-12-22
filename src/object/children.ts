@@ -2,9 +2,9 @@ import * as THREE from 'three'
 import { MeshObjectInfo } from './MeshObjectInfo'
 import { GroupObjectInfo } from './GroupObjectInfo'
 import { LightObjectInfo } from './LightObjectInfo'
-import { ObjectInSceneInfo } from '.'
+import { ObjectInSceneInfo } from './ObjectInSceneInfo'
 
-interface Parent {
+export interface Parent {
   children: THREE.Object3D<THREE.Object3DEventMap>[]
 }
 
