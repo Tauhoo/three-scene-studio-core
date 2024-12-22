@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { MeshObjectInfo } from './MeshObjectInfo'
 import { GroupObjectInfo } from './GroupObjectInfo'
+import { MeshObjectInfo } from './MeshObjectInfo'
 import { LightObjectInfo } from './LightObjectInfo'
 import { ObjectInSceneInfo } from './ObjectInSceneInfo'
 

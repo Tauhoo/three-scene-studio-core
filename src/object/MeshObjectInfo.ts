@@ -1,9 +1,8 @@
 import * as THREE from 'three'
-import { ObjectInfo } from './ObjectInfo'
 import DataStorage from '../utils/DataStorage'
 import * as z from 'zod'
+import { ObjectInSceneInfo } from './ObjectInSceneInfo'
 import { getChildren } from './children'
-import { ObjectInSceneInfo } from '.'
 
 export const meshObjectReferenceSchema = z.object({
   type: z.literal('OBJECT_3D_MESH'),
@@ -27,6 +26,13 @@ export class MeshObjectInfo extends ObjectInSceneInfo<
       data,
       sceneId
     )
+  }
+
+  protected getChildren(
+    data: THREE.Mesh,
+    sceneId: number
+  ): ObjectInSceneInfo[] {
+    return getChildren(data, sceneId)
   }
 
   get name() {

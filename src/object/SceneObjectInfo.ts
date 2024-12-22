@@ -1,7 +1,9 @@
 import * as THREE from 'three'
 import DataStorage from '../utils/DataStorage'
 import * as z from 'zod'
-import { ObjectInSceneInfo } from '.'
+import { getChildren } from './children'
+import { ObjectInfo } from './ObjectInfo'
+import { ObjectInSceneInfo } from './ObjectInSceneInfo'
 
 export const sceneObjectReferenceSchema = z.object({
   type: z.literal('OBJECT_3D_SCENE'),
@@ -10,10 +12,12 @@ export const sceneObjectReferenceSchema = z.object({
 
 export type SceneObjectReference = z.infer<typeof sceneObjectReferenceSchema>
 
-export class SceneObjectInfo extends ObjectInSceneInfo<
+export class SceneObjectInfo extends ObjectInfo<
   SceneObjectReference,
   THREE.Scene
 > {
+  children: ObjectInSceneInfo[]
+
   static fromGroup(group: THREE.Group) {
     const scene = new THREE.Scene()
     group.children.forEach(child => {
@@ -23,15 +27,33 @@ export class SceneObjectInfo extends ObjectInSceneInfo<
     return new SceneObjectInfo(scene)
   }
 
+  protected getChildren(
+    data: THREE.Scene,
+    sceneId: number
+  ): ObjectInSceneInfo[] {
+    return getChildren(data, sceneId)
+  }
+
+  findChildrenByNativeId(id: number): ObjectInSceneInfo | null {
+    for (const child of this.children) {
+      const result = child.findChildrenByNativeId(id)
+      if (result !== null) {
+        return result
+      }
+    }
+
+    return null
+  }
+
   constructor(data: THREE.Scene) {
     super(
       {
         type: 'OBJECT_3D_SCENE',
         id: data.id,
       },
-      data,
-      data.id
+      data
     )
+    this.children = this.getChildren(data, data.id)
   }
 
   addObjectInSceneInfo(objectInfo: ObjectInSceneInfo) {

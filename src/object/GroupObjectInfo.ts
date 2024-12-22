@@ -1,7 +1,6 @@
 import * as THREE from 'three'
-import { ObjectInfo } from './ObjectInfo'
 import * as z from 'zod'
-import { ObjectInSceneInfo } from '.'
+import { ObjectInSceneInfo } from './ObjectInSceneInfo'
 import { getChildren } from './children'
 
 export const groupObjectReferenceSchema = z.object({
@@ -26,6 +25,13 @@ export class GroupObjectInfo extends ObjectInSceneInfo<
       data,
       sceneId
     )
+  }
+
+  protected getChildren(
+    data: THREE.Group,
+    sceneId: number
+  ): ObjectInSceneInfo[] {
+    return getChildren(data, sceneId)
   }
 
   get name() {
