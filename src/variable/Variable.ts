@@ -7,8 +7,10 @@ export type VariableEventPacket = {
 }
 
 export abstract class Variable<
-  T extends string,
-  D extends EventPacket<string, any> | VariableEventPacket = VariableEventPacket
+  T extends string = string,
+  D extends EventPacket<string & {}, any> | VariableEventPacket =
+    | EventPacket<string & {}, any>
+    | VariableEventPacket
 > {
   readonly type: T
   readonly id: string
@@ -35,5 +37,13 @@ export abstract class Variable<
     type: string
     id: string
     value: number
+  }
+}
+
+function name(
+  params: EventPacket<string, any> | EventPacket<'VALUE_CHANGED', number>
+) {
+  if (params.type === '') {
+    return params.data
   }
 }

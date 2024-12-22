@@ -1,6 +1,10 @@
 import * as z from 'zod'
 import DataStorage from '../utils/DataStorage'
-import { createVariableFromConfig, Variable, variableConfigSchema } from '.'
+import {
+  createVariableFromConfig,
+  SystemVariable,
+  variableConfigSchema,
+} from '.'
 import { ReferrableVariable } from './ReferrableVariable'
 
 export const variableStorageConfigSchema = z.object({
@@ -10,12 +14,12 @@ export const variableStorageConfigSchema = z.object({
 export type VariableStorageConfig = z.infer<typeof variableStorageConfigSchema>
 
 class VariableStorage {
-  private refStorage: DataStorage<string, Variable>
-  private idStorage: DataStorage<string, Variable>
+  private refStorage: DataStorage<string, SystemVariable>
+  private idStorage: DataStorage<string, SystemVariable>
 
   constructor() {
-    this.refStorage = new DataStorage<string, Variable>(ref => ref)
-    this.idStorage = new DataStorage<string, Variable>(id => id)
+    this.refStorage = new DataStorage<string, SystemVariable>(ref => ref)
+    this.idStorage = new DataStorage<string, SystemVariable>(id => id)
   }
 
   getVariableByRef(ref: string) {

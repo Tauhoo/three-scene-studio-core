@@ -1,8 +1,8 @@
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfo, ObjectReference, objectReferenceSchema } from '../object'
-import { Variable } from '.'
 import { assignValue } from '../utils/objectPath'
+import { SystemVariable, Variable } from '.'
 
 export const objectPathSchema = z.array(z.string())
 export type ObjectPath = z.infer<typeof objectPathSchema>
@@ -20,13 +20,13 @@ export type VariableConnectorConfig = z.infer<
 
 class VariableConnector {
   readonly id: string
-  private variable: Variable
+  private variable: SystemVariable
   private objectInfo: ObjectInfo
   private objectPath: ObjectPath
   private updateObject: (value: number) => void
 
   constructor(
-    variable: Variable,
+    variable: SystemVariable,
     objectInfo: ObjectInfo,
     objectPath: ObjectPath,
     id?: string
@@ -39,7 +39,8 @@ class VariableConnector {
       let data = this.objectInfo.data as any
       assignValue(data, this.objectPath, value)
     }
-    this.variable.dispatcher.addListener('VALUE_CHANGED', this.updateObject)
+    const originVariable: Variable = variable
+    originVariable.dispatcher.addListener('VALUE_CHANGED', this.updateObject)
   }
 
   getVariable() {
@@ -55,7 +56,8 @@ class VariableConnector {
   }
 
   destroy() {
-    this.variable.dispatcher.removeListener('VALUE_CHANGED', this.updateObject)
+    const originVariable: Variable = this.variable
+    originVariable.dispatcher.removeListener('VALUE_CHANGED', this.updateObject)
   }
 
   serialize(): VariableConnectorConfig {

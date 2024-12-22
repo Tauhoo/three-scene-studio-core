@@ -1,6 +1,5 @@
 import * as z from 'zod'
 import VariableStorage, { variableStorageConfigSchema } from './VariableStorage'
-import { Variable } from '.'
 import VariableConnectorStorage, {
   variableConnectorStorageConfigSchema,
 } from './VariableConnectorStorage'
