@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { ObjectInfo, ObjectReference, ObjectType } from '.'
+import { ObjectInfo, ObjectReference, ObjectType, SystemObjectInfo } from '.'
 import { AnimationObjectInfoStorage } from './AnimationObjectInfo'
 import { CameraObjectInfo, CameraObjectInfoStorage } from './CameraObjectInfo'
 import { SceneObjectInfo, SceneObjectInfoStorage } from './SceneObjectInfo'
@@ -24,20 +24,20 @@ export class ObjectInfoManager extends EventDispatcher<ObjectInfoManagerEvent> {
 
   getObjectInfoByReference<T extends ObjectReference>(
     reference: T
-  ): Extract<ObjectInfo, { reference: T }> | null {
+  ): Extract<SystemObjectInfo, { reference: T }> | null {
     if (reference.type === 'OBJECT_3D_CAMERA') {
       return this.cameraObjectInfoStorage.get(reference) as Extract<
-        ObjectInfo,
+        SystemObjectInfo,
         { reference: T }
       >
     } else if (reference.type === 'OBJECT_3D_SCENE') {
       return this.sceneObjectInfoStorage.get(reference) as Extract<
-        ObjectInfo,
+        SystemObjectInfo,
         { reference: T }
       >
     } else if (reference.type === 'OBJECT_3D_ANIMATION') {
       return this.animationObjectInfoStorage.get(reference) as Extract<
-        ObjectInfo,
+        SystemObjectInfo,
         { reference: T }
       >
     }
@@ -46,20 +46,20 @@ export class ObjectInfoManager extends EventDispatcher<ObjectInfoManagerEvent> {
 
   getObjectInfos<T extends ObjectType>(
     type: T
-  ): Extract<ObjectInfo, { reference: { type: T } }>[] {
+  ): Extract<SystemObjectInfo, { reference: { type: T } }>[] {
     if (type === 'OBJECT_3D_CAMERA') {
       return this.cameraObjectInfoStorage.getAll() as Extract<
-        ObjectInfo,
+        SystemObjectInfo,
         { reference: { type: T } }
       >[]
     } else if (type === 'OBJECT_3D_SCENE') {
       return this.sceneObjectInfoStorage.getAll() as Extract<
-        ObjectInfo,
+        SystemObjectInfo,
         { reference: { type: T } }
       >[]
     } else if (type === 'OBJECT_3D_ANIMATION') {
       return this.animationObjectInfoStorage.getAll() as Extract<
-        ObjectInfo,
+        SystemObjectInfo,
         { reference: { type: T } }
       >[]
     }

@@ -13,8 +13,8 @@ export const variableManagerConfigSchema = z.object({
 export type VariableManagerConfig = z.infer<typeof variableManagerConfigSchema>
 
 class VariableManager {
-  private variableStorage: VariableStorage
-  private variableConnectorStorage: VariableConnectorStorage
+  readonly variableStorage: VariableStorage
+  readonly variableConnectorStorage: VariableConnectorStorage
 
   constructor() {
     this.variableStorage = new VariableStorage()

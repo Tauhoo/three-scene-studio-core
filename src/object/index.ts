@@ -11,6 +11,7 @@ import {
 import { MeshObjectInfo, meshObjectReferenceSchema } from './MeshObjectInfo'
 import { LightObjectInfo, lightObjectReferenceSchema } from './LightObjectInfo'
 import { GroupObjectInfo } from './GroupObjectInfo'
+export * from './ObjectInfo'
 export * from './SceneObjectInfo'
 export * from './CameraObjectInfo'
 export * from './AnimationObjectInfo'
@@ -20,7 +21,7 @@ export * from './GroupObjectInfo'
 
 export * from './ObjectInfoManager'
 
-export type ObjectInfo =
+export type SystemObjectInfo =
   | SceneObjectInfo
   | CameraObjectInfo
   | AnimationObjectInfo
@@ -33,7 +34,7 @@ export type ObjectInSceneInfo =
   | MeshObjectInfo
   | GroupObjectInfo
 
-export type ObjectType = ObjectInfo['reference']['type']
+export type ObjectType = SystemObjectInfo['reference']['type']
 export const objectReferenceSchema = z.union([
   sceneObjectReferenceSchema,
   cameraObjectReferenceSchema,

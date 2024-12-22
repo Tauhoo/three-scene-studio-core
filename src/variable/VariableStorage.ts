@@ -22,12 +22,28 @@ class VariableStorage {
     this.idStorage = new DataStorage<string, SystemVariable>(id => id)
   }
 
+  deleteVariableById(id: string) {
+    const variable = this.getVariableById(id)
+    if (variable === null) return
+    this.idStorage.delete(id)
+    if (variable instanceof ReferrableVariable) {
+      this.refStorage.delete(variable.ref)
+    }
+  }
+
   getVariableByRef(ref: string) {
     return this.refStorage.get(ref)
   }
 
   getVariableById(id: string) {
     return this.idStorage.get(id)
+  }
+
+  setVariable(variable: SystemVariable) {
+    if (variable instanceof ReferrableVariable) {
+      this.refStorage.set(variable.ref, variable)
+    }
+    this.idStorage.set(variable.id, variable)
   }
 
   loadConfig(config: VariableStorageConfig) {

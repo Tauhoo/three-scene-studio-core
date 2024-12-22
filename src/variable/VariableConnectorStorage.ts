@@ -29,6 +29,20 @@ class VariableConnectorStorage {
     )
   }
 
+  delete(objectPath: ObjectPath, objectReference: ObjectReference) {
+    this.pathStorage.delete({
+      objectPath,
+      objectReference,
+    })
+  }
+
+  get(objectPath: ObjectPath, objectReference: ObjectReference) {
+    return this.pathStorage.get({
+      objectPath,
+      objectReference,
+    })
+  }
+
   set(connector: VariableConnector) {
     this.pathStorage.set(
       {
