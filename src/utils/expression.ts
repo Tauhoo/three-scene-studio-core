@@ -1,5 +1,6 @@
 import * as math from 'mathjs'
 import { errorResponse, successResponse } from './response'
+import { v4 as uuidv4 } from 'uuid'
 
 const knownFunctions = new Set(Object.keys(math))
 
@@ -22,7 +23,8 @@ function startWith(source: string[], target: string) {
 }
 
 export type ExpressionBlock = {
-  type: 'variable' | 'expression'
+  id: string
+  type: 'variable' | 'expression' | 'function'
   value: string
 }
 
@@ -63,10 +65,11 @@ function expressionToBlock(
   )
 
   const currentResult = [
-    { type: 'expression', value: accumNonVartiable },
+    { type: 'expression', value: accumNonVartiable, id: uuidv4() },
     {
       type: knownFunctions.has(accumVariable) ? 'function' : 'variable',
       value: accumVariable,
+      id: uuidv4(),
     },
   ].filter(value => value.value !== '') as ExpressionBlock[]
 
