@@ -82,6 +82,8 @@ function expressionToBlock(
 
 export function parseExpression(expression: string) {
   try {
+    if (expression.trim() === '')
+      return errorResponse('INVALID_EXPRESSION', 'Empty expression')
     const node = math.parse(expression)
     const variables = getVariablesFromExpression(node)
     const blocks = expressionToBlock(expression, variables)
