@@ -7,6 +7,7 @@ import VariableManager, {
 } from './variable/VariableManager'
 import { GLTFLoadResult } from './loader'
 import { ContainerHeightVariable, ContainerWidthVariable } from './variable'
+import Context from './utils/Context'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
   variableManagerConfig: variableManagerConfigSchema,

@@ -9,8 +9,8 @@ export type ContextEventPacket = EventPacket<
 >
 
 class Context extends EventDispatcher<ContextEventPacket> {
-  canvas: HTMLCanvasElement
-  constructor(canvas: HTMLCanvasElement) {
+  canvas: HTMLDivElement
+  constructor(canvas: HTMLDivElement) {
     super()
     this.canvas = canvas
     const resizeObserver = new ResizeObserver(entries => {
