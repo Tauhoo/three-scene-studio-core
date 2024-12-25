@@ -1,6 +1,7 @@
 import * as z from 'zod'
-import { Variable } from './Variable'
-import { ExpressionBlock, FormulaInfo } from '../utils/expression'
+import { Variable, VariableEventPacket } from './Variable'
+import { FormulaInfo } from '../utils/expression'
+import { EventPacket } from '../utils/EventDispatcher'
 
 export const formulaVariableConfigSchema = z.object({
   type: z.literal('FORMULA'),
@@ -11,12 +12,26 @@ export const formulaVariableConfigSchema = z.object({
 
 export type FormulaVariableConfig = z.infer<typeof formulaVariableConfigSchema>
 
-export class FormulaVariable extends Variable<'FORMULA', 'SYSTEM'> {
+export type FormulaVariableEventPacket = EventPacket<
+  'FORMULA_VARIABLE_UPDATE',
+  { formulaInfo: FormulaInfo }
+>
+
+export class FormulaVariable extends Variable<
+  'FORMULA',
+  'SYSTEM',
+  VariableEventPacket | FormulaVariableEventPacket
+> {
   private formulaInfo: FormulaInfo
 
   constructor(formulaInfo: FormulaInfo, id?: string) {
     super('FORMULA', 0, 'SYSTEM', id)
     this.formulaInfo = formulaInfo
+  }
+
+  updateFormula(formulaInfo: FormulaInfo) {
+    this.formulaInfo = formulaInfo
+    this.dispatcher.dispatch('FORMULA_VARIABLE_UPDATE', { formulaInfo })
   }
 
   getFormulaInfo() {
