@@ -16,6 +16,7 @@ import {
   FormulaVariable,
   formulaVariableConfigSchema,
 } from './FormularVariable'
+import Context from '../utils/Context'
 
 export * from './VariableConnector'
 export * from './VariableConnectorStorage'
@@ -53,6 +54,7 @@ export const variableConfigSchema = z.union([
 export type VariableConfig = z.infer<typeof variableConfigSchema>
 
 export function createVariableFromConfig(
+  context: Context,
   config: VariableConfig
 ): SystemVariable | null {
   switch (config.type) {
@@ -65,15 +67,15 @@ export function createVariableFromConfig(
       )
     case 'CONTAINER_WIDTH':
       return new ContainerWidthVariable(
+        context,
         config.name,
-        config.value,
         config.ref,
         config.id
       )
     case 'CONTAINER_HEIGHT':
       return new ContainerHeightVariable(
+        context,
         config.name,
-        config.value,
         config.ref,
         config.id
       )

@@ -7,6 +7,7 @@ import {
   VariableGroup,
 } from '.'
 import { ReferrableVariable } from './ReferrableVariable'
+import Context from '../utils/Context'
 
 export const variableStorageConfigSchema = z.object({
   variables: z.array(variableConfigSchema),
@@ -64,9 +65,9 @@ class VariableStorage {
     this.idStorage.set(variable.id, variable)
   }
 
-  loadConfig(config: VariableStorageConfig) {
+  loadConfig(context: Context, config: VariableStorageConfig) {
     config.variables.forEach(variableConfig => {
-      const variable = createVariableFromConfig(variableConfig)
+      const variable = createVariableFromConfig(context, variableConfig)
       if (variable) {
         if (variable instanceof ReferrableVariable) {
           this.refStorage.set(variable.ref, variable)

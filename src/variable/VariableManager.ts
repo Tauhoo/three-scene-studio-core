@@ -4,6 +4,7 @@ import VariableConnectorStorage, {
   variableConnectorStorageConfigSchema,
 } from './VariableConnectorStorage'
 import { ObjectInfoManager } from '../object'
+import Context from '../utils/Context'
 
 export const variableManagerConfigSchema = z.object({
   variableStorageConfig: variableStorageConfigSchema,
@@ -22,10 +23,11 @@ class VariableManager {
   }
 
   loadConfig(
+    context: Context,
     config: VariableManagerConfig,
     objectInfoManager: ObjectInfoManager
   ) {
-    this.variableStorage.loadConfig(config.variableStorageConfig)
+    this.variableStorage.loadConfig(context, config.variableStorageConfig)
     this.variableConnectorStorage.loadConfig(
       config.variableConnectorStorageConfig,
       objectInfoManager,

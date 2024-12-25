@@ -1,3 +1,4 @@
+import Context from '../utils/Context'
 import EventDispatcher from '../utils/EventDispatcher'
 import { ReferrableVariable } from './ReferrableVariable'
 import { Variable, VariableEventPacket } from './Variable'
@@ -19,8 +20,9 @@ export class ContainerWidthVariable extends ReferrableVariable<
   'CONTAINER_WIDTH',
   'SYSTEM'
 > {
-  constructor(name: string, value: number, ref: string, id?: string) {
-    super('CONTAINER_WIDTH', name, value, ref, 'SYSTEM', id)
+  constructor(context: Context, name: string, ref: string, id?: string) {
+    const rect = context.canvas.getBoundingClientRect()
+    super('CONTAINER_WIDTH', name, rect.width, ref, 'SYSTEM', id)
   }
 
   serialize(): ContainerWidthVariableConfig {
