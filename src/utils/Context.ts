@@ -9,10 +9,13 @@ export type ContextEventPacket = EventPacket<
 >
 
 class Context extends EventDispatcher<ContextEventPacket> {
-  canvas: HTMLDivElement
-  constructor(canvas: HTMLDivElement) {
+  canvasContainer: HTMLDivElement
+  window: Window
+  constructor(window: Window, canvasContainer?: HTMLDivElement) {
     super()
-    this.canvas = canvas
+    this.canvasContainer =
+      canvasContainer ?? window.document.createElement('div')
+    this.window = window
     const resizeObserver = new ResizeObserver(entries => {
       for (let entry of entries) {
         const { width, height } = entry.contentRect
@@ -20,7 +23,7 @@ class Context extends EventDispatcher<ContextEventPacket> {
         return
       }
     })
-    resizeObserver.observe(canvas)
+    resizeObserver.observe(this.canvasContainer)
   }
 }
 

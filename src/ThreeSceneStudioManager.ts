@@ -5,9 +5,9 @@ import { v4 as uuidv4 } from 'uuid'
 import VariableManager, {
   variableManagerConfigSchema,
 } from './variable/VariableManager'
-import { GLTFLoadResult } from './loader'
 import { ContainerHeightVariable, ContainerWidthVariable } from './variable'
 import Context from './utils/Context'
+import Renderer from './Renderer'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
   variableManagerConfig: variableManagerConfigSchema,
@@ -23,8 +23,8 @@ export class ThreeSceneStudioManager {
   readonly sceneSwitcher: Switcher<SceneObjectInfo>
   readonly variableManager: VariableManager
   readonly referableVariableManager: VariableManager
-
-  constructor() {
+  readonly renderer: Renderer
+  constructor(context: Context) {
     this.objectInfoManager = new ObjectInfoManager()
 
     const cameras = this.objectInfoManager.getObjectInfos('OBJECT_3D_CAMERA')
@@ -33,15 +33,20 @@ export class ThreeSceneStudioManager {
     const scenes = this.objectInfoManager.getObjectInfos('OBJECT_3D_SCENE')
     this.sceneSwitcher = new Switcher(scenes)
 
+    this.renderer = new Renderer(
+      context,
+      this.cameraSwitcher,
+      this.sceneSwitcher
+    )
+
     this.variableManager = new VariableManager()
     this.referableVariableManager = new VariableManager()
-  }
 
-  setupSystemVariables(context: Context) {
-    this.variableManager.variableStorage.setVariable(
+    // setup system variables
+    this.referableVariableManager.variableStorage.setVariable(
       new ContainerHeightVariable(context, 'CONTAINER_HEIGHT', 'ch', uuidv4())
     )
-    this.variableManager.variableStorage.setVariable(
+    this.referableVariableManager.variableStorage.setVariable(
       new ContainerWidthVariable(context, 'CONTAINER_WIDTH', 'cw', uuidv4())
     )
   }

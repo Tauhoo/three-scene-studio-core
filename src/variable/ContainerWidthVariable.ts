@@ -21,7 +21,10 @@ export class ContainerWidthVariable extends ReferrableVariable<
   'SYSTEM'
 > {
   constructor(context: Context, name: string, ref: string, id?: string) {
-    const rect = context.canvas.getBoundingClientRect()
+    const rect = context.canvasContainer.getBoundingClientRect()
+    context.addListener('CANVAS_RESIZE', event => {
+      this.value = event.width
+    })
     super('CONTAINER_WIDTH', name, rect.width, ref, 'SYSTEM', id)
   }
 

@@ -19,7 +19,10 @@ export class ContainerHeightVariable extends ReferrableVariable<
   'SYSTEM'
 > {
   constructor(context: Context, name: string, ref: string, id?: string) {
-    const rect = context.canvas.getBoundingClientRect()
+    const rect = context.canvasContainer.getBoundingClientRect()
+    context.addListener('CANVAS_RESIZE', event => {
+      this.value = event.height
+    })
     super('CONTAINER_HEIGHT', name, rect.height, ref, 'SYSTEM', id)
   }
 

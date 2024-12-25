@@ -79,7 +79,10 @@ class VariableStorage {
 
   serialize(): VariableStorageConfig {
     return {
-      variables: this.idStorage.getAll().map(variable => variable.serialize()),
+      variables: this.idStorage
+        .getAll()
+        .filter(variable => variable.group !== 'SYSTEM')
+        .map(variable => variable.serialize()),
     }
   }
 }
