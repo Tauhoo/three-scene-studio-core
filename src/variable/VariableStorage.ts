@@ -4,6 +4,7 @@ import {
   createVariableFromConfig,
   SystemVariable,
   variableConfigSchema,
+  VariableGroup,
 } from '.'
 import { ReferrableVariable } from './ReferrableVariable'
 
@@ -29,6 +30,23 @@ class VariableStorage {
     if (variable instanceof ReferrableVariable) {
       this.refStorage.delete(variable.ref)
     }
+  }
+
+  searchVariable(search: string, group: VariableGroup | null = null) {
+    return this.idStorage.getAll().filter(variable => {
+      if (!(variable instanceof ReferrableVariable)) return false
+      if (variable.group === group || group === null) {
+        if (variable.ref.includes(search)) {
+          return true
+        }
+        if (variable.name.includes(search)) {
+          return true
+        }
+        return false
+      } else {
+        return false
+      }
+    })
   }
 
   getVariableByRef(ref: string) {

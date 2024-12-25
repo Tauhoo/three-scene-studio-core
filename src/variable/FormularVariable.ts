@@ -11,11 +11,11 @@ export const formulaVariableConfigSchema = z.object({
 
 export type FormulaVariableConfig = z.infer<typeof formulaVariableConfigSchema>
 
-export class FormulaVariable extends Variable<'FORMULA'> {
+export class FormulaVariable extends Variable<'FORMULA', 'SYSTEM'> {
   private formulaInfo: FormulaInfo
 
   constructor(formulaInfo: FormulaInfo, id?: string) {
-    super('FORMULA', 0, id)
+    super('FORMULA', 0, 'SYSTEM', id)
     this.formulaInfo = formulaInfo
   }
 

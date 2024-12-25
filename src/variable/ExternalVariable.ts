@@ -15,9 +15,12 @@ export type ExternalVariableConfig = z.infer<
   typeof externalVariableConfigSchema
 >
 
-export class ExternalVariable extends ReferrableVariable<'EXTERNAL'> {
+export class ExternalVariable extends ReferrableVariable<
+  'EXTERNAL',
+  'USER_DEFINED'
+> {
   constructor(name: string, value: number, ref: string, id?: string) {
-    super('EXTERNAL', name, value, ref, id)
+    super('EXTERNAL', name, value, ref, 'USER_DEFINED', id)
   }
 
   serialize(): ExternalVariableConfig {

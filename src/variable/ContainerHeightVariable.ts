@@ -13,9 +13,12 @@ export type ContainerHeightVariableConfig = z.infer<
   typeof containerHeightVariableConfigSchema
 >
 
-export class ContainerHeightVariable extends ReferrableVariable<'CONTAINER_HEIGHT'> {
+export class ContainerHeightVariable extends ReferrableVariable<
+  'CONTAINER_HEIGHT',
+  'SYSTEM'
+> {
   constructor(name: string, value: number, ref: string, id?: string) {
-    super('CONTAINER_HEIGHT', name, value, ref, id)
+    super('CONTAINER_HEIGHT', name, value, ref, 'SYSTEM', id)
   }
 
   serialize(): ContainerHeightVariableConfig {

@@ -36,6 +36,14 @@ export type SystemVariable =
   | FormulaVariable
 export type VariableType = SystemVariable['type']
 
+export type SystemReferrableVariable =
+  | ExternalVariable
+  | ContainerWidthVariable
+  | ContainerHeightVariable
+export type ReferrableVariableType = SystemReferrableVariable['type']
+
+export type VariableGroup = SystemVariable['group']
+
 export const variableConfigSchema = z.union([
   externalVariableConfigSchema,
   containerWidthVariableConfigSchema,
