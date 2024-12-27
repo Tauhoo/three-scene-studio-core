@@ -12,12 +12,15 @@ export type ReferrableVariableEventPacket =
     }
 
 export abstract class ReferrableVariable<
-  T extends string,
-  G extends string = 'NONE',
+  T extends string = string,
+  G extends string = string,
   D extends
-    | EventPacket<string, any>
+    | EventPacket<string & {}, any>
     | ReferrableVariableEventPacket
-    | VariableEventPacket = ReferrableVariableEventPacket | VariableEventPacket
+    | VariableEventPacket =
+    | EventPacket<string & {}, any>
+    | ReferrableVariableEventPacket
+    | VariableEventPacket
 > extends Variable<T, G, D> {
   private _name: string
   private _ref: string

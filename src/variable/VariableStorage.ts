@@ -2,11 +2,12 @@ import * as z from 'zod'
 import DataStorage from '../utils/DataStorage'
 import {
   createVariableFromConfig,
-  SystemVariable,
+  SystemReferrableVariable,
   variableConfigSchema,
   VariableGroup,
 } from '.'
 import { ReferrableVariable } from './ReferrableVariable'
+import { Variable } from './Variable'
 import Context from '../utils/Context'
 
 export const variableStorageConfigSchema = z.object({
@@ -16,12 +17,12 @@ export const variableStorageConfigSchema = z.object({
 export type VariableStorageConfig = z.infer<typeof variableStorageConfigSchema>
 
 class VariableStorage {
-  private refStorage: DataStorage<string, SystemVariable>
-  private idStorage: DataStorage<string, SystemVariable>
+  private refStorage: DataStorage<string, Variable>
+  private idStorage: DataStorage<string, Variable>
 
   constructor() {
-    this.refStorage = new DataStorage<string, SystemVariable>(ref => ref)
-    this.idStorage = new DataStorage<string, SystemVariable>(id => id)
+    this.refStorage = new DataStorage<string, Variable>(ref => ref)
+    this.idStorage = new DataStorage<string, Variable>(id => id)
   }
 
   deleteVariableById(id: string) {
@@ -58,7 +59,11 @@ class VariableStorage {
     return this.idStorage.get(id)
   }
 
-  setVariable(variable: SystemVariable) {
+  getAllVariables() {
+    return this.idStorage.getAll()
+  }
+
+  setVariable(variable: SystemReferrableVariable) {
     if (variable instanceof ReferrableVariable) {
       this.refStorage.set(variable.ref, variable)
     }
@@ -68,7 +73,7 @@ class VariableStorage {
   loadConfig(context: Context, config: VariableStorageConfig) {
     config.variables.forEach(variableConfig => {
       const variable = createVariableFromConfig(context, variableConfig)
-      if (variable) {
+      if (variable !== null) {
         if (variable instanceof ReferrableVariable) {
           this.refStorage.set(variable.ref, variable)
         }
@@ -78,11 +83,13 @@ class VariableStorage {
   }
 
   serialize(): VariableStorageConfig {
+    const variables = this.idStorage
+      .getAll()
+      .filter(
+        variable => variable.group !== 'SYSTEM'
+      ) as SystemReferrableVariable[]
     return {
-      variables: this.idStorage
-        .getAll()
-        .filter(variable => variable.group !== 'SYSTEM')
-        .map(variable => variable.serialize()),
+      variables: variables.map(variable => variable.serialize()),
     }
   }
 }
