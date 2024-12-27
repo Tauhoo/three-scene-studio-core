@@ -2,13 +2,13 @@ import * as z from 'zod'
 import DataStorage from '../utils/DataStorage'
 import {
   createVariableFromConfig,
-  SystemReferrableVariable,
+  VariableConfig,
   variableConfigSchema,
   VariableGroup,
 } from '.'
-import { ReferrableVariable } from './ReferrableVariable'
 import { Variable } from './Variable'
 import Context from '../utils/Context'
+import { ReferrableVariable } from './ReferrableVariable'
 
 export const variableStorageConfigSchema = z.object({
   variables: z.array(variableConfigSchema),
@@ -63,7 +63,7 @@ class VariableStorage {
     return this.idStorage.getAll()
   }
 
-  setVariable(variable: SystemReferrableVariable) {
+  setVariable(variable: Variable) {
     if (variable instanceof ReferrableVariable) {
       this.refStorage.set(variable.ref, variable)
     }
@@ -83,13 +83,11 @@ class VariableStorage {
   }
 
   serialize(): VariableStorageConfig {
-    const variables = this.idStorage
-      .getAll()
-      .filter(
-        variable => variable.group !== 'SYSTEM'
-      ) as SystemReferrableVariable[]
     return {
-      variables: variables.map(variable => variable.serialize()),
+      variables: this.idStorage
+        .getAll()
+        .filter(variable => variable.group !== 'SYSTEM')
+        .map(variable => variable.serialize() as VariableConfig),
     }
   }
 }

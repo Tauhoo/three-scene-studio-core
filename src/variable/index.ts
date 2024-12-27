@@ -32,25 +32,11 @@ export * from './VariableStorage'
 export * from './ExternalVariable'
 export * from './ContainerWidthVariable'
 export * from './ContainerHeightVariable'
+export * from './FormularVariable'
+export * from './GlobalFormulaVariable'
 
 export * from './Variable'
-
-export type SystemVariable =
-  | ExternalVariable
-  | ContainerWidthVariable
-  | ContainerHeightVariable
-  | FormulaVariable
-  | GlobalFormulaVariable
-export type VariableType = SystemVariable['type']
-
-export type SystemReferrableVariable =
-  | ExternalVariable
-  | ContainerWidthVariable
-  | ContainerHeightVariable
-  | GlobalFormulaVariable
-export type ReferrableVariableType = SystemReferrableVariable['type']
-
-export type VariableGroup = SystemVariable['group']
+export * from './types'
 
 export const variableConfigSchema = z.union([
   externalVariableConfigSchema,
@@ -60,14 +46,6 @@ export const variableConfigSchema = z.union([
   globalFormulaVariableConfigSchema,
 ])
 export type VariableConfig = z.infer<typeof variableConfigSchema>
-
-export const referableVariableConfigSchema = z.union([
-  externalVariableConfigSchema,
-  globalFormulaVariableConfigSchema,
-])
-export type ReferrableVariableConfig = z.infer<
-  typeof referableVariableConfigSchema
->
 
 export function createVariableFromConfig(
   context: Context,

@@ -1,7 +1,7 @@
 import * as z from 'zod'
 import { Variable, VariableEventPacket } from './Variable'
 import { FormulaInfo } from '../utils/expression'
-import { EventPacket } from '../utils/EventDispatcher'
+import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 
 export const formulaVariableConfigSchema = z.object({
   type: z.literal('FORMULA'),
@@ -17,15 +17,16 @@ export type FormulaVariableEventPacket = EventPacket<
   { formulaInfo: FormulaInfo }
 >
 
-export class FormulaVariable extends Variable<
-  'FORMULA',
-  'SYSTEM',
-  VariableEventPacket | FormulaVariableEventPacket
-> {
+export class FormulaVariable extends Variable {
+  type: 'FORMULA' = 'FORMULA'
+  group: 'SYSTEM' = 'SYSTEM'
+  dispatcher = new EventDispatcher<
+    VariableEventPacket | FormulaVariableEventPacket
+  >()
   private formulaInfo: FormulaInfo
 
   constructor(formulaInfo: FormulaInfo, id?: string) {
-    super('FORMULA', 0, 'SYSTEM', id)
+    super(0, id)
     this.formulaInfo = formulaInfo
   }
 

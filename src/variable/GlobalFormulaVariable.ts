@@ -1,7 +1,7 @@
 import * as z from 'zod'
 import { VariableEventPacket } from './Variable'
 import { FormulaInfo } from '../utils/expression'
-import { EventPacket } from '../utils/EventDispatcher'
+import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { ReferrableVariable } from './ReferrableVariable'
 
 export const globalFormulaVariableConfigSchema = z.object({
@@ -22,11 +22,12 @@ export type GlobalFormulaVariableEventPacket = EventPacket<
   { formulaInfo: FormulaInfo }
 >
 
-export class GlobalFormulaVariable extends ReferrableVariable<
-  'GLOBAL_FORMULA',
-  'USER_DEFINED',
-  VariableEventPacket | GlobalFormulaVariableEventPacket
-> {
+export class GlobalFormulaVariable extends ReferrableVariable {
+  type: 'GLOBAL_FORMULA' = 'GLOBAL_FORMULA'
+  group: 'USER_DEFINED' = 'USER_DEFINED'
+  dispatcher = new EventDispatcher<
+    VariableEventPacket | GlobalFormulaVariableEventPacket
+  >()
   private formulaInfo: FormulaInfo
 
   constructor(
@@ -35,7 +36,7 @@ export class GlobalFormulaVariable extends ReferrableVariable<
     name: string,
     id?: string
   ) {
-    super('GLOBAL_FORMULA', name, 0, ref, 'USER_DEFINED', id)
+    super(name, 0, ref, id)
     this.formulaInfo = formulaInfo
   }
 

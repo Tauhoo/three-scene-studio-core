@@ -1,5 +1,8 @@
 import EventDispatcher from '../utils/EventDispatcher'
-import { ReferrableVariable } from './ReferrableVariable'
+import {
+  ReferrableVariable,
+  ReferrableVariableEventPacket,
+} from './ReferrableVariable'
 import { Variable, VariableEventPacket } from './Variable'
 import * as z from 'zod'
 
@@ -15,12 +18,14 @@ export type ExternalVariableConfig = z.infer<
   typeof externalVariableConfigSchema
 >
 
-export class ExternalVariable extends ReferrableVariable<
-  'EXTERNAL',
-  'USER_DEFINED'
-> {
+export class ExternalVariable extends ReferrableVariable {
+  type: 'EXTERNAL' = 'EXTERNAL'
+  group: 'USER_DEFINED' = 'USER_DEFINED'
+  dispatcher = new EventDispatcher<
+    ReferrableVariableEventPacket | VariableEventPacket
+  >()
   constructor(name: string, value: number, ref: string, id?: string) {
-    super('EXTERNAL', name, value, ref, 'USER_DEFINED', id)
+    super(name, value, ref, id)
   }
 
   serialize(): ExternalVariableConfig {

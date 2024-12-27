@@ -2,7 +2,7 @@ import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfo, ObjectReference, objectReferenceSchema } from '../object'
 import { assignValue } from '../utils/objectPath'
-import { SystemVariable, Variable } from '.'
+import { Variable } from '.'
 
 export const objectPathSchema = z.array(z.string())
 export type ObjectPath = z.infer<typeof objectPathSchema>
@@ -20,13 +20,13 @@ export type VariableConnectorConfig = z.infer<
 
 class VariableConnector {
   readonly id: string
-  private variable: SystemVariable
+  private variable: Variable
   private objectInfo: ObjectInfo
   private objectPath: ObjectPath
   private updateObject: (value: number) => void
 
   constructor(
-    variable: SystemVariable,
+    variable: Variable,
     objectInfo: ObjectInfo,
     objectPath: ObjectPath,
     id?: string

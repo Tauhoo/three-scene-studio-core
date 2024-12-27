@@ -1,30 +1,24 @@
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { v4 as uuidv4 } from 'uuid'
+import { VariableGroup } from './types'
 
 export type VariableEventPacket = {
   type: 'VALUE_CHANGED'
   data: number
 }
 
-export abstract class Variable<
-  T extends string = string,
-  G extends string = string,
-  D extends EventPacket<string & {}, any> | VariableEventPacket =
-    | EventPacket<string & {}, any>
-    | VariableEventPacket
-> {
-  readonly type: T
+export abstract class Variable {
+  abstract type: string
+  abstract group: VariableGroup
+  abstract dispatcher: EventDispatcher<
+    EventPacket<string & {}, any> | VariableEventPacket
+  >
   readonly id: string
   private _value: number
-  readonly dispatcher: EventDispatcher<D>
-  readonly group: G
 
-  constructor(type: T, value: number, group: G, id?: string) {
-    this.type = type
+  constructor(value: number, id?: string) {
     this.id = id ?? uuidv4()
     this._value = value
-    this.dispatcher = new EventDispatcher<D>()
-    this.group = group
   }
 
   get value() {

@@ -11,29 +11,18 @@ export type ReferrableVariableEventPacket =
       data: string
     }
 
-export abstract class ReferrableVariable<
-  T extends string = string,
-  G extends string = string,
-  D extends
-    | EventPacket<string & {}, any>
-    | ReferrableVariableEventPacket
-    | VariableEventPacket =
-    | EventPacket<string & {}, any>
-    | ReferrableVariableEventPacket
-    | VariableEventPacket
-> extends Variable<T, G, D> {
+export abstract class ReferrableVariable extends Variable {
   private _name: string
   private _ref: string
 
-  constructor(
-    type: T,
-    name: string,
-    value: number,
-    ref: string,
-    group: G,
-    id?: string
-  ) {
-    super(type, value, group, id)
+  abstract dispatcher: EventDispatcher<
+    | EventPacket<string & {}, any>
+    | ReferrableVariableEventPacket
+    | VariableEventPacket
+  >
+
+  constructor(name: string, value: number, ref: string, id?: string) {
+    super(value, id)
     this._name = name
     this._ref = ref
   }

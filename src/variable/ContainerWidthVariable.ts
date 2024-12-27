@@ -1,7 +1,10 @@
 import Context from '../utils/Context'
 import EventDispatcher from '../utils/EventDispatcher'
-import { ReferrableVariable } from './ReferrableVariable'
-import { Variable, VariableEventPacket } from './Variable'
+import {
+  ReferrableVariable,
+  ReferrableVariableEventPacket,
+} from './ReferrableVariable'
+import { VariableEventPacket } from './Variable'
 import * as z from 'zod'
 
 export const containerWidthVariableConfigSchema = z.object({
@@ -16,16 +19,19 @@ export type ContainerWidthVariableConfig = z.infer<
   typeof containerWidthVariableConfigSchema
 >
 
-export class ContainerWidthVariable extends ReferrableVariable<
-  'CONTAINER_WIDTH',
-  'SYSTEM'
-> {
+export class ContainerWidthVariable extends ReferrableVariable {
+  type: 'CONTAINER_WIDTH' = 'CONTAINER_WIDTH'
+  group: 'SYSTEM' = 'SYSTEM'
+  dispatcher = new EventDispatcher<
+    ReferrableVariableEventPacket | VariableEventPacket
+  >()
+
   constructor(context: Context, name: string, ref: string, id?: string) {
     const rect = context.canvasContainer.getBoundingClientRect()
     context.addListener('CANVAS_RESIZE', event => {
       this.value = event.width
     })
-    super('CONTAINER_WIDTH', name, rect.width, ref, 'SYSTEM', id)
+    super(name, rect.width, ref, id)
   }
 
   serialize(): ContainerWidthVariableConfig {
