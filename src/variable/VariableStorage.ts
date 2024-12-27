@@ -9,6 +9,7 @@ import {
 import { Variable } from './Variable'
 import Context from '../utils/Context'
 import { ReferrableVariable } from './ReferrableVariable'
+import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 
 export const variableStorageConfigSchema = z.object({
   variables: z.array(variableConfigSchema),
@@ -16,11 +17,28 @@ export const variableStorageConfigSchema = z.object({
 
 export type VariableStorageConfig = z.infer<typeof variableStorageConfigSchema>
 
-class VariableStorage {
+export type VariableStorageEvent<T extends Variable | ReferrableVariable> =
+  | EventPacket<
+      'SET_VARIABLE',
+      {
+        variable: T
+      }
+    >
+  | EventPacket<
+      'DELETE_VARIABLE',
+      {
+        variable: T
+      }
+    >
+
+class VariableStorage<
+  T extends Variable | ReferrableVariable
+> extends EventDispatcher<VariableStorageEvent<T>> {
   private refStorage: DataStorage<string, Variable>
   private idStorage: DataStorage<string, Variable>
 
   constructor() {
+    super()
     this.refStorage = new DataStorage<string, Variable>(ref => ref)
     this.idStorage = new DataStorage<string, Variable>(id => id)
   }
@@ -32,11 +50,15 @@ class VariableStorage {
     if (variable instanceof ReferrableVariable) {
       this.refStorage.delete(variable.ref)
     }
+    this.dispatch('DELETE_VARIABLE', {
+      variable,
+    })
   }
 
   searchVariable(search: string, group: VariableGroup | null = null) {
     return this.idStorage.getAll().filter(variable => {
       if (!(variable instanceof ReferrableVariable)) return false
+
       if (variable.group === group || group === null) {
         if (variable.ref.includes(search)) {
           return true
@@ -48,26 +70,29 @@ class VariableStorage {
       } else {
         return false
       }
-    })
+    }) as T[]
   }
 
   getVariableByRef(ref: string) {
-    return this.refStorage.get(ref)
+    return this.refStorage.get(ref) as T | null
   }
 
   getVariableById(id: string) {
-    return this.idStorage.get(id)
+    return this.idStorage.get(id) as T | null
   }
 
   getAllVariables() {
-    return this.idStorage.getAll()
+    return this.idStorage.getAll() as T[]
   }
 
-  setVariable(variable: Variable) {
+  setVariable(variable: T) {
     if (variable instanceof ReferrableVariable) {
       this.refStorage.set(variable.ref, variable)
     }
     this.idStorage.set(variable.id, variable)
+    this.dispatch('SET_VARIABLE', {
+      variable,
+    })
   }
 
   loadConfig(context: Context, config: VariableStorageConfig) {

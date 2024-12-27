@@ -22,6 +22,7 @@ import {
   globalFormulaVariableConfigSchema,
 } from './GlobalFormulaVariable'
 import { Variable } from './Variable'
+import { ReferrableVariable } from './ReferrableVariable'
 
 export * from './VariableConnector'
 export * from './VariableConnectorStorage'
@@ -46,6 +47,17 @@ export const variableConfigSchema = z.union([
   globalFormulaVariableConfigSchema,
 ])
 export type VariableConfig = z.infer<typeof variableConfigSchema>
+
+export const referrableVariableConfigSchema = z.union([
+  externalVariableConfigSchema,
+  globalFormulaVariableConfigSchema,
+])
+export type ReferrableVariableConfig = z.infer<
+  typeof referrableVariableConfigSchema
+>
+
+export type VariableType = ReferrableVariableConfig['type']
+export type ReferrableVariableType = ReferrableVariableConfig['type']
 
 export function createVariableFromConfig(
   context: Context,
@@ -90,6 +102,24 @@ export function createVariableFromConfig(
         config.name,
         config.id
       )
+    }
+  }
+}
+
+export function createDefaultVariable(
+  type: ReferrableVariableType,
+  name: string,
+  ref: string
+): ReferrableVariable | null {
+  switch (type) {
+    case 'EXTERNAL':
+      return new ExternalVariable(name, 0, ref)
+    case 'GLOBAL_FORMULA': {
+      const formula = parseExpression('0')
+      if (formula.status === 'ERROR') {
+        return null
+      }
+      return new GlobalFormulaVariable(ref, formula.data, name)
     }
   }
 }

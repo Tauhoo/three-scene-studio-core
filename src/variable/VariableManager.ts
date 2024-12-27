@@ -5,6 +5,8 @@ import VariableConnectorStorage, {
 } from './VariableConnectorStorage'
 import { ObjectInfoManager } from '../object'
 import Context from '../utils/Context'
+import { ReferrableVariable } from './ReferrableVariable'
+import { Variable } from './Variable'
 
 export const variableManagerConfigSchema = z.object({
   variableStorageConfig: variableStorageConfigSchema,
@@ -13,9 +15,9 @@ export const variableManagerConfigSchema = z.object({
 
 export type VariableManagerConfig = z.infer<typeof variableManagerConfigSchema>
 
-class VariableManager {
-  readonly variableStorage: VariableStorage
-  readonly variableConnectorStorage: VariableConnectorStorage
+class VariableManager<T extends Variable | ReferrableVariable> {
+  readonly variableStorage: VariableStorage<T>
+  readonly variableConnectorStorage: VariableConnectorStorage<T>
 
   constructor() {
     this.variableStorage = new VariableStorage()

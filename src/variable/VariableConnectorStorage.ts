@@ -7,6 +7,8 @@ import VariableConnector, {
 } from './VariableConnector'
 import VariableStorage from './VariableStorage'
 import { ObjectReference } from '../object'
+import { ReferrableVariable } from './ReferrableVariable'
+import { Variable } from './Variable'
 
 export const variableConnectorStorageConfigSchema = z.object({
   connectors: z.array(variableConnectorConfigSchema),
@@ -20,7 +22,7 @@ type PathStorageKey = {
   objectReference: ObjectReference
 }
 
-class VariableConnectorStorage {
+class VariableConnectorStorage<T extends Variable | ReferrableVariable> {
   private pathStorage: DataStorage<PathStorageKey, VariableConnector>
 
   constructor() {
@@ -56,7 +58,7 @@ class VariableConnectorStorage {
   loadConfig(
     config: VariableConnectorStorageConfig,
     objectInfoManager: ObjectInfoManager,
-    variableStorage: VariableStorage
+    variableStorage: VariableStorage<T>
   ) {
     config.connectors.forEach(connector => {
       const variable = variableStorage.getVariableById(connector.variableId)
@@ -70,6 +72,7 @@ class VariableConnectorStorage {
       this.set(new VariableConnector(variable, object, objectPath))
     })
   }
+
   serialize(): VariableConnectorStorageConfig {
     return {
       connectors: this.pathStorage

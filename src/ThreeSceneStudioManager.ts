@@ -5,9 +5,14 @@ import { v4 as uuidv4 } from 'uuid'
 import VariableManager, {
   variableManagerConfigSchema,
 } from './variable/VariableManager'
-import { ContainerHeightVariable, ContainerWidthVariable } from './variable'
+import {
+  ContainerHeightVariable,
+  ContainerWidthVariable,
+  Variable,
+} from './variable'
 import Context from './utils/Context'
 import Renderer from './Renderer'
+import { ReferrableVariable } from './variable/ReferrableVariable'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
   variableManagerConfig: variableManagerConfigSchema,
@@ -21,10 +26,12 @@ export class ThreeSceneStudioManager {
   readonly objectInfoManager: ObjectInfoManager
   readonly cameraSwitcher: Switcher<CameraObjectInfo>
   readonly sceneSwitcher: Switcher<SceneObjectInfo>
-  readonly variableManager: VariableManager
-  readonly referableVariableManager: VariableManager
+  readonly variableManager: VariableManager<Variable>
+  readonly referableVariableManager: VariableManager<ReferrableVariable>
   readonly renderer: Renderer
+  readonly context: Context
   constructor(context: Context) {
+    this.context = context
     this.objectInfoManager = new ObjectInfoManager()
 
     const cameras = this.objectInfoManager.getObjectInfos('OBJECT_3D_CAMERA')
