@@ -36,7 +36,9 @@ export * from './ContainerHeightVariable'
 export * from './FormularVariable'
 export * from './GlobalFormulaVariable'
 
+export * from './ReferrableVariable'
 export * from './Variable'
+
 export * from './types'
 
 export const variableConfigSchema = z.union([
@@ -111,6 +113,8 @@ export function createDefaultVariable(
   name: string,
   ref: string
 ): ReferrableVariable | null {
+  console.log('DEBUG: createDefaultVariable', type, name, ref)
+
   switch (type) {
     case 'EXTERNAL':
       return new ExternalVariable(name, 0, ref)
