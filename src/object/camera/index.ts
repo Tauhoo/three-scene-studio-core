@@ -1,4 +1,5 @@
 export * from './createCameraObjectFromInfo'
+export * from './createCameraObjectFromNative'
 export * from './CameraObjectInfo'
 export * from './OrthographicCameraObjectInfo'
 export * from './PerspectiveCameraObjectInfo'

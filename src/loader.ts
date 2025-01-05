@@ -6,10 +6,10 @@ import {
   SuccessResponse,
   successResponse,
 } from './utils/response'
-import { GLTF } from 'three/examples/jsm/Addons'
 import {
   AnimationObjectInfo,
   CameraObjectInfo,
+  createCameraObjectFromNative,
   SceneObjectInfo,
 } from './object'
 
@@ -43,7 +43,9 @@ export const loadGltfFile = (url: string, options: GLTFLoaderOptions) => {
             animation => new AnimationObjectInfo(animation)
           ),
           scenes: gltf.scenes.map(scene => SceneObjectInfo.fromGroup(scene)),
-          cameras: gltf.cameras.map(camera => new CameraObjectInfo(camera)),
+          cameras: gltf.cameras.map(camera =>
+            createCameraObjectFromNative(camera)
+          ),
         }
         resolve(successResponse(result))
       },

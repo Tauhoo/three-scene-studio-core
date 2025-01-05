@@ -23,7 +23,7 @@ export type OrthographicCameraInfo = {
 export type CameraInfo = SharedCameraInfo &
   (PerspectiveCameraInfo | OrthographicCameraInfo)
 
-function createCameraObjectFromInfo(info: CameraInfo) {
+export function createCameraObjectFromInfo(info: CameraInfo) {
   if (info.type === 'perspective') {
     const camera = new THREE.PerspectiveCamera(
       info.fov,
@@ -48,5 +48,3 @@ function createCameraObjectFromInfo(info: CameraInfo) {
     return result
   }
 }
-
-export default createCameraObjectFromInfo

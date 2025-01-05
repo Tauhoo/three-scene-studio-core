@@ -113,8 +113,6 @@ export function createDefaultVariable(
   name: string,
   ref: string
 ): ReferrableVariable | null {
-  console.log('DEBUG: createDefaultVariable', type, name, ref)
-
   switch (type) {
     case 'EXTERNAL':
       return new ExternalVariable(name, 0, ref)

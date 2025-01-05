@@ -30,9 +30,9 @@ class Renderer extends EventDispatcher<RendererEventPacket> {
     super()
     this.context = context
     this.renderer = new THREE.WebGLRenderer()
+    this.renderer.setPixelRatio(context.window.devicePixelRatio)
     const rect = context.canvasContainer.getBoundingClientRect()
     this.renderer.setSize(rect.width, rect.height)
-    this.renderer.setPixelRatio(context.window.devicePixelRatio)
     context.canvasContainer.appendChild(this.renderer.domElement)
     this.cameraSwitcher = cameraSwitcher
     this.sceneSwitcher = sceneSwitcher
@@ -72,16 +72,15 @@ class Renderer extends EventDispatcher<RendererEventPacket> {
   }
 
   render = () => {
-    if (this.cameraSwitcher.current === null) return
-    if (this.sceneSwitcher.current === null) return
-    this.renderer.render(
-      this.overrideScene
-        ? this.overrideScene.data
-        : this.sceneSwitcher.current.data,
-      this.overrideCamera
-        ? this.overrideCamera.data
-        : this.cameraSwitcher.current.data
-    )
+    const scene = this.overrideScene
+      ? this.overrideScene
+      : this.sceneSwitcher.current
+    const camera = this.overrideCamera
+      ? this.overrideCamera
+      : this.cameraSwitcher.current
+
+    if (scene === null || camera === null) return
+    this.renderer.render(scene.data, camera.data)
   }
 }
 
