@@ -7,3 +7,5 @@ export * from './variable'
 export * from './utils/EventDispatcher'
 export * from './utils/objectPath'
 export * from './utils/Context'
+
+export * from './Clock'

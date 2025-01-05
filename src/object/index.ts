@@ -3,7 +3,7 @@ import { SceneObjectInfo, sceneObjectReferenceSchema } from './SceneObjectInfo'
 import {
   CameraObjectInfo,
   cameraObjectReferenceSchema,
-} from './CameraObjectInfo'
+} from './camera/CameraObjectInfo'
 import {
   AnimationObjectInfo,
   animationObjectReferenceSchema,
@@ -14,11 +14,12 @@ import { GroupObjectInfo } from './GroupObjectInfo'
 export * from './ObjectInfo'
 export * from './ObjectInSceneInfo'
 export * from './SceneObjectInfo'
-export * from './CameraObjectInfo'
+export * from './camera/CameraObjectInfo'
 export * from './AnimationObjectInfo'
 export * from './MeshObjectInfo'
 export * from './LightObjectInfo'
 export * from './GroupObjectInfo'
+export * from './camera'
 
 export * from './ObjectInfoManager'
 

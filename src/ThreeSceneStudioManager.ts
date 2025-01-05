@@ -1,5 +1,10 @@
 import * as z from 'zod'
-import { CameraObjectInfo, ObjectInfoManager, SceneObjectInfo } from './object'
+import {
+  CameraObjectInfo,
+  ObjectInfo,
+  ObjectInfoManager,
+  SceneObjectInfo,
+} from './object'
 import Switcher from './utils/Switcher'
 import { v4 as uuidv4 } from 'uuid'
 import VariableManager, {
@@ -13,6 +18,7 @@ import {
 import Context from './utils/Context'
 import Renderer from './Renderer'
 import { ReferrableVariable } from './variable/ReferrableVariable'
+import { Clock } from './Clock'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
   variableManagerConfig: variableManagerConfigSchema,
@@ -30,32 +36,62 @@ export class ThreeSceneStudioManager {
   readonly referableVariableManager: VariableManager<ReferrableVariable>
   readonly renderer: Renderer
   readonly context: Context
+  readonly clock: Clock
+
   constructor(context: Context) {
     this.context = context
     this.objectInfoManager = new ObjectInfoManager()
 
+    this.objectInfoManager.addListener(
+      'OBJECT_INFO_ADDED',
+      this.onObjectInfoAdded
+    )
     const cameras = this.objectInfoManager.getObjectInfos('OBJECT_3D_CAMERA')
     this.cameraSwitcher = new Switcher(cameras)
 
     const scenes = this.objectInfoManager.getObjectInfos('OBJECT_3D_SCENE')
     this.sceneSwitcher = new Switcher(scenes)
 
-    this.renderer = new Renderer(
-      context,
-      this.cameraSwitcher,
-      this.sceneSwitcher
-    )
-
     this.variableManager = new VariableManager()
     this.referableVariableManager = new VariableManager()
 
     // setup system variables
-    this.referableVariableManager.variableStorage.setVariable(
-      new ContainerHeightVariable(context, 'CONTAINER_HEIGHT', 'ch', uuidv4())
+    const containerHeightVariable = new ContainerHeightVariable(
+      context,
+      'CONTAINER_HEIGHT',
+      'ch',
+      uuidv4()
     )
     this.referableVariableManager.variableStorage.setVariable(
-      new ContainerWidthVariable(context, 'CONTAINER_WIDTH', 'cw', uuidv4())
+      containerHeightVariable
     )
+    const containerWidthVariable = new ContainerWidthVariable(
+      context,
+      'CONTAINER_WIDTH',
+      'cw',
+      uuidv4()
+    )
+    this.referableVariableManager.variableStorage.setVariable(
+      containerWidthVariable
+    )
+
+    this.clock = new Clock()
+    this.renderer = new Renderer(
+      context,
+      this.cameraSwitcher,
+      this.sceneSwitcher,
+      containerHeightVariable,
+      containerWidthVariable,
+      this.clock
+    )
+  }
+
+  private onObjectInfoAdded = (objectInfo: ObjectInfo) => {
+    if (objectInfo instanceof CameraObjectInfo) {
+      this.cameraSwitcher.add(objectInfo)
+    } else if (objectInfo instanceof SceneObjectInfo) {
+      this.sceneSwitcher.add(objectInfo)
+    }
   }
 
   loadConfig(context: Context, config: ThreeSceneStudioManagerConfig) {

@@ -1,7 +1,10 @@
 import * as THREE from 'three'
 import { ObjectInfo, ObjectReference, ObjectType, SystemObjectInfo } from '.'
 import { AnimationObjectInfoStorage } from './AnimationObjectInfo'
-import { CameraObjectInfo, CameraObjectInfoStorage } from './CameraObjectInfo'
+import {
+  CameraObjectInfo,
+  CameraObjectInfoStorage,
+} from './camera/CameraObjectInfo'
 import { SceneObjectInfo, SceneObjectInfoStorage } from './SceneObjectInfo'
 import EventDispatcher from '../utils/EventDispatcher'
 
