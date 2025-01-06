@@ -1,14 +1,24 @@
+import { CameraObjectInfo, ObjectInfo } from '../object'
 import { ObjectPath } from '../variable'
 
-export function assignValue(object: any, objectPath: ObjectPath, value: any) {
+export function assignValue(
+  object: ObjectInfo,
+  objectPath: ObjectPath,
+  value: any
+) {
+  let objectValue = object as any
   for (let index = 0; index < objectPath.length - 1; index++) {
     const key = objectPath[index]
-    if (object[key] === undefined) {
-      object[key] = {}
+    if (objectValue[key] === undefined) {
+      objectValue[key] = {}
     }
-    object = object[key]
+    objectValue = objectValue[key]
   }
-  object[objectPath[objectPath.length - 1]] = value
+  objectValue[objectPath[objectPath.length - 1]] = value
+
+  if (object instanceof CameraObjectInfo) {
+    object.onChangeValue()
+  }
 }
 
 export function extractValue(object: any, objectPath: ObjectPath) {

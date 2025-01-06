@@ -31,6 +31,11 @@ export class CameraObjectInfo extends ObjectInfo<
   set name(value: string) {
     this.data.name = value
   }
+
+  onChangeValue() {
+    this.data.updateMatrix()
+    this.data.updateMatrixWorld()
+  }
 }
 
 export class CameraObjectInfoStorage extends DataStorage<

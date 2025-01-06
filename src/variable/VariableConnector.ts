@@ -36,7 +36,7 @@ class VariableConnector {
     this.objectInfo = objectInfo
     this.objectPath = objectPath
     this.updateObject = (value: number) => {
-      let data = this.objectInfo.data as any
+      let data = this.objectInfo as any
       assignValue(data, this.objectPath, value)
     }
     const originVariable: Variable = variable
