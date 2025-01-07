@@ -1,65 +1,40 @@
 import * as THREE from 'three'
-import DataStorage from '../utils/DataStorage'
 import * as z from 'zod'
-import { ObjectInSceneInfo } from './ObjectInSceneInfo'
 import { getChildren } from './children'
+import { InSceneObjectInfo } from './InSceneObjectInfo'
+import { v4 as uuidv4 } from 'uuid'
 
-export const lightObjectReferenceSchema = z.object({
+export const lightObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_LIGHT'),
+  id: z.string(),
   sceneId: z.number(),
-  id: z.number(),
+  inSceneId: z.number(),
 })
 
-export type LightObjectReference = z.infer<typeof lightObjectReferenceSchema>
+export type LightObjectConfig = z.infer<typeof lightObjectConfigSchema>
 
-export class LightObjectInfo extends ObjectInSceneInfo<
-  LightObjectReference,
-  THREE.Light
-> {
-  constructor(data: THREE.Light, sceneId: number) {
-    super(
-      {
-        type: 'OBJECT_3D_LIGHT',
-        sceneId,
-        id: data.id,
-      },
-      data,
-      sceneId
-    )
+export class LightObjectInfo extends InSceneObjectInfo {
+  readonly config: LightObjectConfig
+  readonly data: THREE.Light
+  readonly children: InSceneObjectInfo[]
+
+  constructor(data: THREE.Light, sceneId: number, id?: string) {
+    super()
+    this.config = {
+      type: 'OBJECT_3D_LIGHT',
+      id: id ?? uuidv4(),
+      sceneId,
+      inSceneId: data.id,
+    }
+    this.data = data
+    this.children = this.getChildren()
   }
 
-  protected getChildren(
-    data: THREE.Light,
-    sceneId: number
-  ): ObjectInSceneInfo[] {
-    return getChildren(data, sceneId)
+  protected getChildren(): InSceneObjectInfo[] {
+    return getChildren(this.data, this.config.sceneId)
   }
 
   get name() {
     return this.data.name
-  }
-}
-
-export class LightObjectInfoStorage extends DataStorage<
-  LightObjectReference,
-  LightObjectInfo
-> {
-  constructor() {
-    super(reference => reference.id.toString())
-  }
-
-  setNative(light: THREE.Light, sceneId: number) {
-    const lightObjectInfo = new LightObjectInfo(light, sceneId)
-    this.set(lightObjectInfo.reference, lightObjectInfo)
-  }
-
-  setMultipleNative(scenes: THREE.Group<THREE.Object3DEventMap>[]) {
-    scenes.forEach(scene => {
-      scene.traverse(child => {
-        if (child instanceof THREE.Light) {
-          this.setNative(child, scene.id)
-        }
-      })
-    })
   }
 }

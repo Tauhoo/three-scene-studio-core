@@ -10,6 +10,7 @@ import {
   AnimationObjectInfo,
   CameraObjectInfo,
   createCameraObjectFromNative,
+  createSceneObjectInfoFromGroup,
   SceneObjectInfo,
 } from './object'
 
@@ -42,7 +43,7 @@ export const loadGltfFile = (url: string, options: GLTFLoaderOptions) => {
           animations: gltf.animations.map(
             animation => new AnimationObjectInfo(animation)
           ),
-          scenes: gltf.scenes.map(scene => SceneObjectInfo.fromGroup(scene)),
+          scenes: gltf.scenes.map(createSceneObjectInfoFromGroup),
           cameras: gltf.cameras.map(camera =>
             createCameraObjectFromNative(camera)
           ),

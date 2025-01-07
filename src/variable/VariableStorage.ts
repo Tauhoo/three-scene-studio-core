@@ -4,11 +4,9 @@ import {
   createVariableFromConfig,
   VariableConfig,
   variableConfigSchema,
-  VariableGroup,
 } from '.'
 import { Variable } from './Variable'
 import Context from '../utils/Context'
-import { ReferrableVariable } from './ReferrableVariable'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 
 export const variableStorageConfigSchema = z.object({
@@ -17,29 +15,25 @@ export const variableStorageConfigSchema = z.object({
 
 export type VariableStorageConfig = z.infer<typeof variableStorageConfigSchema>
 
-export type VariableStorageEvent<T extends Variable | ReferrableVariable> =
+export type VariableStorageEvent =
   | EventPacket<
       'SET_VARIABLE',
       {
-        variable: T
+        variable: Variable
       }
     >
   | EventPacket<
       'DELETE_VARIABLE',
       {
-        variable: T
+        variable: Variable
       }
     >
 
-class VariableStorage<
-  T extends Variable | ReferrableVariable
-> extends EventDispatcher<VariableStorageEvent<T>> {
-  private refStorage: DataStorage<string, Variable>
-  private idStorage: DataStorage<string, Variable>
+class VariableStorage extends EventDispatcher<VariableStorageEvent> {
+  protected idStorage: DataStorage<string, Variable>
 
   constructor() {
     super()
-    this.refStorage = new DataStorage<string, Variable>(ref => ref)
     this.idStorage = new DataStorage<string, Variable>(id => id)
   }
 
@@ -47,48 +41,20 @@ class VariableStorage<
     const variable = this.getVariableById(id)
     if (variable === null) return
     this.idStorage.delete(id)
-    if (variable instanceof ReferrableVariable) {
-      this.refStorage.delete(variable.ref)
-    }
     this.dispatch('DELETE_VARIABLE', {
       variable,
     })
   }
 
-  searchVariable(search: string, group: VariableGroup | null = null) {
-    return this.idStorage.getAll().filter(variable => {
-      if (!(variable instanceof ReferrableVariable)) return false
-
-      if (variable.group === group || group === null) {
-        if (variable.ref.includes(search)) {
-          return true
-        }
-        if (variable.name.includes(search)) {
-          return true
-        }
-        return false
-      } else {
-        return false
-      }
-    }) as T[]
-  }
-
-  getVariableByRef(ref: string) {
-    return this.refStorage.get(ref) as T | null
-  }
-
   getVariableById(id: string) {
-    return this.idStorage.get(id) as T | null
+    return this.idStorage.get(id)
   }
 
   getAllVariables() {
-    return this.idStorage.getAll() as T[]
+    return this.idStorage.getAll()
   }
 
-  setVariable(variable: T) {
-    if (variable instanceof ReferrableVariable) {
-      this.refStorage.set(variable.ref, variable)
-    }
+  setVariable(variable: Variable) {
     this.idStorage.set(variable.id, variable)
     this.dispatch('SET_VARIABLE', {
       variable,
@@ -98,10 +64,7 @@ class VariableStorage<
   loadConfig(context: Context, config: VariableStorageConfig) {
     config.variables.forEach(variableConfig => {
       const variable = createVariableFromConfig(context, variableConfig)
-      if (variable !== null) {
-        if (variable instanceof ReferrableVariable) {
-          this.refStorage.set(variable.ref, variable)
-        }
+      if (variable instanceof Variable) {
         this.idStorage.set(variable.id, variable)
       }
     })

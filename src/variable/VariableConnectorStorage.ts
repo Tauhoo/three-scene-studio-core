@@ -2,13 +2,12 @@ import * as z from 'zod'
 import { ObjectInfoManager } from '../object/ObjectInfoManager'
 import DataStorage from '../utils/DataStorage'
 import VariableConnector, {
-  ObjectPath,
   variableConnectorConfigSchema,
 } from './VariableConnector'
 import VariableStorage from './VariableStorage'
-import { ObjectReference } from '../object'
 import { ReferrableVariable } from './ReferrableVariable'
 import { Variable } from './Variable'
+import { ObjectPath } from '../object'
 
 export const variableConnectorStorageConfigSchema = z.object({
   connectors: z.array(variableConnectorConfigSchema),
@@ -19,29 +18,29 @@ export type VariableConnectorStorageConfig = z.infer<
 
 type PathStorageKey = {
   objectPath: ObjectPath
-  objectReference: ObjectReference
+  objectId: string
 }
 
-class VariableConnectorStorage<T extends Variable | ReferrableVariable> {
+class VariableConnectorStorage {
   private pathStorage: DataStorage<PathStorageKey, VariableConnector>
 
   constructor() {
     this.pathStorage = new DataStorage<PathStorageKey, VariableConnector>(
-      key => JSON.stringify(key.objectReference) + key.objectPath.join('.')
+      key => key.objectId + '.' + key.objectPath.join('.')
     )
   }
 
-  delete(objectPath: ObjectPath, objectReference: ObjectReference) {
+  delete(objectId: string, objectPath: ObjectPath) {
     this.pathStorage.delete({
       objectPath,
-      objectReference,
+      objectId,
     })
   }
 
-  get(objectPath: ObjectPath, objectReference: ObjectReference) {
+  get(objectId: string, objectPath: ObjectPath) {
     return this.pathStorage.get({
       objectPath,
-      objectReference,
+      objectId,
     })
   }
 
@@ -49,7 +48,7 @@ class VariableConnectorStorage<T extends Variable | ReferrableVariable> {
     this.pathStorage.set(
       {
         objectPath: connector.getObjectPath(),
-        objectReference: connector.getObjectInfo().reference as ObjectReference,
+        objectId: connector.getObjectInfo().config.id,
       },
       connector
     )
@@ -58,13 +57,11 @@ class VariableConnectorStorage<T extends Variable | ReferrableVariable> {
   loadConfig(
     config: VariableConnectorStorageConfig,
     objectInfoManager: ObjectInfoManager,
-    variableStorage: VariableStorage<T>
+    variableStorage: VariableStorage
   ) {
     config.connectors.forEach(connector => {
       const variable = variableStorage.getVariableById(connector.variableId)
-      const object = objectInfoManager.getObjectInfoByReference(
-        connector.objectReference
-      )
+      const object = objectInfoManager.objectInfoStorage.get(connector.objectId)
       const objectPath = connector.objectPath
       if (variable === null || object === null) {
         return

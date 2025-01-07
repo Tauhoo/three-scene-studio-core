@@ -10,15 +10,11 @@ import { v4 as uuidv4 } from 'uuid'
 import VariableManager, {
   variableManagerConfigSchema,
 } from './variable/VariableManager'
-import {
-  ContainerHeightVariable,
-  ContainerWidthVariable,
-  Variable,
-} from './variable'
+import { ContainerHeightVariable, ContainerWidthVariable } from './variable'
 import Context from './utils/Context'
 import Renderer from './Renderer'
-import { ReferrableVariable } from './variable/ReferrableVariable'
 import { Clock } from './Clock'
+import ReferableVariableManager from './variable/ReferableVariableManager'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
   variableManagerConfig: variableManagerConfigSchema,
@@ -32,8 +28,8 @@ export class ThreeSceneStudioManager {
   readonly objectInfoManager: ObjectInfoManager
   readonly cameraSwitcher: Switcher<CameraObjectInfo>
   readonly sceneSwitcher: Switcher<SceneObjectInfo>
-  readonly variableManager: VariableManager<Variable>
-  readonly referableVariableManager: VariableManager<ReferrableVariable>
+  readonly variableManager: VariableManager
+  readonly referableVariableManager: ReferableVariableManager
   readonly renderer: Renderer
   readonly context: Context
   readonly clock: Clock
@@ -46,14 +42,16 @@ export class ThreeSceneStudioManager {
       'OBJECT_INFO_ADDED',
       this.onObjectInfoAdded
     )
-    const cameras = this.objectInfoManager.getObjectInfos('OBJECT_3D_CAMERA')
+    const cameras =
+      this.objectInfoManager.objectInfoStorage.getCameraObjectInfos()
     this.cameraSwitcher = new Switcher(cameras)
 
-    const scenes = this.objectInfoManager.getObjectInfos('OBJECT_3D_SCENE')
+    const scenes =
+      this.objectInfoManager.objectInfoStorage.getSceneObjectInfos()
     this.sceneSwitcher = new Switcher(scenes)
 
     this.variableManager = new VariableManager()
-    this.referableVariableManager = new VariableManager()
+    this.referableVariableManager = new ReferableVariableManager()
 
     // setup system variables
     const containerHeightVariable = new ContainerHeightVariable(

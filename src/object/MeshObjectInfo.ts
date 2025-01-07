@@ -1,65 +1,40 @@
 import * as THREE from 'three'
-import DataStorage from '../utils/DataStorage'
 import * as z from 'zod'
-import { ObjectInSceneInfo } from './ObjectInSceneInfo'
 import { getChildren } from './children'
+import { InSceneObjectInfo } from './InSceneObjectInfo'
+import { v4 as uuidv4 } from 'uuid'
 
-export const meshObjectReferenceSchema = z.object({
+export const meshObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_MESH'),
+  id: z.string(),
   sceneId: z.number(),
-  id: z.number(),
+  inSceneId: z.number(),
 })
 
-export type MeshObjectReference = z.infer<typeof meshObjectReferenceSchema>
+export type MeshObjectConfig = z.infer<typeof meshObjectConfigSchema>
 
-export class MeshObjectInfo extends ObjectInSceneInfo<
-  MeshObjectReference,
-  THREE.Mesh
-> {
-  constructor(data: THREE.Mesh, sceneId: number) {
-    super(
-      {
-        type: 'OBJECT_3D_MESH',
-        id: data.id,
-        sceneId,
-      },
-      data,
-      sceneId
-    )
+export class MeshObjectInfo extends InSceneObjectInfo {
+  readonly config: MeshObjectConfig
+  readonly data: THREE.Mesh
+  readonly children: InSceneObjectInfo[]
+
+  constructor(data: THREE.Mesh, sceneId: number, id?: string) {
+    super()
+    this.config = {
+      type: 'OBJECT_3D_MESH',
+      id: id ?? uuidv4(),
+      sceneId,
+      inSceneId: data.id,
+    }
+    this.data = data
+    this.children = this.getChildren()
   }
 
-  protected getChildren(
-    data: THREE.Mesh,
-    sceneId: number
-  ): ObjectInSceneInfo[] {
-    return getChildren(data, sceneId)
+  protected getChildren(): InSceneObjectInfo[] {
+    return getChildren(this.data, this.config.sceneId)
   }
 
   get name() {
     return this.data.name
-  }
-}
-
-export class MeshObjectInfoStorage extends DataStorage<
-  MeshObjectReference,
-  MeshObjectInfo
-> {
-  constructor() {
-    super(reference => reference.id.toString())
-  }
-
-  setNative(mesh: THREE.Mesh, sceneId: number) {
-    const meshObjectInfo = new MeshObjectInfo(mesh, sceneId)
-    this.set(meshObjectInfo.reference, meshObjectInfo)
-  }
-
-  setMultipleNative(scenes: THREE.Group<THREE.Object3DEventMap>[]) {
-    scenes.forEach(scene => {
-      scene.traverse(child => {
-        if (child instanceof THREE.Mesh) {
-          this.setNative(child, scene.id)
-        }
-      })
-    })
   }
 }

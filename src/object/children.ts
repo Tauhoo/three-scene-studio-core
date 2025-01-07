@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { GroupObjectInfo } from './GroupObjectInfo'
 import { MeshObjectInfo } from './MeshObjectInfo'
 import { LightObjectInfo } from './LightObjectInfo'
-import { ObjectInSceneInfo } from './ObjectInSceneInfo'
+import { InSceneObjectInfo } from './InSceneObjectInfo'
 
 export interface Parent {
   children: THREE.Object3D<THREE.Object3DEventMap>[]
@@ -11,7 +11,7 @@ export interface Parent {
 export const getChildren = (
   data: Parent,
   sceneId: number
-): ObjectInSceneInfo[] => {
+): InSceneObjectInfo[] => {
   return data.children
     .map(child => {
       if (child instanceof THREE.Mesh) {

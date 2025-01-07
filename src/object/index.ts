@@ -1,18 +1,18 @@
 import * as z from 'zod'
-import { SceneObjectInfo, sceneObjectReferenceSchema } from './SceneObjectInfo'
+import { SceneObjectInfo, sceneObjectConfigSchema } from './SceneObjectInfo'
 import {
   CameraObjectInfo,
-  cameraObjectReferenceSchema,
+  cameraObjectConfigSchema,
 } from './camera/CameraObjectInfo'
 import {
   AnimationObjectInfo,
-  animationObjectReferenceSchema,
+  animationObjectConfigSchema,
 } from './AnimationObjectInfo'
-import { MeshObjectInfo, meshObjectReferenceSchema } from './MeshObjectInfo'
-import { LightObjectInfo, lightObjectReferenceSchema } from './LightObjectInfo'
+import { MeshObjectInfo, meshObjectConfigSchema } from './MeshObjectInfo'
+import { LightObjectInfo, lightObjectConfigSchema } from './LightObjectInfo'
 import { GroupObjectInfo } from './GroupObjectInfo'
 export * from './ObjectInfo'
-export * from './ObjectInSceneInfo'
+export * from './InSceneObjectInfo'
 export * from './SceneObjectInfo'
 export * from './camera/CameraObjectInfo'
 export * from './AnimationObjectInfo'
@@ -36,12 +36,12 @@ export type SystemObjectInSceneInfo =
   | MeshObjectInfo
   | GroupObjectInfo
 
-export type ObjectType = SystemObjectInfo['reference']['type']
-export const objectReferenceSchema = z.union([
-  sceneObjectReferenceSchema,
-  cameraObjectReferenceSchema,
-  animationObjectReferenceSchema,
-  lightObjectReferenceSchema,
-  meshObjectReferenceSchema,
+export type ObjectType = SystemObjectInfo['config']['type']
+export const objectConfigSchema = z.union([
+  sceneObjectConfigSchema,
+  cameraObjectConfigSchema,
+  animationObjectConfigSchema,
+  lightObjectConfigSchema,
+  meshObjectConfigSchema,
 ])
-export type ObjectReference = z.infer<typeof objectReferenceSchema>
+export type ObjectConfig = z.infer<typeof objectConfigSchema>

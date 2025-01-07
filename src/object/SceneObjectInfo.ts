@@ -1,64 +1,37 @@
 import * as THREE from 'three'
-import DataStorage from '../utils/DataStorage'
 import * as z from 'zod'
 import { getChildren } from './children'
-import { ObjectInfo } from './ObjectInfo'
-import { ObjectInSceneInfo } from './ObjectInSceneInfo'
+import { InSceneObjectInfo } from './InSceneObjectInfo'
+import { v4 as uuidv4 } from 'uuid'
 
-export const sceneObjectReferenceSchema = z.object({
+export const sceneObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_SCENE'),
-  id: z.number(),
+  id: z.string(),
+  inSceneId: z.number(),
+  sceneId: z.number(),
 })
 
-export type SceneObjectReference = z.infer<typeof sceneObjectReferenceSchema>
+export type SceneObjectConfig = z.infer<typeof sceneObjectConfigSchema>
 
-export class SceneObjectInfo extends ObjectInfo<
-  SceneObjectReference,
-  THREE.Scene
-> {
-  children: ObjectInSceneInfo[]
+export class SceneObjectInfo extends InSceneObjectInfo {
+  readonly config: SceneObjectConfig
+  readonly data: THREE.Scene
+  readonly children: InSceneObjectInfo[]
 
-  static fromGroup(group: THREE.Group) {
-    const scene = new THREE.Scene()
-    group.children.forEach(child => {
-      scene.add(child)
-    })
-    scene.name = group.name
-    return new SceneObjectInfo(scene)
+  protected getChildren(): InSceneObjectInfo[] {
+    return getChildren(this.data, this.config.inSceneId)
   }
 
-  protected getChildren(
-    data: THREE.Scene,
-    sceneId: number
-  ): ObjectInSceneInfo[] {
-    return getChildren(data, sceneId)
-  }
-
-  findChildrenByNativeId(id: number): ObjectInSceneInfo | null {
-    for (const child of this.children) {
-      const result = child.findChildrenByNativeId(id)
-      if (result !== null) {
-        return result
-      }
+  constructor(data: THREE.Scene, id?: string) {
+    super()
+    this.config = {
+      type: 'OBJECT_3D_SCENE',
+      id: id ?? uuidv4(),
+      sceneId: data.id,
+      inSceneId: data.id,
     }
-
-    return null
-  }
-
-  constructor(data: THREE.Scene) {
-    super(
-      {
-        type: 'OBJECT_3D_SCENE',
-        id: data.id,
-      },
-      data
-    )
-    this.children = this.getChildren(data, data.id)
-  }
-
-  addObjectInSceneInfo(objectInfo: ObjectInSceneInfo) {
-    this.children.push(objectInfo)
-    this.data.add(objectInfo.data as THREE.Object3D)
+    this.data = data
+    this.children = this.getChildren()
   }
 
   get name() {
@@ -70,26 +43,17 @@ export class SceneObjectInfo extends ObjectInfo<
   }
 }
 
-export class SceneObjectInfoStorage extends DataStorage<
-  SceneObjectReference,
-  SceneObjectInfo
-> {
-  constructor() {
-    super(reference => reference.id.toString())
-  }
+export function createSceneObjectInfoFromGroup(group: THREE.Group) {
+  const scene = new THREE.Scene()
+  group.children.forEach(child => {
+    scene.add(child)
+  })
+  scene.name = group.name
+  return new SceneObjectInfo(scene)
+}
 
-  setNative(scene: THREE.Scene) {
-    const sceneObjectInfo = new SceneObjectInfo(scene)
-    this.set(sceneObjectInfo.reference, sceneObjectInfo)
-  }
-
-  setMultipleNative(scenes: THREE.Group<THREE.Object3DEventMap>[]) {
-    scenes.forEach(scene => {
-      const newScene = new THREE.Scene()
-      scene.children.forEach(child => {
-        newScene.add(child)
-      })
-      this.setNative(newScene)
-    })
-  }
+export function createEmptySceneObjectInfo(name: string) {
+  const scene = new THREE.Scene()
+  scene.name = name
+  return new SceneObjectInfo(scene)
 }

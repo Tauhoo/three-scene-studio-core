@@ -1,16 +1,12 @@
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
-import { ObjectInfo, ObjectReference, objectReferenceSchema } from '../object'
-import { assignValue } from '../utils/objectPath'
+import { ObjectInfo, ObjectPath, objectPathSchema } from '../object'
 import { Variable } from '.'
-
-export const objectPathSchema = z.array(z.string())
-export type ObjectPath = z.infer<typeof objectPathSchema>
 
 export const variableConnectorConfigSchema = z.object({
   id: z.string(),
   variableId: z.string(),
-  objectReference: objectReferenceSchema,
+  objectId: z.string(),
   objectPath: objectPathSchema,
 })
 
@@ -36,8 +32,10 @@ class VariableConnector {
     this.objectInfo = objectInfo
     this.objectPath = objectPath
     this.updateObject = (value: number) => {
-      let data = this.objectInfo as any
-      assignValue(data, this.objectPath, value)
+      const result = this.objectInfo.setValue(this.objectPath, value)
+      if (result.status === 'ERROR') {
+        console.error(result.error)
+      }
     }
     const originVariable: Variable = variable
     originVariable.dispatcher.addListener('VALUE_CHANGED', this.updateObject)
@@ -63,8 +61,8 @@ class VariableConnector {
   serialize(): VariableConnectorConfig {
     return {
       id: this.id,
-      variableId: this.variable.serialize().id,
-      objectReference: this.objectInfo.serialize() as ObjectReference,
+      variableId: this.variable.id,
+      objectId: this.objectInfo.config.id,
       objectPath: this.objectPath,
     }
   }
