@@ -11,22 +11,19 @@ export type ObjectInSceneInfoConfig = ObjectConfig & InSceneIdentifier
 export abstract class InSceneObjectInfo extends ObjectInfo {
   abstract readonly config: ObjectInSceneInfoConfig
   abstract readonly data: THREE.Object3D
-  readonly children: InSceneObjectInfo[]
+  abstract children: InSceneObjectInfo[]
 
   constructor() {
     super()
-    this.children = this.getChildren()
   }
 
-  protected abstract getChildren(): InSceneObjectInfo[]
-
-  findChildrenByNativeId(id: number): InSceneObjectInfo | null {
+  findChildrenByInSceneId(id: number): InSceneObjectInfo | null {
     if (this.config.inSceneId === id) {
       return this
     }
 
     for (const child of this.children) {
-      const result = child.findChildrenByNativeId(id)
+      const result = child.findChildrenByInSceneId(id)
       if (result !== null) {
         return result
       }

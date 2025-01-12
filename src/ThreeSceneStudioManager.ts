@@ -38,8 +38,8 @@ export class ThreeSceneStudioManager {
     this.context = context
     this.objectInfoManager = new ObjectInfoManager()
 
-    this.objectInfoManager.addListener(
-      'OBJECT_INFO_ADDED',
+    this.objectInfoManager.objectInfoStorage.addListener(
+      'ADD',
       this.onObjectInfoAdded
     )
     const cameras =

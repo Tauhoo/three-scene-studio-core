@@ -24,4 +24,11 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   getAnimationObjectInfos() {
     return this.getAll().filter(value => value instanceof AnimationObjectInfo)
   }
+
+  getSceneBySceneId(sceneId: number) {
+    return this.getAll().find(
+      value =>
+        value instanceof SceneObjectInfo && value.config.sceneId === sceneId
+    )
+  }
 }

@@ -27,11 +27,7 @@ export class MeshObjectInfo extends InSceneObjectInfo {
       inSceneId: data.id,
     }
     this.data = data
-    this.children = this.getChildren()
-  }
-
-  protected getChildren(): InSceneObjectInfo[] {
-    return getChildren(this.data, this.config.sceneId)
+    this.children = getChildren(this.data, this.config.sceneId)
   }
 
   get name() {

@@ -36,12 +36,13 @@ class DataStorage<K, V> extends EventDispatcher<EventType<V>> {
 
   set(reference: K, value: V) {
     const key = this.keyConverter(reference)
-    if (key in this.dataMap) {
+    let isUpdate = key in this.dataMap
+    this.dataMap[key] = value
+    if (isUpdate) {
       this.dispatch('UPDATE', value)
     } else {
       this.dispatch('ADD', value)
     }
-    this.dataMap[key] = value
   }
 
   get(reference: K) {
@@ -51,9 +52,10 @@ class DataStorage<K, V> extends EventDispatcher<EventType<V>> {
 
   delete(reference: K) {
     const key = this.keyConverter(reference)
+    const value = this.dataMap[key]
     if (key in this.dataMap) {
-      this.dispatch('DELETE', this.dataMap[key])
       delete this.dataMap[key]
+      this.dispatch('DELETE', value)
     }
   }
 

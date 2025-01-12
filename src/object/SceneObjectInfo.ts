@@ -18,10 +18,6 @@ export class SceneObjectInfo extends InSceneObjectInfo {
   readonly data: THREE.Scene
   readonly children: InSceneObjectInfo[]
 
-  protected getChildren(): InSceneObjectInfo[] {
-    return getChildren(this.data, this.config.inSceneId)
-  }
-
   constructor(data: THREE.Scene, id?: string) {
     super()
     this.config = {
@@ -31,7 +27,7 @@ export class SceneObjectInfo extends InSceneObjectInfo {
       inSceneId: data.id,
     }
     this.data = data
-    this.children = this.getChildren()
+    this.children = getChildren(this.data, this.config.inSceneId)
   }
 
   get name() {
