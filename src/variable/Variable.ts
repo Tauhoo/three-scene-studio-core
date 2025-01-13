@@ -30,6 +30,8 @@ export abstract class Variable {
     this.dispatcher.dispatch('VALUE_CHANGED', value)
   }
 
+  destroy() {}
+
   abstract serialize(): {
     type: string
     id: string

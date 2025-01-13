@@ -15,14 +15,16 @@ import { parseExpression } from '../utils/expression'
 import {
   FormulaVariable,
   formulaVariableConfigSchema,
-} from './FormularVariable'
+} from './formula/FormularVariable'
 import Context from '../utils/Context'
 import {
   GlobalFormulaVariable,
   globalFormulaVariableConfigSchema,
-} from './GlobalFormulaVariable'
+} from './formula/GlobalFormulaVariable'
 import { Variable } from './Variable'
 import { ReferrableVariable } from './ReferrableVariable'
+import { FormulaObjectInfo, ObjectInfoManager } from '../object'
+import ReferableVariableManager from './ReferableVariableManager'
 
 export * from './VariableConnector'
 export * from './VariableConnectorStorage'
@@ -33,8 +35,7 @@ export * from './VariableStorage'
 export * from './ExternalVariable'
 export * from './ContainerWidthVariable'
 export * from './ContainerHeightVariable'
-export * from './FormularVariable'
-export * from './GlobalFormulaVariable'
+export * from './formula'
 
 export * from './ReferrableVariable'
 export * from './Variable'
@@ -63,6 +64,7 @@ export type ReferrableVariableType = ReferrableVariableConfig['type']
 
 export function createVariableFromConfig(
   context: Context,
+  objectInfoManager: ObjectInfoManager,
   config: VariableConfig
 ): Variable | null {
   switch (config.type) {
@@ -88,19 +90,23 @@ export function createVariableFromConfig(
         config.id
       )
     case 'FORMULA':
-      const formula = parseExpression(config.formula)
-      if (formula.status === 'ERROR') {
+      const formulaObject = objectInfoManager.objectInfoStorage.get(
+        config.formulaObjectInfoId
+      )
+      if (!(formulaObject instanceof FormulaObjectInfo)) {
         return null
       }
-      return new FormulaVariable(formula.data, config.id)
+      return new FormulaVariable(formulaObject, config.id)
     case 'GLOBAL_FORMULA': {
-      const formula = parseExpression(config.formula)
-      if (formula.status === 'ERROR') {
+      const formulaObject = objectInfoManager.objectInfoStorage.get(
+        config.formulaObjectInfoId
+      )
+      if (!(formulaObject instanceof FormulaObjectInfo)) {
         return null
       }
       return new GlobalFormulaVariable(
         config.ref,
-        formula.data,
+        formulaObject,
         config.name,
         config.id
       )
@@ -109,6 +115,7 @@ export function createVariableFromConfig(
 }
 
 export function createDefaultVariable(
+  referableVariableManager: ReferableVariableManager,
   type: ReferrableVariableType,
   name: string,
   ref: string
@@ -121,7 +128,12 @@ export function createDefaultVariable(
       if (formula.status === 'ERROR') {
         return null
       }
-      return new GlobalFormulaVariable(ref, formula.data, name)
+      const formulaObjectInfo = new FormulaObjectInfo(
+        referableVariableManager,
+        formula.data,
+        ref
+      )
+      return new GlobalFormulaVariable(ref, formulaObjectInfo, name)
     }
   }
 }

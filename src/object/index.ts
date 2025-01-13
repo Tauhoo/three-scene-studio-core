@@ -11,9 +11,14 @@ import {
 import { MeshObjectInfo, meshObjectConfigSchema } from './MeshObjectInfo'
 import { LightObjectInfo, lightObjectConfigSchema } from './LightObjectInfo'
 import { GroupObjectInfo } from './GroupObjectInfo'
+import {
+  formulaObjectConfigSchema,
+  FormulaObjectInfo,
+} from './FormulaObjectInfo'
 export * from './ObjectInfo'
 export * from './InSceneObjectInfo'
 export * from './SceneObjectInfo'
+export * from './FormulaObjectInfo'
 export * from './camera/CameraObjectInfo'
 export * from './AnimationObjectInfo'
 export * from './MeshObjectInfo'
@@ -24,13 +29,13 @@ export * from './camera'
 export * from './ObjectInfoManager'
 
 export type SystemObjectInfo =
+  | FormulaObjectInfo
   | SceneObjectInfo
   | CameraObjectInfo
   | AnimationObjectInfo
   | LightObjectInfo
   | MeshObjectInfo
   | GroupObjectInfo
-
 export type SystemObjectInSceneInfo =
   | LightObjectInfo
   | MeshObjectInfo
@@ -43,5 +48,6 @@ export const objectConfigSchema = z.union([
   animationObjectConfigSchema,
   lightObjectConfigSchema,
   meshObjectConfigSchema,
+  formulaObjectConfigSchema,
 ])
 export type ObjectConfig = z.infer<typeof objectConfigSchema>

@@ -8,6 +8,7 @@ import {
 import { Variable } from './Variable'
 import Context from '../utils/Context'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
+import { ObjectInfoManager } from '../object'
 
 export const variableStorageConfigSchema = z.object({
   variables: z.array(variableConfigSchema),
@@ -61,9 +62,17 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
     })
   }
 
-  loadConfig(context: Context, config: VariableStorageConfig) {
+  loadConfig(
+    context: Context,
+    objectInfoManager: ObjectInfoManager,
+    config: VariableStorageConfig
+  ) {
     config.variables.forEach(variableConfig => {
-      const variable = createVariableFromConfig(context, variableConfig)
+      const variable = createVariableFromConfig(
+        context,
+        objectInfoManager,
+        variableConfig
+      )
       if (variable instanceof Variable) {
         this.idStorage.set(variable.id, variable)
       }

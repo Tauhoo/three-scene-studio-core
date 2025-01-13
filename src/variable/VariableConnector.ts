@@ -39,6 +39,7 @@ class VariableConnector {
     }
     const originVariable: Variable = variable
     originVariable.dispatcher.addListener('VALUE_CHANGED', this.updateObject)
+    this.updateObject(originVariable.value)
   }
 
   getVariable() {

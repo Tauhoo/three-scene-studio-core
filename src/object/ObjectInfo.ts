@@ -49,4 +49,6 @@ export abstract class ObjectInfo {
     }
     return successResponse(object[objectPath[objectPath.length - 1]])
   }
+
+  destroy() {}
 }
