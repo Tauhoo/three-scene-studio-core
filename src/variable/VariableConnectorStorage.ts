@@ -31,10 +31,13 @@ class VariableConnectorStorage {
   }
 
   delete(objectId: string, objectPath: ObjectPath) {
+    const connector = this.get(objectId, objectPath)
+    if (connector === null) return
     this.pathStorage.delete({
       objectPath,
       objectId,
     })
+    connector.destroy()
   }
 
   get(objectId: string, objectPath: ObjectPath) {
@@ -64,24 +67,22 @@ class VariableConnectorStorage {
     return connector
   }
 
-  deleteVariableConnectors(id: string) {
+  deleteVariableConnectors(variableId: string) {
     for (const connector of this.pathStorage.getAll()) {
-      if (connector.getVariable().id === id) {
-        this.pathStorage.delete({
-          objectPath: connector.getObjectPath(),
-          objectId: connector.getObjectInfo().config.id,
-        })
+      if (connector.getVariable().id === variableId) {
+        this.delete(
+          connector.getObjectInfo().config.id,
+          connector.getObjectPath()
+        )
       }
     }
   }
 
-  deleteObjectConnectors(id: string) {
+  deleteObjectConnectors(objectId: string) {
     for (const connector of this.pathStorage.getAll()) {
-      if (connector.getObjectInfo().config.id === id) {
-        this.pathStorage.delete({
-          objectPath: connector.getObjectPath(),
-          objectId: connector.getObjectInfo().config.id,
-        })
+      const objectInfo = connector.getObjectInfo()
+      if (objectInfo.config.id === objectId) {
+        this.delete(objectInfo.config.id, connector.getObjectPath())
       }
     }
   }

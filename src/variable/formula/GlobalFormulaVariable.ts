@@ -63,11 +63,14 @@ export class GlobalFormulaVariable extends ReferrableVariable {
       'FORMULA_VALUE_UPDATE',
       this.onFormulaValueUpdate
     )
+    this.variableConnectorStorage.deleteObjectConnectors(
+      this.formulaObjectInfo.config.id
+    )
     this.objectInfoManager.objectInfoStorage.delete(
       this.formulaObjectInfo.config.id
     )
-    this.variableConnectorStorage.deleteObjectConnectors(this.id)
     this.formulaObjectInfo.destroy()
+    super.destroy()
   }
 
   serialize(): GlobalFormulaVariableConfig {

@@ -3,7 +3,6 @@ import { ObjectInfo, ObjectPath } from './ObjectInfo'
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { ReferrableVariable } from '../variable'
-import VariableConnector from '../variable/VariableConnector'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import VariableManager from '../variable/VariableManager'
 
@@ -78,14 +77,16 @@ export class FormulaObjectInfo extends ObjectInfo {
     for (const variable of variables) {
       // set up initial data
       this.data[variable.ref] = variable.value
-
-      // set up connector
-      const connector = new VariableConnector(variable, this, [variable.ref])
-      this.variableManager.variableConnectorStorage.set(connector)
     }
 
-    // calculate initial value
-    this.calculateValue()
+    for (const variable of variables) {
+      // set up connector
+      this.variableManager.variableConnectorStorage.connectVariableToObjectInfo(
+        variable,
+        this,
+        [variable.ref]
+      )
+    }
   }
 
   getFormulaInfo() {
@@ -96,6 +97,10 @@ export class FormulaObjectInfo extends ObjectInfo {
     const defaultNotFoundValue = Object.fromEntries(
       this.notFoundVariables.map(value => [value, 0])
     )
+    console.log({
+      ...this.data,
+      ...defaultNotFoundValue,
+    })
 
     const newValue = this.formulaInfo.node.evaluate({
       ...this.data,
