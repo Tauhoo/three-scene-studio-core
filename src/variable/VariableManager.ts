@@ -52,10 +52,12 @@ class VariableManager {
 
   // Variable initializers
 
-  createFormulaVariable(
-    formulaObjectInfo: FormulaObjectInfo,
-    id?: string
-  ): FormulaVariable {
+  createFormulaVariable(formula: string, id?: string): FormulaVariable {
+    const parsedResult = parseExpression(formula)
+    if (parsedResult.status === 'ERROR') {
+      throw new Error(parsedResult.error)
+    }
+    const formulaObjectInfo = new FormulaObjectInfo(this, parsedResult.data)
     const variable = new FormulaVariable(
       formulaObjectInfo,
       this.objectInfoManager,

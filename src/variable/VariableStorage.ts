@@ -65,8 +65,15 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
     return this.idStorage.getAll()
   }
 
+  getAllReferrableVariables() {
+    return this.refStorage.getAll()
+  }
+
   setVariable(variable: Variable) {
     this.idStorage.set(variable.id, variable)
+    if (variable instanceof ReferrableVariable) {
+      this.refStorage.set(variable.ref, variable)
+    }
     this.dispatch('SET_VARIABLE', {
       variable,
     })
@@ -139,7 +146,7 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
         variableConfig
       )
       if (variable instanceof Variable) {
-        this.idStorage.set(variable.id, variable)
+        this.setVariable(variable)
       }
     })
   }
