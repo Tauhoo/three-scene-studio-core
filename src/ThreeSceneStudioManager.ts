@@ -15,6 +15,7 @@ import Context from './utils/Context'
 import Renderer from './Renderer'
 import { Clock } from './Clock'
 import ReferableVariableManager from './variable/ReferableVariableManager'
+import { TimeVariable } from './variable/TimeVariable'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
   variableManagerConfig: variableManagerConfigSchema,
@@ -49,7 +50,7 @@ export class ThreeSceneStudioManager {
     const scenes =
       this.objectInfoManager.objectInfoStorage.getSceneObjectInfos()
     this.sceneSwitcher = new Switcher(scenes)
-
+    this.clock = new Clock()
     this.variableManager = new VariableManager()
     this.referableVariableManager = new ReferableVariableManager()
 
@@ -72,8 +73,9 @@ export class ThreeSceneStudioManager {
     this.referableVariableManager.variableStorage.setVariable(
       containerWidthVariable
     )
+    const timeVariable = new TimeVariable(this.clock, 'TIME', 't', uuidv4())
+    this.referableVariableManager.variableStorage.setVariable(timeVariable)
 
-    this.clock = new Clock()
     this.renderer = new Renderer(
       context,
       this.cameraSwitcher,

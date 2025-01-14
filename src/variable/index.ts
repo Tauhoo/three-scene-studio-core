@@ -25,6 +25,8 @@ import { Variable } from './Variable'
 import { ReferrableVariable } from './ReferrableVariable'
 import { FormulaObjectInfo, ObjectInfoManager } from '../object'
 import ReferableVariableManager from './ReferableVariableManager'
+import { TimeVariable, timeVariableConfigSchema } from './TimeVariable'
+import { Clock } from '../Clock'
 
 export * from './VariableConnector'
 export * from './VariableConnectorStorage'
