@@ -1,14 +1,16 @@
 import * as z from 'zod'
 import DataStorage from '../utils/DataStorage'
 import {
-  createVariableFromConfig,
+  FormulaVariable,
+  GlobalFormulaVariable,
+  ReferrableVariable,
   VariableConfig,
   variableConfigSchema,
+  VariableGroup,
 } from '.'
 import { Variable } from './Variable'
-import Context from '../utils/Context'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
-import { ObjectInfoManager } from '../object'
+import { FormulaObjectInfo, ObjectInfoManager } from '../object'
 
 export const variableStorageConfigSchema = z.object({
   variables: z.array(variableConfigSchema),
@@ -32,16 +34,21 @@ export type VariableStorageEvent =
 
 class VariableStorage extends EventDispatcher<VariableStorageEvent> {
   protected idStorage: DataStorage<string, Variable>
+  private refStorage: DataStorage<string, ReferrableVariable>
 
   constructor() {
     super()
     this.idStorage = new DataStorage<string, Variable>(id => id)
+    this.refStorage = new DataStorage<string, ReferrableVariable>(ref => ref)
   }
 
   deleteVariableById(id: string) {
     const variable = this.getVariableById(id)
     if (variable === null) return
     this.idStorage.delete(id)
+    if (variable instanceof ReferrableVariable) {
+      this.refStorage.delete(variable.ref)
+    }
     this.dispatch('DELETE_VARIABLE', {
       variable,
     })
@@ -62,14 +69,62 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
     })
   }
 
+  searchVariable(search: string, group: VariableGroup | null = null) {
+    return this.refStorage.getAll().filter(variable => {
+      if (variable.group === group || group === null) {
+        if (variable.ref.includes(search)) {
+          return true
+        }
+        if (variable.name.includes(search)) {
+          return true
+        }
+        return false
+      } else {
+        return false
+      }
+    })
+  }
+
+  getVariableByRef(ref: string) {
+    return this.refStorage.get(ref)
+  }
+
+  private createVariableFromConfig(
+    objectInfoManager: ObjectInfoManager,
+    config: VariableConfig
+  ): Variable | null {
+    switch (config.type) {
+      case 'FORMULA':
+        const formulaObject = objectInfoManager.objectInfoStorage.get(
+          config.formulaObjectInfoId
+        )
+        if (!(formulaObject instanceof FormulaObjectInfo)) {
+          return null
+        }
+        return new FormulaVariable(formulaObject, config.id)
+      case 'GLOBAL_FORMULA': {
+        const formulaObject = objectInfoManager.objectInfoStorage.get(
+          config.formulaObjectInfoId
+        )
+        if (!(formulaObject instanceof FormulaObjectInfo)) {
+          return null
+        }
+        return new GlobalFormulaVariable(
+          config.ref,
+          formulaObject,
+          config.name,
+          config.id
+        )
+      }
+    }
+  }
+
   loadConfig(
-    context: Context,
     objectInfoManager: ObjectInfoManager,
     config: VariableStorageConfig
   ) {
     config.variables.forEach(variableConfig => {
-      const variable = createVariableFromConfig(
-        context,
+      const variable = this.createVariableFromConfig(
         objectInfoManager,
         variableConfig
       )

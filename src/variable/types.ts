@@ -1,1 +1,1 @@
-export type VariableGroup = 'SYSTEM' | 'USER_DEFINED'
+export type VariableGroup = 'SYSTEM' | 'USER_DEFINED' | 'PRIVATE'

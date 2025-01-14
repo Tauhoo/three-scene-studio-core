@@ -7,7 +7,7 @@ import VariableConnector, {
 import VariableStorage from './VariableStorage'
 import { ReferrableVariable } from './ReferrableVariable'
 import { Variable } from './Variable'
-import { ObjectPath } from '../object'
+import { ObjectInfo, ObjectPath } from '../object'
 
 export const variableConnectorStorageConfigSchema = z.object({
   connectors: z.array(variableConnectorConfigSchema),
@@ -52,6 +52,27 @@ class VariableConnectorStorage {
       },
       connector
     )
+  }
+
+  connectVariableToObjectInfo(
+    variable: Variable,
+    objectInfo: ObjectInfo,
+    objectPath: ObjectPath
+  ) {
+    const connector = new VariableConnector(variable, objectInfo, objectPath)
+    this.set(connector)
+    return connector
+  }
+
+  deleteVariableConnectors(id: string) {
+    for (const connector of this.pathStorage.getAll()) {
+      if (connector.getVariable().id === id) {
+        this.pathStorage.delete({
+          objectPath: connector.getObjectPath(),
+          objectId: id,
+        })
+      }
+    }
   }
 
   loadConfig(

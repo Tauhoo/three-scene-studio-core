@@ -14,7 +14,7 @@ export type FormulaVariableConfig = z.infer<typeof formulaVariableConfigSchema>
 
 export class FormulaVariable extends Variable {
   type: 'FORMULA' = 'FORMULA'
-  group: 'SYSTEM' = 'SYSTEM'
+  group: 'PRIVATE' = 'PRIVATE'
   dispatcher = new EventDispatcher<VariableEventPacket>()
   private formulaObjectInfo: FormulaObjectInfo
 

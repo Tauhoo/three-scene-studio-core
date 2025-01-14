@@ -6,16 +6,12 @@ import {
   SceneObjectInfo,
 } from './object'
 import Switcher from './utils/Switcher'
-import { v4 as uuidv4 } from 'uuid'
 import VariableManager, {
   variableManagerConfigSchema,
 } from './variable/VariableManager'
-import { ContainerHeightVariable, ContainerWidthVariable } from './variable'
 import Context from './utils/Context'
 import Renderer from './Renderer'
 import { Clock } from './Clock'
-import ReferableVariableManager from './variable/ReferableVariableManager'
-import { TimeVariable } from './variable/TimeVariable'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
   variableManagerConfig: variableManagerConfigSchema,
@@ -30,7 +26,6 @@ export class ThreeSceneStudioManager {
   readonly cameraSwitcher: Switcher<CameraObjectInfo>
   readonly sceneSwitcher: Switcher<SceneObjectInfo>
   readonly variableManager: VariableManager
-  readonly referableVariableManager: ReferableVariableManager
   readonly renderer: Renderer
   readonly context: Context
   readonly clock: Clock
@@ -51,31 +46,21 @@ export class ThreeSceneStudioManager {
       this.objectInfoManager.objectInfoStorage.getSceneObjectInfos()
     this.sceneSwitcher = new Switcher(scenes)
     this.clock = new Clock()
-    this.variableManager = new VariableManager()
-    this.referableVariableManager = new ReferableVariableManager()
+    this.variableManager = new VariableManager(
+      this.objectInfoManager,
+      this.context,
+      this.clock
+    )
 
     // setup system variables
-    const containerHeightVariable = new ContainerHeightVariable(
-      context,
-      'CONTAINER_HEIGHT',
-      'ch',
-      uuidv4()
-    )
-    this.referableVariableManager.variableStorage.setVariable(
-      containerHeightVariable
-    )
-    const containerWidthVariable = new ContainerWidthVariable(
-      context,
-      'CONTAINER_WIDTH',
-      'cw',
-      uuidv4()
-    )
-    this.referableVariableManager.variableStorage.setVariable(
-      containerWidthVariable
-    )
-    const timeVariable = new TimeVariable(this.clock, 'TIME', 't', uuidv4())
-    this.referableVariableManager.variableStorage.setVariable(timeVariable)
-
+    const containerHeightVariable =
+      this.variableManager.createContainerHeightVariable(
+        'CONTAINER_HEIGHT',
+        'ch'
+      )
+    const containerWidthVariable =
+      this.variableManager.createContainerWidthVariable('CONTAINER_WIDTH', 'cw')
+    this.variableManager.createTimeVariable('TIME', 't')
     this.renderer = new Renderer(
       context,
       this.cameraSwitcher,
@@ -97,13 +82,7 @@ export class ThreeSceneStudioManager {
   loadConfig(context: Context, config: ThreeSceneStudioManagerConfig) {
     // implement load gltf
     this.variableManager.loadConfig(
-      context,
       config.variableManagerConfig,
-      this.objectInfoManager
-    )
-    this.referableVariableManager.loadConfig(
-      context,
-      config.referableVariableManagerConfig,
       this.objectInfoManager
     )
   }
@@ -111,7 +90,6 @@ export class ThreeSceneStudioManager {
   serialize() {
     return {
       variableManagerConfig: this.variableManager.serialize(),
-      referableVariableManagerConfig: this.referableVariableManager.serialize(),
     }
   }
 }
