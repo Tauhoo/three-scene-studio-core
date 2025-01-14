@@ -32,8 +32,8 @@ export const variableManagerConfigSchema = z.object({
 export type VariableManagerConfig = z.infer<typeof variableManagerConfigSchema>
 
 class VariableManager {
-  readonly variableStorage = new VariableStorage()
-  readonly variableConnectorStorage = new VariableConnectorStorage()
+  readonly variableStorage
+  readonly variableConnectorStorage
   private objectInfoManager: ObjectInfoManager
   private context: Context
   private clock: Clock
@@ -43,6 +43,8 @@ class VariableManager {
     context: Context,
     clock: Clock
   ) {
+    this.variableConnectorStorage = new VariableConnectorStorage()
+    this.variableStorage = new VariableStorage(this.variableConnectorStorage)
     this.objectInfoManager = objectInfoManager
     this.context = context
     this.clock = clock
@@ -54,7 +56,12 @@ class VariableManager {
     formulaObjectInfo: FormulaObjectInfo,
     id?: string
   ): FormulaVariable {
-    const variable = new FormulaVariable(formulaObjectInfo, id)
+    const variable = new FormulaVariable(
+      formulaObjectInfo,
+      this.objectInfoManager,
+      this.variableConnectorStorage,
+      id
+    )
     this.variableStorage.setVariable(variable)
     return variable
   }
@@ -75,7 +82,14 @@ class VariableManager {
       ref
     )
     this.objectInfoManager.objectInfoStorage.setObjectInfo(formulaObjectInfo)
-    const variable = new GlobalFormulaVariable(ref, formulaObjectInfo, name, id)
+    const variable = new GlobalFormulaVariable(
+      ref,
+      formulaObjectInfo,
+      name,
+      this.objectInfoManager,
+      this.variableConnectorStorage,
+      id
+    )
     this.variableStorage.setVariable(variable)
     return variable
   }

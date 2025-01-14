@@ -1,7 +1,8 @@
 import * as z from 'zod'
 import { Variable, VariableEventPacket } from '../Variable'
 import EventDispatcher from '../../utils/EventDispatcher'
-import { FormulaObjectInfo } from '../../object'
+import { FormulaObjectInfo, ObjectInfoManager } from '../../object'
+import VariableConnectorStorage from '../VariableConnectorStorage'
 
 export const formulaVariableConfigSchema = z.object({
   type: z.literal('FORMULA'),
@@ -17,13 +18,21 @@ export class FormulaVariable extends Variable {
   group: 'PRIVATE' = 'PRIVATE'
   dispatcher = new EventDispatcher<VariableEventPacket>()
   private formulaObjectInfo: FormulaObjectInfo
-
+  private objectInfoManager: ObjectInfoManager
+  private variableConnectorStorage: VariableConnectorStorage
   getFormulaObjectInfo() {
     return this.formulaObjectInfo
   }
 
-  constructor(formulaObjectInfo: FormulaObjectInfo, id?: string) {
+  constructor(
+    formulaObjectInfo: FormulaObjectInfo,
+    objectInfoManager: ObjectInfoManager,
+    variableConnectorStorage: VariableConnectorStorage,
+    id?: string
+  ) {
     super(formulaObjectInfo.value, id)
+    this.variableConnectorStorage = variableConnectorStorage
+    this.objectInfoManager = objectInfoManager
     this.formulaObjectInfo = formulaObjectInfo
     this.formulaObjectInfo.eventDispatcher.addListener(
       'FORMULA_VALUE_UPDATE',
@@ -40,6 +49,10 @@ export class FormulaVariable extends Variable {
       'FORMULA_VALUE_UPDATE',
       this.onFormulaValueUpdate
     )
+    this.objectInfoManager.objectInfoStorage.delete(
+      this.formulaObjectInfo.config.id
+    )
+    this.variableConnectorStorage.deleteObjectConnectors(this.id)
     this.formulaObjectInfo.destroy()
   }
 

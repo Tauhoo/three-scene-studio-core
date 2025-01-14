@@ -3,7 +3,8 @@ import { VariableEventPacket } from '../Variable'
 import { FormulaInfo } from '../../utils/expression'
 import EventDispatcher, { EventPacket } from '../../utils/EventDispatcher'
 import { ReferrableVariable } from '../ReferrableVariable'
-import { FormulaObjectInfo } from '../../object'
+import { FormulaObjectInfo, ObjectInfoManager } from '../../object'
+import VariableConnectorStorage from '../VariableConnectorStorage'
 
 export const globalFormulaVariableConfigSchema = z.object({
   type: z.literal('GLOBAL_FORMULA'),
@@ -28,6 +29,8 @@ export class GlobalFormulaVariable extends ReferrableVariable {
   group: 'USER_DEFINED' = 'USER_DEFINED'
   dispatcher = new EventDispatcher<VariableEventPacket>()
   private formulaObjectInfo: FormulaObjectInfo
+  private objectInfoManager: ObjectInfoManager
+  private variableConnectorStorage: VariableConnectorStorage
 
   getFormulaObjectInfo() {
     return this.formulaObjectInfo
@@ -37,9 +40,13 @@ export class GlobalFormulaVariable extends ReferrableVariable {
     ref: string,
     formulaObjectInfo: FormulaObjectInfo,
     name: string,
+    objectInfoManager: ObjectInfoManager,
+    variableConnectorStorage: VariableConnectorStorage,
     id?: string
   ) {
     super(name, formulaObjectInfo.value, ref, id)
+    this.objectInfoManager = objectInfoManager
+    this.variableConnectorStorage = variableConnectorStorage
     this.formulaObjectInfo = formulaObjectInfo
     this.formulaObjectInfo.eventDispatcher.addListener(
       'FORMULA_VALUE_UPDATE',
@@ -56,6 +63,10 @@ export class GlobalFormulaVariable extends ReferrableVariable {
       'FORMULA_VALUE_UPDATE',
       this.onFormulaValueUpdate
     )
+    this.objectInfoManager.objectInfoStorage.delete(
+      this.formulaObjectInfo.config.id
+    )
+    this.variableConnectorStorage.deleteObjectConnectors(this.id)
     this.formulaObjectInfo.destroy()
   }
 

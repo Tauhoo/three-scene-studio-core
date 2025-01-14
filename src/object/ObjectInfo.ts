@@ -1,3 +1,4 @@
+import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { errorResponse, successResponse } from '../utils/response'
 import { z } from 'zod'
 
@@ -9,7 +10,9 @@ export interface ObjectConfig {
   id: string
 }
 
-export abstract class ObjectInfo {
+type ObjectInfoEvent = EventPacket<'DESTROY', null>
+
+export abstract class ObjectInfo extends EventDispatcher<ObjectInfoEvent> {
   abstract readonly config: ObjectConfig
   abstract readonly data: any
   serialize() {
@@ -50,5 +53,7 @@ export abstract class ObjectInfo {
     return successResponse(object[objectPath[objectPath.length - 1]])
   }
 
-  destroy() {}
+  destroy() {
+    this.dispatch('DESTROY', null)
+  }
 }

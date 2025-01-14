@@ -11,6 +11,7 @@ import {
 import { Variable } from './Variable'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { FormulaObjectInfo, ObjectInfoManager } from '../object'
+import VariableConnectorStorage from './VariableConnectorStorage'
 
 export const variableStorageConfigSchema = z.object({
   variables: z.array(variableConfigSchema),
@@ -35,11 +36,13 @@ export type VariableStorageEvent =
 class VariableStorage extends EventDispatcher<VariableStorageEvent> {
   protected idStorage: DataStorage<string, Variable>
   private refStorage: DataStorage<string, ReferrableVariable>
+  private variableConnectorStorage: VariableConnectorStorage
 
-  constructor() {
+  constructor(variableConnectorStorage: VariableConnectorStorage) {
     super()
     this.idStorage = new DataStorage<string, Variable>(id => id)
     this.refStorage = new DataStorage<string, ReferrableVariable>(ref => ref)
+    this.variableConnectorStorage = variableConnectorStorage
   }
 
   deleteVariableById(id: string) {
@@ -101,7 +104,12 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
         if (!(formulaObject instanceof FormulaObjectInfo)) {
           return null
         }
-        return new FormulaVariable(formulaObject, config.id)
+        return new FormulaVariable(
+          formulaObject,
+          objectInfoManager,
+          this.variableConnectorStorage,
+          config.id
+        )
       case 'GLOBAL_FORMULA': {
         const formulaObject = objectInfoManager.objectInfoStorage.get(
           config.formulaObjectInfoId
@@ -113,6 +121,8 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
           config.ref,
           formulaObject,
           config.name,
+          objectInfoManager,
+          this.variableConnectorStorage,
           config.id
         )
       }

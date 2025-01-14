@@ -1,12 +1,11 @@
-import { FormulaInfo, parseExpression } from '../utils/expression'
+import { FormulaInfo } from '../utils/expression'
 import { ObjectInfo, ObjectPath } from './ObjectInfo'
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
-import ReferableVariableStorage from '../variable/ReferableVariableStorage'
 import { ReferrableVariable } from '../variable'
-import ReferableVariableManager from '../variable/ReferableVariableManager'
 import VariableConnector from '../variable/VariableConnector'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
+import VariableManager from '../variable/VariableManager'
 
 export const formulaObjectConfigSchema = z.object({
   type: z.literal('FORMULA'),
@@ -26,14 +25,14 @@ export class FormulaObjectInfo extends ObjectInfo {
   readonly config: FormulaObjectConfig
   readonly data: Record<string, number> = {}
   private formulaInfo: FormulaInfo
-  private referableVariableManager: ReferableVariableManager
+  private variableManager: VariableManager
   readonly eventDispatcher: EventDispatcher<FormulaObjectEventPacket> =
     new EventDispatcher()
   value: number = 0
   notFoundVariables: string[] = []
 
   constructor(
-    referableVariableManager: ReferableVariableManager,
+    variableManager: VariableManager,
     formulaInfo: FormulaInfo,
     id?: string
   ) {
@@ -44,7 +43,7 @@ export class FormulaObjectInfo extends ObjectInfo {
       formula: '',
       value: 0,
     }
-    this.referableVariableManager = referableVariableManager
+    this.variableManager = variableManager
     this.formulaInfo = formulaInfo
     this.updateFormula(formulaInfo)
   }
@@ -56,10 +55,9 @@ export class FormulaObjectInfo extends ObjectInfo {
     }
     // clear connector
     for (const variable of this.formulaInfo.variables) {
-      this.referableVariableManager.variableConnectorStorage.delete(
-        this.config.id,
-        [variable]
-      )
+      this.variableManager.variableConnectorStorage.delete(this.config.id, [
+        variable,
+      ])
     }
 
     // update formula
@@ -69,7 +67,7 @@ export class FormulaObjectInfo extends ObjectInfo {
     let variables: ReferrableVariable[] = []
     for (const variable of formulaInfo.variables) {
       const variableInfo =
-        this.referableVariableManager.variableStorage.getVariableByRef(variable)
+        this.variableManager.variableStorage.getVariableByRef(variable)
       if (variableInfo !== null) {
         variables.push(variableInfo)
       } else {
@@ -83,7 +81,7 @@ export class FormulaObjectInfo extends ObjectInfo {
 
       // set up connector
       const connector = new VariableConnector(variable, this, [variable.ref])
-      this.referableVariableManager.variableConnectorStorage.set(connector)
+      this.variableManager.variableConnectorStorage.set(connector)
     }
 
     // calculate initial value
@@ -111,15 +109,5 @@ export class FormulaObjectInfo extends ObjectInfo {
     const result = super.setValue(objectPath, value)
     this.calculateValue()
     return result
-  }
-
-  destroy() {
-    // clear connector
-    for (const variable of this.formulaInfo.variables) {
-      this.referableVariableManager.variableConnectorStorage.delete(
-        this.config.id,
-        [variable]
-      )
-    }
   }
 }

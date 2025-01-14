@@ -69,7 +69,18 @@ class VariableConnectorStorage {
       if (connector.getVariable().id === id) {
         this.pathStorage.delete({
           objectPath: connector.getObjectPath(),
-          objectId: id,
+          objectId: connector.getObjectInfo().config.id,
+        })
+      }
+    }
+  }
+
+  deleteObjectConnectors(id: string) {
+    for (const connector of this.pathStorage.getAll()) {
+      if (connector.getObjectInfo().config.id === id) {
+        this.pathStorage.delete({
+          objectPath: connector.getObjectPath(),
+          objectId: connector.getObjectInfo().config.id,
         })
       }
     }

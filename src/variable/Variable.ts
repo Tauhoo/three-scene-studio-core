@@ -2,10 +2,9 @@ import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { v4 as uuidv4 } from 'uuid'
 import { VariableGroup } from './types'
 
-export type VariableEventPacket = {
-  type: 'VALUE_CHANGED'
-  data: number
-}
+export type VariableEventPacket =
+  | EventPacket<'VALUE_CHANGED', number>
+  | EventPacket<'DESTROY', null>
 
 export abstract class Variable {
   abstract type: string
@@ -30,19 +29,13 @@ export abstract class Variable {
     this.dispatcher.dispatch('VALUE_CHANGED', value)
   }
 
-  destroy() {}
+  destroy() {
+    this.dispatcher.dispatch('DESTROY', null)
+  }
 
   abstract serialize(): {
     type: string
     id: string
     value: number
-  }
-}
-
-function name(
-  params: EventPacket<string, any> | EventPacket<'VALUE_CHANGED', number>
-) {
-  if (params.type === '') {
-    return params.data
   }
 }
