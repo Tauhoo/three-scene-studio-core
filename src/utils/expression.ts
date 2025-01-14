@@ -12,7 +12,7 @@ function getVariablesFromExpression(node: math.MathNode): string[] {
         variables.add(child.toString())
       }
     })
-    return Array.from(variables)
+    return Array.from(variables).filter(v => !knownFunctions.has(v))
   } catch (e) {
     return []
   }
