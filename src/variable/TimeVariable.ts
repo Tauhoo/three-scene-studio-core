@@ -24,10 +24,15 @@ export class TimeVariable extends ReferrableVariable {
   dispatcher = new EventDispatcher<
     ReferrableVariableEventPacket | VariableEventPacket
   >()
+  enabled = true
 
   constructor(clock: Clock, name: string, ref: string, id?: string) {
     clock.addListener('TICK', event => {
-      this.value = Date.now()
+      if (this.enabled) {
+        this.value = Date.now()
+      } else {
+        this.value = 0
+      }
     })
     super(name, 0, ref, id)
   }

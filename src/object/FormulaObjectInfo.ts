@@ -97,11 +97,6 @@ export class FormulaObjectInfo extends ObjectInfo {
     const defaultNotFoundValue = Object.fromEntries(
       this.notFoundVariables.map(value => [value, 0])
     )
-    console.log({
-      ...this.data,
-      ...defaultNotFoundValue,
-    })
-
     const newValue = this.formulaInfo.node.evaluate({
       ...this.data,
       ...defaultNotFoundValue,
