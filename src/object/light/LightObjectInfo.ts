@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import * as z from 'zod'
-import { getChildren } from './children'
-import { InSceneObjectInfo } from './InSceneObjectInfo'
+import { getChildren } from '../children'
+import { InSceneObjectInfo } from '../InSceneObjectInfo'
 import { v4 as uuidv4 } from 'uuid'
 
 export const lightObjectConfigSchema = z.object({

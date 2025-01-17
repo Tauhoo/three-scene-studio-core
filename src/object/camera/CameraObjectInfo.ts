@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import { ObjectInfo, ObjectPath } from '../ObjectInfo'
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
-import { ErrorResponse, SuccessResponse } from '../../utils/response'
 
 export const cameraObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_CAMERA'),

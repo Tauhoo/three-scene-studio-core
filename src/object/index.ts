@@ -9,12 +9,12 @@ import {
   animationObjectConfigSchema,
 } from './AnimationObjectInfo'
 import { MeshObjectInfo, meshObjectConfigSchema } from './MeshObjectInfo'
-import { LightObjectInfo, lightObjectConfigSchema } from './LightObjectInfo'
 import { GroupObjectInfo } from './GroupObjectInfo'
 import {
   formulaObjectConfigSchema,
   FormulaObjectInfo,
 } from './FormulaObjectInfo'
+import { lightObjectConfigSchema, LightObjectInfo } from './light'
 export * from './ObjectInfo'
 export * from './InSceneObjectInfo'
 export * from './SceneObjectInfo'
@@ -22,7 +22,7 @@ export * from './FormulaObjectInfo'
 export * from './camera/CameraObjectInfo'
 export * from './AnimationObjectInfo'
 export * from './MeshObjectInfo'
-export * from './LightObjectInfo'
+export * from './light'
 export * from './GroupObjectInfo'
 export * from './camera'
 

@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import { GroupObjectInfo } from './GroupObjectInfo'
 import { MeshObjectInfo } from './MeshObjectInfo'
-import { LightObjectInfo } from './LightObjectInfo'
 import { InSceneObjectInfo } from './InSceneObjectInfo'
+import { createLightObjectFromNative } from './light'
 
 export interface Parent {
   children: THREE.Object3D<THREE.Object3DEventMap>[]
@@ -21,7 +21,7 @@ export const getChildren = (
         return new GroupObjectInfo(child, sceneId)
       }
       if (child instanceof THREE.Light) {
-        return new LightObjectInfo(child, sceneId)
+        return createLightObjectFromNative(child, sceneId)
       }
     })
     .filter(child => child !== undefined)
