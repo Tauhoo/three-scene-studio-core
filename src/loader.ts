@@ -48,6 +48,7 @@ export const loadGltfFile = (url: string, options: GLTFLoaderOptions) => {
             createCameraObjectFromNative(camera)
           ),
         }
+
         resolve(successResponse(result))
       },
       // called as loading progresses

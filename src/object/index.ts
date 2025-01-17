@@ -15,6 +15,7 @@ import {
   FormulaObjectInfo,
 } from './FormulaObjectInfo'
 import { lightObjectConfigSchema, LightObjectInfo } from './light'
+import { SkinMeshObjectInfo } from './SkinMeshObjectInfo'
 export * from './ObjectInfo'
 export * from './InSceneObjectInfo'
 export * from './SceneObjectInfo'
@@ -22,6 +23,7 @@ export * from './FormulaObjectInfo'
 export * from './camera/CameraObjectInfo'
 export * from './AnimationObjectInfo'
 export * from './MeshObjectInfo'
+export * from './SkinMeshObjectInfo'
 export * from './light'
 export * from './GroupObjectInfo'
 export * from './camera'
@@ -36,10 +38,12 @@ export type SystemObjectInfo =
   | LightObjectInfo
   | MeshObjectInfo
   | GroupObjectInfo
+  | SkinMeshObjectInfo
 export type SystemObjectInSceneInfo =
   | LightObjectInfo
   | MeshObjectInfo
   | GroupObjectInfo
+  | SkinMeshObjectInfo
 
 export type ObjectType = SystemObjectInfo['config']['type']
 export const objectConfigSchema = z.union([

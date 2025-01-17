@@ -3,26 +3,27 @@ import * as z from 'zod'
 import { getChildren } from './children'
 import { InSceneObjectInfo } from './InSceneObjectInfo'
 import { v4 as uuidv4 } from 'uuid'
-export const groupObjectConfigSchema = z.object({
-  type: z.literal('OBJECT_3D_GROUP'),
+
+export const skinMeshObjectConfigSchema = z.object({
+  type: z.literal('OBJECT_3D_SKIN_MESH'),
   id: z.string(),
   sceneId: z.number(),
   inSceneId: z.number(),
 })
 
-export type GroupObjectConfig = z.infer<typeof groupObjectConfigSchema>
+export type SkinMeshObjectConfig = z.infer<typeof skinMeshObjectConfigSchema>
 
-export class GroupObjectInfo extends InSceneObjectInfo {
-  readonly config: GroupObjectConfig
-  readonly data: THREE.Object3D
+export class SkinMeshObjectInfo extends InSceneObjectInfo {
+  readonly config: SkinMeshObjectConfig
+  readonly data: THREE.SkinnedMesh
   readonly children: InSceneObjectInfo[]
 
-  constructor(data: THREE.Object3D, sceneId: number, id?: string) {
+  constructor(data: THREE.SkinnedMesh, sceneId: number, id?: string) {
     super()
     this.config = {
-      type: 'OBJECT_3D_GROUP',
+      type: 'OBJECT_3D_SKIN_MESH',
       id: id ?? uuidv4(),
-      sceneId: sceneId,
+      sceneId,
       inSceneId: data.id,
     }
     this.data = data

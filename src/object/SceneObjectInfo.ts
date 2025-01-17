@@ -41,9 +41,8 @@ export class SceneObjectInfo extends InSceneObjectInfo {
 
 export function createSceneObjectInfoFromGroup(group: THREE.Group) {
   const scene = new THREE.Scene()
-  group.children.forEach(child => {
-    scene.add(child)
-  })
+  scene.add(...group.children)
+
   scene.name = group.name
   return new SceneObjectInfo(scene)
 }
