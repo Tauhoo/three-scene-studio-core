@@ -1,12 +1,34 @@
+import * as THREE from 'three'
 import DataStorage from '../utils/DataStorage'
 import { AnimationObjectInfo } from './AnimationObjectInfo'
-import { CameraObjectInfo } from './camera'
+import { CameraObjectInfo, createCameraObjectFromNative } from './camera'
 import { ObjectInfo } from './ObjectInfo'
-import { SceneObjectInfo } from './SceneObjectInfo'
+import {
+  createSceneObjectInfoFromGroup,
+  SceneObjectInfo,
+} from './SceneObjectInfo'
 
 export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   constructor() {
     super(value => value)
+  }
+
+  createSceneObjectInfo(group: THREE.Group) {
+    const result = createSceneObjectInfoFromGroup(group)
+    this.set(result.config.id, result)
+    return result
+  }
+
+  createCameraObjectInfo(camera: THREE.Camera) {
+    const result = createCameraObjectFromNative(camera)
+    this.set(result.config.id, result)
+    return result
+  }
+
+  createAnimationObjectInfo(animation: THREE.AnimationClip) {
+    const result = new AnimationObjectInfo(animation)
+    this.set(result.config.id, result)
+    return result
   }
 
   setObjectInfo(objectInfo: ObjectInfo) {
