@@ -131,6 +131,18 @@ export function createLoadedInfo(
     }
   }
 
+  if (object instanceof THREE.Bone) {
+    return {
+      id: uuidv4(),
+      type: 'BONE',
+      name: object.name,
+      data: object,
+      children: object.children
+        .map(child => createLoadedInfo(child))
+        .filter(value => value !== null),
+    }
+  }
+
   if (object.type === 'Object3D') {
     return {
       id: uuidv4(),

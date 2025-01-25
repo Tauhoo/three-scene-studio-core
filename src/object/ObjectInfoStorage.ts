@@ -26,7 +26,7 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   }
 
   createAnimationObjectInfo(animation: THREE.AnimationClip) {
-    const result = new AnimationObjectInfo(animation)
+    const result = new AnimationObjectInfo(animation, this)
     this.set(result.config.id, result)
     return result
   }

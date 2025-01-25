@@ -16,12 +16,15 @@ import {
 } from './FormulaObjectInfo'
 import { lightObjectConfigSchema, LightObjectInfo } from './light'
 import { SkinMeshObjectInfo } from './SkinMeshObjectInfo'
+import { boneObjectConfigSchema } from './BoneObjectInfo'
+import { BoneObjectInfo } from './BoneObjectInfo'
 export * from './ObjectInfo'
 export * from './InSceneObjectInfo'
 export * from './SceneObjectInfo'
 export * from './FormulaObjectInfo'
 export * from './camera/CameraObjectInfo'
 export * from './AnimationObjectInfo'
+export * from './BoneObjectInfo'
 export * from './MeshObjectInfo'
 export * from './SkinMeshObjectInfo'
 export * from './light'
@@ -39,11 +42,13 @@ export type SystemObjectInfo =
   | MeshObjectInfo
   | GroupObjectInfo
   | SkinMeshObjectInfo
+  | BoneObjectInfo
 export type SystemObjectInSceneInfo =
   | LightObjectInfo
   | MeshObjectInfo
   | GroupObjectInfo
   | SkinMeshObjectInfo
+  | BoneObjectInfo
 
 export type ObjectType = SystemObjectInfo['config']['type']
 export const objectConfigSchema = z.union([
@@ -53,5 +58,6 @@ export const objectConfigSchema = z.union([
   lightObjectConfigSchema,
   meshObjectConfigSchema,
   formulaObjectConfigSchema,
+  boneObjectConfigSchema,
 ])
 export type ObjectConfig = z.infer<typeof objectConfigSchema>

@@ -4,6 +4,7 @@ import { MeshObjectInfo } from './MeshObjectInfo'
 import { InSceneObjectInfo } from './InSceneObjectInfo'
 import { createLightObjectFromNative } from './light'
 import { SkinMeshObjectInfo } from './SkinMeshObjectInfo'
+import { BoneObjectInfo } from './BoneObjectInfo'
 
 export interface Parent {
   children: THREE.Object3D<THREE.Object3DEventMap>[]
@@ -25,6 +26,10 @@ export const getChildren = (
 
       if (child instanceof THREE.Group) {
         return new GroupObjectInfo(child, sceneId)
+      }
+
+      if (child instanceof THREE.Bone) {
+        return new BoneObjectInfo(child, sceneId)
       }
 
       if (child instanceof THREE.Light) {

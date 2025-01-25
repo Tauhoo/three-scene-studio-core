@@ -17,6 +17,7 @@ export class SceneObjectInfo extends InSceneObjectInfo {
   readonly config: SceneObjectConfig
   readonly data: THREE.Scene
   readonly children: InSceneObjectInfo[]
+  readonly animationMixer: THREE.AnimationMixer
 
   constructor(data: THREE.Scene, id?: string) {
     super()
@@ -28,6 +29,7 @@ export class SceneObjectInfo extends InSceneObjectInfo {
     }
     this.data = data
     this.children = getChildren(this.data, this.config.inSceneId)
+    this.animationMixer = new THREE.AnimationMixer(this.data)
   }
 
   get name() {

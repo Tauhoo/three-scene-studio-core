@@ -37,7 +37,12 @@ class Renderer extends EventDispatcher<RendererEventPacket> {
     this.cameraSwitcher = cameraSwitcher
     this.sceneSwitcher = sceneSwitcher
 
-    clock.addListener('TICK', this.render)
+    clock.addListener('TICK', ({ delta }) => {
+      this.render()
+      if (this.sceneSwitcher.current) {
+        this.sceneSwitcher.current.animationMixer.update(0)
+      }
+    })
     containerHeightVariable.dispatcher.addListener(
       'VALUE_CHANGED',
       this.onContainerResize
