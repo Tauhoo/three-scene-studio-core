@@ -3,12 +3,7 @@ import VariableStorage, { variableStorageConfigSchema } from './VariableStorage'
 import VariableConnectorStorage, {
   variableConnectorStorageConfigSchema,
 } from './VariableConnectorStorage'
-import {
-  FormulaObjectInfo,
-  ObjectInfo,
-  ObjectInfoManager,
-  ObjectPath,
-} from '../object'
+import { FormulaObjectInfo, ObjectInfoManager } from '../object'
 import Context from '../utils/Context'
 import {
   ContainerHeightVariable,
@@ -16,13 +11,10 @@ import {
   ExternalVariable,
   FormulaVariable,
   GlobalFormulaVariable,
-  Variable,
-  VariableConfig,
 } from '.'
 import { TimeVariable } from './TimeVariable'
 import { Clock } from '../Clock'
 import { parseExpression } from '../utils'
-import VariableConnector from './VariableConnector'
 
 export const variableManagerConfigSchema = z.object({
   variableStorageConfig: variableStorageConfigSchema,
@@ -85,7 +77,7 @@ class VariableManager {
     )
     this.objectInfoManager.objectInfoStorage.setObjectInfo(formulaObjectInfo)
     const variable = new GlobalFormulaVariable(
-      ref,
+      this.variableStorage.convertToNoneDuplicateRef(ref),
       formulaObjectInfo,
       name,
       this.objectInfoManager,
@@ -101,7 +93,12 @@ class VariableManager {
     ref: string,
     id?: string
   ): ContainerHeightVariable {
-    const variable = new ContainerHeightVariable(this.context, name, ref, id)
+    const variable = new ContainerHeightVariable(
+      this.context,
+      name,
+      this.variableStorage.convertToNoneDuplicateRef(ref),
+      id
+    )
     this.variableStorage.setVariable(variable)
     return variable
   }
@@ -111,7 +108,12 @@ class VariableManager {
     ref: string,
     id?: string
   ): ContainerWidthVariable {
-    const variable = new ContainerWidthVariable(this.context, name, ref, id)
+    const variable = new ContainerWidthVariable(
+      this.context,
+      name,
+      this.variableStorage.convertToNoneDuplicateRef(ref),
+      id
+    )
     this.variableStorage.setVariable(variable)
     return variable
   }
@@ -122,13 +124,23 @@ class VariableManager {
     ref: string,
     id?: string
   ): ExternalVariable {
-    const variable = new ExternalVariable(name, value, ref, id)
+    const variable = new ExternalVariable(
+      name,
+      value,
+      this.variableStorage.convertToNoneDuplicateRef(ref),
+      id
+    )
     this.variableStorage.setVariable(variable)
     return variable
   }
 
   createTimeVariable(name: string, ref: string, id?: string): TimeVariable {
-    const variable = new TimeVariable(this.clock, name, ref, id)
+    const variable = new TimeVariable(
+      this.clock,
+      name,
+      this.variableStorage.convertToNoneDuplicateRef(ref),
+      id
+    )
     this.variableStorage.setVariable(variable)
     return variable
   }

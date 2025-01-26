@@ -12,6 +12,7 @@ import { Variable } from './Variable'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { FormulaObjectInfo, ObjectInfoManager } from '../object'
 import VariableConnectorStorage from './VariableConnectorStorage'
+import { convertToNoneDuplicateRef } from '../utils/naming'
 
 export const variableStorageConfigSchema = z.object({
   variables: z.array(variableConfigSchema),
@@ -43,6 +44,11 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
     this.idStorage = new DataStorage<string, Variable>(id => id)
     this.refStorage = new DataStorage<string, ReferrableVariable>(ref => ref)
     this.variableConnectorStorage = variableConnectorStorage
+  }
+
+  convertToNoneDuplicateRef(ref: string) {
+    const refList = this.refStorage.getAll().map(variable => variable.ref)
+    return convertToNoneDuplicateRef(ref, refList)
   }
 
   deleteVariableById(id: string) {
