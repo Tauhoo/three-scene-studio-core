@@ -17,7 +17,6 @@ export type MeshObjectConfig = z.infer<typeof meshObjectConfigSchema>
 export class MeshObjectInfo extends InSceneObjectInfo {
   readonly config: MeshObjectConfig
   readonly data: THREE.Mesh
-  readonly children: InSceneObjectInfo[]
 
   constructor(
     data: THREE.Mesh,
@@ -25,7 +24,7 @@ export class MeshObjectInfo extends InSceneObjectInfo {
     objectInfoStorage: ObjectInfoStorage,
     id?: string
   ) {
-    super()
+    super(data, sceneId, objectInfoStorage)
     this.config = {
       type: 'OBJECT_3D_MESH',
       id: id ?? uuidv4(),
@@ -33,11 +32,6 @@ export class MeshObjectInfo extends InSceneObjectInfo {
       inSceneId: data.id,
     }
     this.data = data
-    this.children = getChildren(
-      this.data,
-      this.config.sceneId,
-      objectInfoStorage
-    )
   }
 
   get name() {

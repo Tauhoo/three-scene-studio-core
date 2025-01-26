@@ -16,7 +16,6 @@ export type GroupObjectConfig = z.infer<typeof groupObjectConfigSchema>
 export class GroupObjectInfo extends InSceneObjectInfo {
   readonly config: GroupObjectConfig
   readonly data: THREE.Object3D
-  readonly children: InSceneObjectInfo[]
 
   constructor(
     data: THREE.Object3D,
@@ -24,7 +23,7 @@ export class GroupObjectInfo extends InSceneObjectInfo {
     objectInfoStorage: ObjectInfoStorage,
     id?: string
   ) {
-    super()
+    super(data, sceneId, objectInfoStorage)
     this.config = {
       type: 'OBJECT_3D_GROUP',
       id: id ?? uuidv4(),
@@ -32,7 +31,6 @@ export class GroupObjectInfo extends InSceneObjectInfo {
       inSceneId: data.id,
     }
     this.data = data
-    this.children = getChildren(this.data, sceneId, objectInfoStorage)
   }
 
   get name() {

@@ -11,7 +11,7 @@ export interface ObjectConfig {
 }
 
 type ObjectInfoEvent =
-  | EventPacket<'DESTROY', null>
+  | EventPacket<'DESTROY', ObjectInfo>
   | EventPacket<'DATA_VALUE_UPDATE', { objectPath: ObjectPath }>
 
 export abstract class ObjectInfo extends EventDispatcher<ObjectInfoEvent> {
@@ -59,6 +59,6 @@ export abstract class ObjectInfo extends EventDispatcher<ObjectInfoEvent> {
   }
 
   destroy() {
-    this.dispatch('DESTROY', null)
+    this.dispatch('DESTROY', this)
   }
 }

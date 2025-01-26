@@ -107,4 +107,13 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
         value instanceof SceneObjectInfo && value.config.sceneId === sceneId
     )
   }
+
+  delete(reference: string): void {
+    const objectInfo = this.get(reference)
+    if (objectInfo === null) {
+      return
+    }
+    objectInfo.destroy()
+    super.delete(reference)
+  }
 }

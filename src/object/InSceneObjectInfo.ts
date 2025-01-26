@@ -1,5 +1,7 @@
 import { ObjectConfig, ObjectInfo } from './ObjectInfo'
 import * as THREE from 'three'
+import { ObjectInfoStorage } from './ObjectInfoStorage'
+import { getChildren } from './children'
 
 export type InSceneIdentifier = {
   sceneId: number
@@ -11,10 +13,40 @@ export type ObjectInSceneInfoConfig = ObjectConfig & InSceneIdentifier
 export abstract class InSceneObjectInfo extends ObjectInfo {
   abstract readonly config: ObjectInSceneInfoConfig
   abstract readonly data: THREE.Object3D
-  abstract children: InSceneObjectInfo[]
+  children: InSceneObjectInfo[]
+  private objectInfoStorage: ObjectInfoStorage
 
-  constructor() {
+  constructor(
+    data: THREE.Object3D,
+    sceneId: number,
+    objectInfoStorage: ObjectInfoStorage
+  ) {
     super()
+    this.objectInfoStorage = objectInfoStorage
+    this.children = getChildren(data, sceneId, objectInfoStorage)
+    for (const child of this.children) {
+      child.addListener('DESTROY', this.onChildrenDestroyed)
+    }
+  }
+
+  onChildrenDestroyed = (child: ObjectInfo) => {
+    child.removeListener('DESTROY', this.onChildrenDestroyed)
+    this.data.children = this.data.children.filter(c => c !== child.data)
+    this.children = this.children.filter(c => c !== child)
+  }
+
+  findChildrenById(id: string): InSceneObjectInfo | null {
+    if (this.config.id === id) {
+      return this
+    }
+
+    for (const child of this.children) {
+      const result = child.findChildrenById(id)
+      if (result !== null) {
+        return result
+      }
+    }
+    return null
   }
 
   findChildrenByInSceneId(id: number): InSceneObjectInfo | null {
@@ -39,5 +71,12 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
 
   serialize() {
     return this.config
+  }
+
+  destroy = () => {
+    for (const child of this.children) {
+      this.objectInfoStorage.delete(child.config.id)
+    }
+    super.destroy()
   }
 }

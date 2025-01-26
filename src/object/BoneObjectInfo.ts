@@ -17,7 +17,6 @@ export type BoneObjectConfig = z.infer<typeof boneObjectConfigSchema>
 export class BoneObjectInfo extends InSceneObjectInfo {
   readonly config: BoneObjectConfig
   readonly data: THREE.Bone
-  readonly children: InSceneObjectInfo[]
 
   constructor(
     data: THREE.Bone,
@@ -25,7 +24,7 @@ export class BoneObjectInfo extends InSceneObjectInfo {
     objectInfoStorage: ObjectInfoStorage,
     id?: string
   ) {
-    super()
+    super(data, sceneId, objectInfoStorage)
     this.config = {
       type: 'BONE',
       id: id ?? uuidv4(),
@@ -33,7 +32,6 @@ export class BoneObjectInfo extends InSceneObjectInfo {
       inSceneId: data.id,
     }
     this.data = data
-    this.children = getChildren(this.data, sceneId, objectInfoStorage)
   }
 
   get name() {

@@ -17,7 +17,6 @@ export type LightObjectConfig = z.infer<typeof lightObjectConfigSchema>
 export class LightObjectInfo extends InSceneObjectInfo {
   readonly config: LightObjectConfig
   readonly data: THREE.Light
-  readonly children: InSceneObjectInfo[]
 
   constructor(
     data: THREE.Light,
@@ -25,7 +24,7 @@ export class LightObjectInfo extends InSceneObjectInfo {
     objectInfoStorage: ObjectInfoStorage,
     id?: string
   ) {
-    super()
+    super(data, sceneId, objectInfoStorage)
     this.config = {
       type: 'OBJECT_3D_LIGHT',
       id: id ?? uuidv4(),
@@ -33,11 +32,6 @@ export class LightObjectInfo extends InSceneObjectInfo {
       inSceneId: data.id,
     }
     this.data = data
-    this.children = getChildren(
-      this.data,
-      this.config.sceneId,
-      objectInfoStorage
-    )
   }
 
   get name() {

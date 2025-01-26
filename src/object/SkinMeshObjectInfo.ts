@@ -17,7 +17,6 @@ export type SkinMeshObjectConfig = z.infer<typeof skinMeshObjectConfigSchema>
 export class SkinMeshObjectInfo extends InSceneObjectInfo {
   readonly config: SkinMeshObjectConfig
   readonly data: THREE.SkinnedMesh
-  readonly children: InSceneObjectInfo[]
 
   constructor(
     data: THREE.SkinnedMesh,
@@ -25,7 +24,7 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
     objectInfoStorage: ObjectInfoStorage,
     id?: string
   ) {
-    super()
+    super(data, sceneId, objectInfoStorage)
     this.config = {
       type: 'OBJECT_3D_SKIN_MESH',
       id: id ?? uuidv4(),
@@ -33,7 +32,6 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
       inSceneId: data.id,
     }
     this.data = data
-    this.children = getChildren(this.data, sceneId, objectInfoStorage)
   }
 
   get name() {

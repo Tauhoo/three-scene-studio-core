@@ -17,7 +17,6 @@ export type SceneObjectConfig = z.infer<typeof sceneObjectConfigSchema>
 export class SceneObjectInfo extends InSceneObjectInfo {
   readonly config: SceneObjectConfig
   readonly data: THREE.Scene
-  readonly children: InSceneObjectInfo[]
   readonly animationMixer: THREE.AnimationMixer
 
   constructor(
@@ -25,7 +24,7 @@ export class SceneObjectInfo extends InSceneObjectInfo {
     objectInfoStorage: ObjectInfoStorage,
     id?: string
   ) {
-    super()
+    super(data, data.id, objectInfoStorage)
     this.config = {
       type: 'OBJECT_3D_SCENE',
       id: id ?? uuidv4(),
@@ -33,11 +32,6 @@ export class SceneObjectInfo extends InSceneObjectInfo {
       inSceneId: data.id,
     }
     this.data = data
-    this.children = getChildren(
-      this.data,
-      this.config.inSceneId,
-      objectInfoStorage
-    )
     this.animationMixer = new THREE.AnimationMixer(this.data)
   }
 
