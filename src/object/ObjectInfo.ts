@@ -10,13 +10,15 @@ export interface ObjectConfig {
   id: string
 }
 
-type ObjectInfoEvent =
+export type ObjectInfoEvent =
+  | EventPacket<string & {}, any>
   | EventPacket<'DESTROY', ObjectInfo>
   | EventPacket<'DATA_VALUE_UPDATE', { objectPath: ObjectPath }>
 
-export abstract class ObjectInfo extends EventDispatcher<ObjectInfoEvent> {
+export abstract class ObjectInfo {
   abstract readonly config: ObjectConfig
   abstract readonly data: any
+  abstract readonly eventDispatcher: EventDispatcher<ObjectInfoEvent>
   serialize() {
     return this.config
   }
@@ -38,7 +40,7 @@ export abstract class ObjectInfo extends EventDispatcher<ObjectInfoEvent> {
     }
     if (objectValue[objectPath[objectPath.length - 1]] !== value) {
       objectValue[objectPath[objectPath.length - 1]] = value
-      this.dispatch('DATA_VALUE_UPDATE', { objectPath })
+      this.eventDispatcher.dispatch('DATA_VALUE_UPDATE', { objectPath })
     }
     return successResponse(null)
   }
@@ -59,6 +61,6 @@ export abstract class ObjectInfo extends EventDispatcher<ObjectInfoEvent> {
   }
 
   destroy() {
-    this.dispatch('DESTROY', this)
+    this.eventDispatcher.dispatch('DESTROY', this)
   }
 }

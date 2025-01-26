@@ -1,9 +1,10 @@
 import * as THREE from 'three'
 import * as z from 'zod'
 import { getChildren } from './children'
-import { InSceneObjectInfo } from './InSceneObjectInfo'
+import { InSceneObjectInfo, InSceneObjectInfoEvent } from './InSceneObjectInfo'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfoStorage } from './ObjectInfoStorage'
+import EventDispatcher from '../utils/EventDispatcher'
 
 export const meshObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_MESH'),
@@ -17,6 +18,7 @@ export type MeshObjectConfig = z.infer<typeof meshObjectConfigSchema>
 export class MeshObjectInfo extends InSceneObjectInfo {
   readonly config: MeshObjectConfig
   readonly data: THREE.Mesh
+  readonly eventDispatcher: EventDispatcher<InSceneObjectInfoEvent>
 
   constructor(
     data: THREE.Mesh,
@@ -32,6 +34,7 @@ export class MeshObjectInfo extends InSceneObjectInfo {
       inSceneId: data.id,
     }
     this.data = data
+    this.eventDispatcher = new EventDispatcher()
   }
 
   get name() {

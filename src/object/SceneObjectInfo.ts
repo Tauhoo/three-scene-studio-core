@@ -1,9 +1,9 @@
 import * as THREE from 'three'
 import * as z from 'zod'
-import { getChildren } from './children'
-import { InSceneObjectInfo } from './InSceneObjectInfo'
+import { InSceneObjectInfo, InSceneObjectInfoEvent } from './InSceneObjectInfo'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfoStorage } from './ObjectInfoStorage'
+import EventDispatcher from '../utils/EventDispatcher'
 
 export const sceneObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_SCENE'),
@@ -18,6 +18,7 @@ export class SceneObjectInfo extends InSceneObjectInfo {
   readonly config: SceneObjectConfig
   readonly data: THREE.Scene
   readonly animationMixer: THREE.AnimationMixer
+  readonly eventDispatcher: EventDispatcher<InSceneObjectInfoEvent>
 
   constructor(
     data: THREE.Scene,
@@ -33,6 +34,7 @@ export class SceneObjectInfo extends InSceneObjectInfo {
     }
     this.data = data
     this.animationMixer = new THREE.AnimationMixer(this.data)
+    this.eventDispatcher = new EventDispatcher()
   }
 
   get name() {

@@ -1,7 +1,10 @@
-import { ObjectConfig, ObjectInfo } from './ObjectInfo'
+import { ObjectConfig, ObjectInfo, ObjectInfoEvent } from './ObjectInfo'
 import * as THREE from 'three'
 import { ObjectInfoStorage } from './ObjectInfoStorage'
 import { getChildren } from './children'
+import { SceneObjectInfo } from './SceneObjectInfo'
+import { EventPacket } from '../utils'
+import EventDispatcher from '../utils/EventDispatcher'
 
 export type InSceneIdentifier = {
   sceneId: number
@@ -10,11 +13,16 @@ export type InSceneIdentifier = {
 
 export type ObjectInSceneInfoConfig = ObjectConfig & InSceneIdentifier
 
+export type InSceneObjectInfoEvent =
+  | EventPacket<'DESTROY', InSceneObjectInfo>
+  | ObjectInfoEvent
+
 export abstract class InSceneObjectInfo extends ObjectInfo {
   abstract readonly config: ObjectInSceneInfoConfig
   abstract readonly data: THREE.Object3D
   children: InSceneObjectInfo[]
   private objectInfoStorage: ObjectInfoStorage
+  abstract readonly eventDispatcher: EventDispatcher<InSceneObjectInfoEvent>
 
   constructor(
     data: THREE.Object3D,
@@ -25,12 +33,12 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     this.objectInfoStorage = objectInfoStorage
     this.children = getChildren(data, sceneId, objectInfoStorage)
     for (const child of this.children) {
-      child.addListener('DESTROY', this.onChildrenDestroyed)
+      child.eventDispatcher.addListener('DESTROY', this.onChildrenDestroyed)
     }
   }
 
   onChildrenDestroyed = (child: ObjectInfo) => {
-    child.removeListener('DESTROY', this.onChildrenDestroyed)
+    child.eventDispatcher.removeListener('DESTROY', this.onChildrenDestroyed)
     this.data.children = this.data.children.filter(c => c !== child.data)
     this.children = this.children.filter(c => c !== child)
   }
@@ -62,6 +70,10 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     }
 
     return null
+  }
+
+  moveTo(scene: SceneObjectInfo) {
+    scene.data.add(this.data)
   }
 
   addObjectInSceneInfo(objectInfo: InSceneObjectInfo) {

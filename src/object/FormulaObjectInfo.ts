@@ -1,5 +1,5 @@
 import { FormulaInfo } from '../utils/expression'
-import { ObjectInfo, ObjectPath } from './ObjectInfo'
+import { ObjectInfo, ObjectInfoEvent, ObjectPath } from './ObjectInfo'
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { ReferrableVariable } from '../variable'
@@ -15,18 +15,16 @@ export const formulaObjectConfigSchema = z.object({
 
 export type FormulaObjectConfig = z.infer<typeof formulaObjectConfigSchema>
 
-export type FormulaObjectEventPacket = EventPacket<
-  'FORMULA_VALUE_UPDATE',
-  { value: number }
->
+export type FormulaObjectEventPacket =
+  | EventPacket<'FORMULA_VALUE_UPDATE', { value: any }>
+  | ObjectInfoEvent
 
 export class FormulaObjectInfo extends ObjectInfo {
   readonly config: FormulaObjectConfig
   readonly data: Record<string, number> = {}
   private formulaInfo: FormulaInfo
   private variableManager: VariableManager
-  readonly eventDispatcher: EventDispatcher<FormulaObjectEventPacket> =
-    new EventDispatcher()
+  readonly eventDispatcher: EventDispatcher<FormulaObjectEventPacket>
   value: number = 0
   notFoundVariables: string[] = []
 
@@ -36,6 +34,7 @@ export class FormulaObjectInfo extends ObjectInfo {
     id?: string
   ) {
     super()
+    this.eventDispatcher = new EventDispatcher()
     this.config = {
       type: 'FORMULA',
       id: id ?? uuidv4(),

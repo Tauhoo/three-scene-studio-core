@@ -1,7 +1,8 @@
 import * as THREE from 'three'
-import { ObjectInfo, ObjectPath } from '../ObjectInfo'
+import { ObjectInfo, ObjectInfoEvent, ObjectPath } from '../ObjectInfo'
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
+import EventDispatcher from '../../utils/EventDispatcher'
 
 export const cameraObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_CAMERA'),
@@ -14,6 +15,7 @@ export type CameraObjectConfig = z.infer<typeof cameraObjectConfigSchema>
 export class CameraObjectInfo extends ObjectInfo {
   readonly config: CameraObjectConfig
   readonly data: THREE.Camera
+  readonly eventDispatcher: EventDispatcher<ObjectInfoEvent>
 
   constructor(data: THREE.Camera, id?: string) {
     super()
@@ -23,6 +25,7 @@ export class CameraObjectInfo extends ObjectInfo {
       cameraId: data.id,
     }
     this.data = data
+    this.eventDispatcher = new EventDispatcher()
   }
 
   get name() {

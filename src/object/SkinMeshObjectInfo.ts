@@ -1,9 +1,9 @@
 import * as THREE from 'three'
 import * as z from 'zod'
-import { getChildren } from './children'
-import { InSceneObjectInfo } from './InSceneObjectInfo'
+import { InSceneObjectInfo, InSceneObjectInfoEvent } from './InSceneObjectInfo'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfoStorage } from './ObjectInfoStorage'
+import EventDispatcher from '../utils/EventDispatcher'
 
 export const skinMeshObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_SKIN_MESH'),
@@ -17,6 +17,7 @@ export type SkinMeshObjectConfig = z.infer<typeof skinMeshObjectConfigSchema>
 export class SkinMeshObjectInfo extends InSceneObjectInfo {
   readonly config: SkinMeshObjectConfig
   readonly data: THREE.SkinnedMesh
+  readonly eventDispatcher: EventDispatcher<InSceneObjectInfoEvent>
 
   constructor(
     data: THREE.SkinnedMesh,
@@ -32,6 +33,7 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
       inSceneId: data.id,
     }
     this.data = data
+    this.eventDispatcher = new EventDispatcher()
   }
 
   get name() {
