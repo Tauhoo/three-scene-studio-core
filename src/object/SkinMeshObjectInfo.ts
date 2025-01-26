@@ -3,6 +3,7 @@ import * as z from 'zod'
 import { getChildren } from './children'
 import { InSceneObjectInfo } from './InSceneObjectInfo'
 import { v4 as uuidv4 } from 'uuid'
+import { ObjectInfoStorage } from './ObjectInfoStorage'
 
 export const skinMeshObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_SKIN_MESH'),
@@ -18,7 +19,12 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
   readonly data: THREE.SkinnedMesh
   readonly children: InSceneObjectInfo[]
 
-  constructor(data: THREE.SkinnedMesh, sceneId: number, id?: string) {
+  constructor(
+    data: THREE.SkinnedMesh,
+    sceneId: number,
+    objectInfoStorage: ObjectInfoStorage,
+    id?: string
+  ) {
     super()
     this.config = {
       type: 'OBJECT_3D_SKIN_MESH',
@@ -27,7 +33,7 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
       inSceneId: data.id,
     }
     this.data = data
-    this.children = getChildren(this.data, this.config.sceneId)
+    this.children = getChildren(this.data, sceneId, objectInfoStorage)
   }
 
   get name() {

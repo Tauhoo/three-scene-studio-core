@@ -10,7 +10,9 @@ export interface ObjectConfig {
   id: string
 }
 
-type ObjectInfoEvent = EventPacket<'DESTROY', null>
+type ObjectInfoEvent =
+  | EventPacket<'DESTROY', null>
+  | EventPacket<'DATA_VALUE_UPDATE', { objectPath: ObjectPath }>
 
 export abstract class ObjectInfo extends EventDispatcher<ObjectInfoEvent> {
   abstract readonly config: ObjectConfig
@@ -34,7 +36,10 @@ export abstract class ObjectInfo extends EventDispatcher<ObjectInfoEvent> {
       }
       objectValue = objectValue[key]
     }
-    objectValue[objectPath[objectPath.length - 1]] = value
+    if (objectValue[objectPath[objectPath.length - 1]] !== value) {
+      objectValue[objectPath[objectPath.length - 1]] = value
+      this.dispatch('DATA_VALUE_UPDATE', { objectPath })
+    }
     return successResponse(null)
   }
 

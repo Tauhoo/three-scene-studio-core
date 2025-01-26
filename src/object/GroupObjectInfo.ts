@@ -3,6 +3,7 @@ import * as z from 'zod'
 import { getChildren } from './children'
 import { InSceneObjectInfo } from './InSceneObjectInfo'
 import { v4 as uuidv4 } from 'uuid'
+import { ObjectInfoStorage } from './ObjectInfoStorage'
 export const groupObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_GROUP'),
   id: z.string(),
@@ -17,7 +18,12 @@ export class GroupObjectInfo extends InSceneObjectInfo {
   readonly data: THREE.Object3D
   readonly children: InSceneObjectInfo[]
 
-  constructor(data: THREE.Object3D, sceneId: number, id?: string) {
+  constructor(
+    data: THREE.Object3D,
+    sceneId: number,
+    objectInfoStorage: ObjectInfoStorage,
+    id?: string
+  ) {
     super()
     this.config = {
       type: 'OBJECT_3D_GROUP',
@@ -26,7 +32,7 @@ export class GroupObjectInfo extends InSceneObjectInfo {
       inSceneId: data.id,
     }
     this.data = data
-    this.children = getChildren(this.data, this.config.sceneId)
+    this.children = getChildren(this.data, sceneId, objectInfoStorage)
   }
 
   get name() {
