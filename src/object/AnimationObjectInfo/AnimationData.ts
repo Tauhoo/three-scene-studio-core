@@ -61,4 +61,13 @@ export class AnimationData {
   set name(value: string) {
     this.data.name = value
   }
+
+  getTargetObjectNames() {
+    const nameSet = new Set(
+      this.data.tracks
+        .map(track => track.name.split('.')[0] ?? null)
+        .filter(value => value !== null)
+    )
+    return [...nameSet]
+  }
 }
