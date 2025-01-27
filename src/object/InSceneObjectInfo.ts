@@ -15,6 +15,7 @@ export type ObjectInSceneInfoConfig = ObjectConfig & InSceneIdentifier
 
 export type InSceneObjectInfoEvent =
   | EventPacket<'DESTROY', InSceneObjectInfo>
+  | EventPacket<'MOVE_TO_NEW_SCENE', InSceneObjectInfo>
   | ObjectInfoEvent
 
 export abstract class InSceneObjectInfo extends ObjectInfo {
@@ -34,10 +35,28 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     this.children = getChildren(data, sceneId, objectInfoStorage)
     for (const child of this.children) {
       child.eventDispatcher.addListener('DESTROY', this.onChildrenDestroyed)
+      child.eventDispatcher.addListener(
+        'MOVE_TO_NEW_SCENE',
+        this.onChildMoveToNewScene
+      )
     }
   }
 
+  onChildMoveToNewScene = (child: InSceneObjectInfo) => {
+    child.eventDispatcher.removeListener(
+      'MOVE_TO_NEW_SCENE',
+      this.onChildMoveToNewScene
+    )
+    child.eventDispatcher.removeListener('DESTROY', this.onChildrenDestroyed)
+    this.data.children = this.data.children.filter(c => c !== child.data)
+    this.children = this.children.filter(c => c !== child)
+  }
+
   onChildrenDestroyed = (child: ObjectInfo) => {
+    child.eventDispatcher.removeListener(
+      'MOVE_TO_NEW_SCENE',
+      this.onChildMoveToNewScene
+    )
     child.eventDispatcher.removeListener('DESTROY', this.onChildrenDestroyed)
     this.data.children = this.data.children.filter(c => c !== child.data)
     this.children = this.children.filter(c => c !== child)
@@ -72,17 +91,32 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     return null
   }
 
-  moveTo(scene: SceneObjectInfo) {
-    scene.data.add(this.data)
-  }
-
   addObjectInSceneInfo(objectInfo: InSceneObjectInfo) {
     this.children.push(objectInfo)
     this.data.add(objectInfo.data as THREE.Object3D)
+    objectInfo.eventDispatcher.addListener('DESTROY', this.onChildrenDestroyed)
+    objectInfo.eventDispatcher.addListener(
+      'MOVE_TO_NEW_SCENE',
+      this.onChildMoveToNewScene
+    )
   }
 
   serialize() {
     return this.config
+  }
+
+  moveToNewScene(scene: SceneObjectInfo) {
+    this.eventDispatcher.dispatch('MOVE_TO_NEW_SCENE', this)
+    this.updateScene(scene)
+    scene.addObjectInSceneInfo(this)
+  }
+
+  updateScene(scene: SceneObjectInfo) {
+    this.config.sceneId = scene.config.sceneId
+    this.config.inSceneId = this.data.id
+    for (const child of this.children) {
+      child.updateScene(scene)
+    }
   }
 
   destroy = () => {
