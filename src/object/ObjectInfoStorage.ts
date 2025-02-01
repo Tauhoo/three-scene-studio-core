@@ -108,12 +108,12 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     )
   }
 
-  delete(reference: string): void {
+  delete(reference: string) {
     const objectInfo = this.get(reference)
     if (objectInfo === null) {
-      return
+      return null
     }
     objectInfo.destroy()
-    super.delete(reference)
+    return super.delete(reference)
   }
 }

@@ -39,8 +39,9 @@ class Renderer extends EventDispatcher<RendererEventPacket> {
 
     clock.addListener('TICK', ({ delta }) => {
       this.render()
-      if (this.sceneSwitcher.current) {
-        this.sceneSwitcher.current.animationMixer.update(0)
+      const activeScene = this.getActiveScene()
+      if (activeScene) {
+        activeScene.animationMixer.update(0)
       }
     })
     containerHeightVariable.dispatcher.addListener(
@@ -76,13 +77,17 @@ class Renderer extends EventDispatcher<RendererEventPacket> {
     this.dispatch('UPDATE_OVERRIDE_SCENE', scene)
   }
 
+  getActiveScene = () => {
+    return this.overrideScene ?? this.sceneSwitcher.current
+  }
+
+  getActiveCamera = () => {
+    return this.overrideCamera ?? this.cameraSwitcher.current
+  }
+
   render = () => {
-    const scene = this.overrideScene
-      ? this.overrideScene
-      : this.sceneSwitcher.current
-    const camera = this.overrideCamera
-      ? this.overrideCamera
-      : this.cameraSwitcher.current
+    const scene = this.getActiveScene()
+    const camera = this.getActiveCamera()
 
     if (scene === null || camera === null) return
     this.renderer.render(scene.data, camera.data)

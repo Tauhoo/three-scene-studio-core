@@ -11,7 +11,7 @@ type EventType<V> =
     }
   | {
       type: 'UPDATE'
-      data: V
+      data: { from: V; to: V }
     }
 
 class DataStorage<K, V> extends EventDispatcher<EventType<V>> {
@@ -36,11 +36,12 @@ class DataStorage<K, V> extends EventDispatcher<EventType<V>> {
 
   set(reference: K, value: V) {
     const key = this.keyConverter(reference)
-    let isUpdate = key in this.dataMap
-    this.dataMap[key] = value
-    if (isUpdate) {
-      this.dispatch('UPDATE', value)
+    const from = this.dataMap[key]
+    if (from !== undefined) {
+      this.dataMap[key] = value
+      this.dispatch('UPDATE', { from, to: value })
     } else {
+      this.dataMap[key] = value
       this.dispatch('ADD', value)
     }
   }
@@ -57,6 +58,7 @@ class DataStorage<K, V> extends EventDispatcher<EventType<V>> {
       delete this.dataMap[key]
       this.dispatch('DELETE', value)
     }
+    return value ?? null
   }
 
   getAll() {
