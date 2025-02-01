@@ -22,19 +22,21 @@ export class AnimationData {
     this.objectInfoStorage.addListener('DELETE', this.onDeleteObjectInfo)
     this.objectInfoStorage.addListener('UPDATE', this.onUpdateObjectInfo)
   }
-  onAddObjectInfo = (objectInfo: ObjectInfo) => {
+
+  // scene object info change
+  private onAddObjectInfo = (objectInfo: ObjectInfo) => {
     if (objectInfo instanceof SceneObjectInfo) {
       this.setupForSceneObjectInfo(objectInfo)
     }
   }
 
-  onDeleteObjectInfo = (objectInfo: ObjectInfo) => {
+  private onDeleteObjectInfo = (objectInfo: ObjectInfo) => {
     if (objectInfo instanceof SceneObjectInfo) {
       this.destryForSceneObjectInfo(objectInfo)
     }
   }
 
-  onUpdateObjectInfo = (data: { from: ObjectInfo; to: ObjectInfo }) => {
+  private onUpdateObjectInfo = (data: { from: ObjectInfo; to: ObjectInfo }) => {
     if (data.from instanceof SceneObjectInfo) {
       this.destryForSceneObjectInfo(data.from)
     }
@@ -42,6 +44,24 @@ export class AnimationData {
     if (data.to instanceof SceneObjectInfo) {
       this.setupForSceneObjectInfo(data.to)
     }
+  }
+
+  private onNewObjectAddedInSceneObjectInfo = (data: {
+    object: InSceneObjectInfo
+    parent: InSceneObjectInfo
+  }) => {
+    if (!(data.parent instanceof SceneObjectInfo)) return
+    this.destryForSceneObjectInfo(data.parent)
+    this.setupForSceneObjectInfo(data.parent)
+  }
+
+  private onChildMoveToNewScene = (data: {
+    level: number
+    object: InSceneObjectInfo
+    to: SceneObjectInfo
+  }) => {
+    this.destryForSceneObjectInfo(data.to)
+    this.setupForSceneObjectInfo(data.to)
   }
 
   private destryForSceneObjectInfo = (sceneObjectInfo: SceneObjectInfo) => {
@@ -52,14 +72,66 @@ export class AnimationData {
       animationAction.stop()
       animationAction.enabled = false
     }
+    sceneObjectInfo.eventDispatcher.removeListener(
+      'NEW_OBJECT_ADDED',
+      this.onNewObjectAddedInSceneObjectInfo
+    )
+    sceneObjectInfo.eventDispatcher.removeListener(
+      'CHILD_MOVE_TO_NEW_SCENE',
+      this.onChildMoveToNewScene
+    )
   }
 
   private setupForSceneObjectInfo = (sceneObjectInfo: SceneObjectInfo) => {
-    const animationAction = sceneObjectInfo.animationMixer.clipAction(this.data)
+    // find object and create track with id to supportobject name duplicating
+    const objectNames = [
+      ...new Set(
+        this.data.tracks
+          .map(value => value.name.split('.')[0])
+          .filter(value => value !== undefined)
+      ),
+    ]
+    const objectMap: Record<string, InSceneObjectInfo[]> = {}
+
+    for (const objectName of objectNames) {
+      const children = sceneObjectInfo.findChildrenByName(objectName)
+      if (children.length === 0) continue
+      if (objectMap[objectName] === undefined) {
+        objectMap[objectName] = []
+      }
+      objectMap[objectName].push(...children)
+    }
+
+    const newAnimationClip = this.data.clone()
+    newAnimationClip.tracks = []
+
+    for (const track of this.data.tracks) {
+      const objectName = track.name.split('.')[0]
+      if (objectName === undefined) continue
+      const objects = objectMap[objectName]
+      if (objects === undefined) continue
+      for (const object of objects) {
+        const newTrack = track.clone()
+        newTrack.name = newTrack.name.replace(objectName, object.data.uuid)
+        newAnimationClip.tracks.push(newTrack)
+      }
+    }
+
+    // create animation action
+    const animationAction =
+      sceneObjectInfo.animationMixer.clipAction(newAnimationClip)
     animationAction.enabled = true
     animationAction.play()
     this.animationActionStorage.set(sceneObjectInfo.config.id, animationAction)
     animationAction.time = this.progress * this.duration
+    sceneObjectInfo.eventDispatcher.addListener(
+      'NEW_OBJECT_ADDED',
+      this.onNewObjectAddedInSceneObjectInfo
+    )
+    sceneObjectInfo.eventDispatcher.addListener(
+      'CHILD_MOVE_TO_NEW_SCENE',
+      this.onChildMoveToNewScene
+    )
   }
 
   private setup = () => {

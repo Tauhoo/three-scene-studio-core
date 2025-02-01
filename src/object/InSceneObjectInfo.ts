@@ -15,7 +15,18 @@ export type ObjectInSceneInfoConfig = ObjectConfig & InSceneIdentifier
 
 export type InSceneObjectInfoEvent =
   | EventPacket<'DESTROY', InSceneObjectInfo>
-  | EventPacket<'MOVE_TO_NEW_SCENE', InSceneObjectInfo>
+  | EventPacket<
+      'NEW_OBJECT_ADDED',
+      { object: InSceneObjectInfo; parent: InSceneObjectInfo }
+    >
+  | EventPacket<
+      'MOVE_TO_NEW_SCENE',
+      { object: InSceneObjectInfo; to: SceneObjectInfo }
+    >
+  | EventPacket<
+      'CHILD_MOVE_TO_NEW_SCENE',
+      { level: number; object: InSceneObjectInfo; to: SceneObjectInfo }
+    >
   | ObjectInfoEvent
 
 export abstract class InSceneObjectInfo extends ObjectInfo {
@@ -39,17 +50,44 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
         'MOVE_TO_NEW_SCENE',
         this.onChildMoveToNewScene
       )
+      child.eventDispatcher.addListener(
+        'CHILD_MOVE_TO_NEW_SCENE',
+        this.onDeptChildMoveToNewScene
+      )
     }
   }
 
-  onChildMoveToNewScene = (child: InSceneObjectInfo) => {
-    child.eventDispatcher.removeListener(
+  onDeptChildMoveToNewScene = (data: {
+    level: number
+    object: InSceneObjectInfo
+    to: SceneObjectInfo
+  }) => {
+    this.eventDispatcher.dispatch('CHILD_MOVE_TO_NEW_SCENE', {
+      ...data,
+      level: data.level + 1,
+    })
+  }
+
+  onChildMoveToNewScene = (data: {
+    object: InSceneObjectInfo
+    to: SceneObjectInfo
+  }) => {
+    if (data.to.config.sceneId === this.config.sceneId) return
+    data.object.eventDispatcher.removeListener(
       'MOVE_TO_NEW_SCENE',
       this.onChildMoveToNewScene
     )
-    child.eventDispatcher.removeListener('DESTROY', this.onChildrenDestroyed)
-    this.data.children = this.data.children.filter(c => c !== child.data)
-    this.children = this.children.filter(c => c !== child)
+    data.object.eventDispatcher.removeListener(
+      'DESTROY',
+      this.onChildrenDestroyed
+    )
+    this.data.children = this.data.children.filter(c => c !== data.object.data)
+    this.children = this.children.filter(c => c !== data.object)
+    this.eventDispatcher.dispatch('CHILD_MOVE_TO_NEW_SCENE', {
+      level: 1,
+      object: data.object,
+      to: data.to,
+    })
   }
 
   onChildrenDestroyed = (child: ObjectInfo) => {
@@ -76,6 +114,20 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     return null
   }
 
+  findChildrenByName(name: string): InSceneObjectInfo[] {
+    const result: InSceneObjectInfo[] = []
+    if (this.data.name === name) {
+      result.push(this)
+    }
+
+    for (const child of this.children) {
+      const childResult = child.findChildrenByName(name)
+      result.push(...childResult)
+    }
+
+    return result
+  }
+
   findChildrenByInSceneId(id: number): InSceneObjectInfo | null {
     if (this.config.inSceneId === id) {
       return this
@@ -99,6 +151,10 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
       'MOVE_TO_NEW_SCENE',
       this.onChildMoveToNewScene
     )
+    this.eventDispatcher.dispatch('NEW_OBJECT_ADDED', {
+      object: objectInfo,
+      parent: this,
+    })
   }
 
   serialize() {
@@ -106,9 +162,12 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
   }
 
   moveToNewScene(scene: SceneObjectInfo) {
-    this.eventDispatcher.dispatch('MOVE_TO_NEW_SCENE', this)
     this.updateScene(scene)
     scene.addObjectInSceneInfo(this)
+    this.eventDispatcher.dispatch('MOVE_TO_NEW_SCENE', {
+      object: this,
+      to: scene,
+    })
   }
 
   updateScene(scene: SceneObjectInfo) {
