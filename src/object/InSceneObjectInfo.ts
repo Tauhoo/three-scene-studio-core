@@ -36,6 +36,10 @@ export type InSceneObjectInfoEvent =
       'CHILD_NAME_CHANGE',
       { level: number; from: string; to: string; parent: InSceneObjectInfo }
     >
+  | EventPacket<
+      'CHILD_DESTROY',
+      { level: number; object: InSceneObjectInfo; parent: InSceneObjectInfo }
+    >
   | ObjectInfoEvent
 
 export abstract class InSceneObjectInfo extends ObjectInfo {
@@ -67,7 +71,23 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
         'CHILD_NAME_CHANGE',
         this.onDeptChildNameChange
       )
+      child.eventDispatcher.addListener(
+        'CHILD_DESTROY',
+        this.onDeptChildDestroy
+      )
     }
+  }
+
+  onDeptChildDestroy = (data: {
+    level: number
+    object: InSceneObjectInfo
+    parent: InSceneObjectInfo
+  }) => {
+    this.eventDispatcher.dispatch('CHILD_DESTROY', {
+      ...data,
+      level: data.level + 1,
+      parent: this,
+    })
   }
 
   onDeptChildNameChange = (data: {

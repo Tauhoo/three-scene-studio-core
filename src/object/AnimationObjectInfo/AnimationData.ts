@@ -51,8 +51,15 @@ export class AnimationData {
     parent: InSceneObjectInfo
   }) => {
     if (!(data.parent instanceof SceneObjectInfo)) return
-    this.destryForSceneObjectInfo(data.parent)
-    this.setupForSceneObjectInfo(data.parent)
+    const objectNames = new Set(
+      this.data.tracks
+        .map(value => value.name.split('.')[0])
+        .filter(value => value !== undefined)
+    )
+    if (objectNames.has(data.object.data.name)) {
+      this.destryForSceneObjectInfo(data.parent)
+      this.setupForSceneObjectInfo(data.parent)
+    }
   }
 
   private onChildMoveToNewScene = (data: {
@@ -60,8 +67,32 @@ export class AnimationData {
     object: InSceneObjectInfo
     to: SceneObjectInfo
   }) => {
-    this.destryForSceneObjectInfo(data.to)
-    this.setupForSceneObjectInfo(data.to)
+    const objectNames = new Set(
+      this.data.tracks
+        .map(value => value.name.split('.')[0])
+        .filter(value => value !== undefined)
+    )
+    if (objectNames.has(data.object.data.name)) {
+      this.destryForSceneObjectInfo(data.to)
+      this.setupForSceneObjectInfo(data.to)
+    }
+  }
+
+  private onChildDestroy = (data: {
+    level: number
+    object: InSceneObjectInfo
+    parent: InSceneObjectInfo
+  }) => {
+    if (!(data.parent instanceof SceneObjectInfo)) return
+    const objectNames = new Set(
+      this.data.tracks
+        .map(value => value.name.split('.')[0])
+        .filter(value => value !== undefined)
+    )
+    if (objectNames.has(data.object.data.name)) {
+      this.destryForSceneObjectInfo(data.parent)
+      this.setupForSceneObjectInfo(data.parent)
+    }
   }
 
   private onChildNameChange = (data: {
@@ -101,6 +132,10 @@ export class AnimationData {
     sceneObjectInfo.eventDispatcher.removeListener(
       'CHILD_NAME_CHANGE',
       this.onChildNameChange
+    )
+    sceneObjectInfo.eventDispatcher.removeListener(
+      'CHILD_DESTROY',
+      this.onChildDestroy
     )
   }
 
@@ -157,6 +192,10 @@ export class AnimationData {
     sceneObjectInfo.eventDispatcher.addListener(
       'CHILD_NAME_CHANGE',
       this.onChildNameChange
+    )
+    sceneObjectInfo.eventDispatcher.addListener(
+      'CHILD_DESTROY',
+      this.onChildDestroy
     )
   }
 
