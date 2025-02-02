@@ -46,7 +46,7 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
   abstract readonly config: ObjectInSceneInfoConfig
   abstract readonly data: THREE.Object3D
   children: InSceneObjectInfo[]
-  private objectInfoStorage: ObjectInfoStorage
+  protected objectInfoStorage: ObjectInfoStorage
   abstract readonly eventDispatcher: EventDispatcher<InSceneObjectInfoEvent>
 
   constructor(
@@ -247,7 +247,14 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     return setResult
   }
 
-  destroy = () => {
+  traverseChildren(callback: (child: InSceneObjectInfo) => void) {
+    for (const child of this.children) {
+      callback(child)
+      child.traverseChildren(callback)
+    }
+  }
+
+  destroy() {
     for (const child of this.children) {
       this.objectInfoStorage.delete(child.config.id)
     }
