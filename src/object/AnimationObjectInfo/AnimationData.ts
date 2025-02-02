@@ -64,6 +64,24 @@ export class AnimationData {
     this.setupForSceneObjectInfo(data.to)
   }
 
+  private onChildNameChange = (data: {
+    level: number
+    from: string
+    to: string
+    parent: InSceneObjectInfo
+  }) => {
+    if (!(data.parent instanceof SceneObjectInfo)) return
+    const objectNames = new Set(
+      this.data.tracks
+        .map(value => value.name.split('.')[0])
+        .filter(value => value !== undefined)
+    )
+    if (objectNames.has(data.from) || objectNames.has(data.to)) {
+      this.destryForSceneObjectInfo(data.parent)
+      this.setupForSceneObjectInfo(data.parent)
+    }
+  }
+
   private destryForSceneObjectInfo = (sceneObjectInfo: SceneObjectInfo) => {
     const animationAction = this.animationActionStorage.delete(
       sceneObjectInfo.config.id
@@ -79,6 +97,10 @@ export class AnimationData {
     sceneObjectInfo.eventDispatcher.removeListener(
       'CHILD_MOVE_TO_NEW_SCENE',
       this.onChildMoveToNewScene
+    )
+    sceneObjectInfo.eventDispatcher.removeListener(
+      'CHILD_NAME_CHANGE',
+      this.onChildNameChange
     )
   }
 
@@ -131,6 +153,10 @@ export class AnimationData {
     sceneObjectInfo.eventDispatcher.addListener(
       'CHILD_MOVE_TO_NEW_SCENE',
       this.onChildMoveToNewScene
+    )
+    sceneObjectInfo.eventDispatcher.addListener(
+      'CHILD_NAME_CHANGE',
+      this.onChildNameChange
     )
   }
 

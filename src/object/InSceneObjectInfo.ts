@@ -1,4 +1,9 @@
-import { ObjectConfig, ObjectInfo, ObjectInfoEvent } from './ObjectInfo'
+import {
+  ObjectConfig,
+  ObjectInfo,
+  ObjectInfoEvent,
+  ObjectPath,
+} from './ObjectInfo'
 import * as THREE from 'three'
 import { ObjectInfoStorage } from './ObjectInfoStorage'
 import { getChildren } from './children'
@@ -27,6 +32,10 @@ export type InSceneObjectInfoEvent =
       'CHILD_MOVE_TO_NEW_SCENE',
       { level: number; object: InSceneObjectInfo; to: SceneObjectInfo }
     >
+  | EventPacket<
+      'CHILD_NAME_CHANGE',
+      { level: number; from: string; to: string; parent: InSceneObjectInfo }
+    >
   | ObjectInfoEvent
 
 export abstract class InSceneObjectInfo extends ObjectInfo {
@@ -54,7 +63,24 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
         'CHILD_MOVE_TO_NEW_SCENE',
         this.onDeptChildMoveToNewScene
       )
+      child.eventDispatcher.addListener(
+        'CHILD_NAME_CHANGE',
+        this.onDeptChildNameChange
+      )
     }
+  }
+
+  onDeptChildNameChange = (data: {
+    level: number
+    from: string
+    to: string
+    parent: InSceneObjectInfo
+  }) => {
+    this.eventDispatcher.dispatch('CHILD_NAME_CHANGE', {
+      ...data,
+      level: data.level + 1,
+      parent: this,
+    })
   }
 
   onDeptChildMoveToNewScene = (data: {
@@ -151,6 +177,14 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
       'MOVE_TO_NEW_SCENE',
       this.onChildMoveToNewScene
     )
+    objectInfo.eventDispatcher.addListener(
+      'CHILD_MOVE_TO_NEW_SCENE',
+      this.onDeptChildMoveToNewScene
+    )
+    objectInfo.eventDispatcher.addListener(
+      'CHILD_NAME_CHANGE',
+      this.onDeptChildNameChange
+    )
     this.eventDispatcher.dispatch('NEW_OBJECT_ADDED', {
       object: objectInfo,
       parent: this,
@@ -176,6 +210,21 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     for (const child of this.children) {
       child.updateScene(scene)
     }
+  }
+
+  setValue(objectPath: ObjectPath, value: any) {
+    const from = this.data.name
+    const to = value
+    const setResult = super.setValue(objectPath, value)
+    if (objectPath.join('.') === 'name') {
+      this.eventDispatcher.dispatch('CHILD_NAME_CHANGE', {
+        level: 1,
+        from,
+        to,
+        parent: this,
+      })
+    }
+    return setResult
   }
 
   destroy = () => {
