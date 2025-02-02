@@ -32,7 +32,7 @@ export function createCameraObjectFromInfo(info: CameraInfo) {
       info.far
     )
     const result = new PerspectiveCameraObjectInfo(camera)
-    result.name = info.name
+    result.data.name = info.name
     return result
   } else {
     const camera = new THREE.OrthographicCamera(
@@ -44,7 +44,7 @@ export function createCameraObjectFromInfo(info: CameraInfo) {
       info.far
     )
     const result = new OrthographicCameraObjectInfo(camera)
-    result.name = info.name
+    result.data.name = info.name
     return result
   }
 }

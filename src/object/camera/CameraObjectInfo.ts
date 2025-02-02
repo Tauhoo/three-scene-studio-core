@@ -28,14 +28,6 @@ export class CameraObjectInfo extends ObjectInfo {
     this.eventDispatcher = new EventDispatcher()
   }
 
-  get name() {
-    return this.data.name
-  }
-
-  set name(value: string) {
-    this.data.name = value
-  }
-
   setValue(objectPath: ObjectPath, value: any) {
     this.data.updateMatrix()
     this.data.updateMatrixWorld()

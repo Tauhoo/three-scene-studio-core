@@ -36,12 +36,4 @@ export class SceneObjectInfo extends InSceneObjectInfo {
     this.animationMixer = new THREE.AnimationMixer(this.data)
     this.eventDispatcher = new EventDispatcher()
   }
-
-  get name() {
-    return this.data.name
-  }
-
-  set name(name: string) {
-    this.data.name = name
-  }
 }
