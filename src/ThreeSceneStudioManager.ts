@@ -45,7 +45,7 @@ export class ThreeSceneStudioManager {
     const scenes =
       this.objectInfoManager.objectInfoStorage.getSceneObjectInfos()
     this.sceneSwitcher = new Switcher(scenes)
-    this.clock = new Clock()
+    this.clock = new Clock(context)
     this.variableManager = new VariableManager(
       this.objectInfoManager,
       this.context,

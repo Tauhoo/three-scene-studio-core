@@ -3,7 +3,7 @@ import * as z from 'zod'
 import { InSceneObjectInfo, InSceneObjectInfoEvent } from './InSceneObjectInfo'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfoStorage } from './ObjectInfoStorage'
-import EventDispatcher from '../utils/EventDispatcher'
+import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { ObjectInfo } from './ObjectInfo'
 import { BoneObjectInfo } from './BoneObjectInfo'
 
@@ -16,10 +16,13 @@ export const skinMeshObjectConfigSchema = z.object({
 
 export type SkinMeshObjectConfig = z.infer<typeof skinMeshObjectConfigSchema>
 
+export type SkinMeshObjectInfoEvent =
+  | EventPacket<'BONES_UPDATED', SkinMeshObjectInfo>
+  | InSceneObjectInfoEvent
 export class SkinMeshObjectInfo extends InSceneObjectInfo {
   readonly config: SkinMeshObjectConfig
   readonly data: THREE.SkinnedMesh
-  readonly eventDispatcher: EventDispatcher<InSceneObjectInfoEvent>
+  readonly eventDispatcher: EventDispatcher<SkinMeshObjectInfoEvent>
 
   constructor(
     data: THREE.SkinnedMesh,
@@ -47,10 +50,28 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
         boneObjectSet.add(child.data)
       }
     })
+    const startAmount = this.data.skeleton.bones.length
     this.data.skeleton.bones = this.data.skeleton.bones.filter(
       bone => !boneObjectSet.has(bone)
     )
-    this.data.skeleton.calculateInverses()
+    const endAmount = this.data.skeleton.bones.length
+    if (startAmount !== endAmount) {
+      this.data.skeleton.calculateInverses()
+      this.eventDispatcher.dispatch('BONES_UPDATED', this)
+    }
+  }
+
+  getBoneObjectInfos(): BoneObjectInfo[] {
+    const boneObjectInfos: BoneObjectInfo[] = []
+    const bones = new Set(this.data.skeleton.bones)
+    for (const objectInfo of this.objectInfoStorage.getAll()) {
+      if (objectInfo instanceof BoneObjectInfo) {
+        if (bones.has(objectInfo.data)) {
+          boneObjectInfos.push(objectInfo)
+        }
+      }
+    }
+    return boneObjectInfos
   }
 
   get name() {

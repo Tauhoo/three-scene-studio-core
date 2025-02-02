@@ -8,6 +8,7 @@ export type ContextEventPacket =
         height: number
       }
     >
+  | EventPacket<'VISIBILITY_CHANGE', { visible: boolean }>
   | EventPacket<'CHANGE_CANVAS_CONTAINER', Context>
 
 class Context extends EventDispatcher<ContextEventPacket> {
@@ -26,6 +27,7 @@ class Context extends EventDispatcher<ContextEventPacket> {
     this.window = window
     this.canvasContainer =
       canvasContainer ?? this.getDefaultCanvasContainer(window)
+    // observe canvas resize
     const resizeObserver = new ResizeObserver(entries => {
       for (let entry of entries) {
         const { width, height } = entry.contentRect
@@ -34,6 +36,15 @@ class Context extends EventDispatcher<ContextEventPacket> {
       }
     })
     resizeObserver.observe(this.canvasContainer)
+
+    // observe visibility change
+    window.document.addEventListener('visibilitychange', () => {
+      if (window.document.hidden) {
+        this.dispatch('VISIBILITY_CHANGE', { visible: false })
+      } else {
+        this.dispatch('VISIBILITY_CHANGE', { visible: true })
+      }
+    })
   }
 }
 

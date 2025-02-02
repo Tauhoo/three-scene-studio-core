@@ -248,8 +248,8 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
   }
 
   traverseChildren(callback: (child: InSceneObjectInfo) => void) {
+    callback(this)
     for (const child of this.children) {
-      callback(child)
       child.traverseChildren(callback)
     }
   }
