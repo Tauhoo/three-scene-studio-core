@@ -56,7 +56,15 @@ export class AnimationData {
         .map(value => value.name.split('.')[0])
         .filter(value => value !== undefined)
     )
-    if (objectNames.has(data.object.data.name)) {
+
+    let needUpdate = false
+    data.object.traverseChildren(child => {
+      if (objectNames.has(child.data.name)) {
+        needUpdate = true
+      }
+    })
+
+    if (needUpdate) {
       this.destryForSceneObjectInfo(data.parent)
       this.setupForSceneObjectInfo(data.parent)
     }

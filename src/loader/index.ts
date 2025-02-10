@@ -157,3 +157,13 @@ export function createLoadedInfo(
 
   return null
 }
+
+export function transverseLoadedInfo(
+  loadedInfo: InSceneLoadedInfo | SceneLoadedInfo,
+  callback: (loadedInfo: InSceneLoadedInfo | SceneLoadedInfo) => void
+) {
+  callback(loadedInfo)
+  for (const child of loadedInfo.children) {
+    transverseLoadedInfo(child, callback)
+  }
+}
