@@ -12,4 +12,15 @@ export class HemisphereLightObjectInfo extends LightObjectInfo {
   ) {
     super(data, sceneId, objectInfoStorage, id)
   }
+
+  helper(value: boolean) {
+    if (value) {
+      this.data.add(new THREE.HemisphereLightHelper(this.data, 1))
+    } else {
+      this.data.children = this.data.children.filter(
+        child => !(child instanceof THREE.HemisphereLightHelper)
+      )
+    }
+    super.helper(value)
+  }
 }

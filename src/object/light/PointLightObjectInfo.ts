@@ -12,4 +12,15 @@ export class PointLightObjectInfo extends LightObjectInfo {
   ) {
     super(data, sceneId, objectInfoStorage, id)
   }
+
+  helper(value: boolean) {
+    if (value) {
+      this.data.add(new THREE.PointLightHelper(this.data, 1))
+    } else {
+      this.data.children = this.data.children.filter(
+        child => !(child instanceof THREE.PointLightHelper)
+      )
+    }
+    super.helper(value)
+  }
 }

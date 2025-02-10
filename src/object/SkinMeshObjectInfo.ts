@@ -4,7 +4,7 @@ import { InSceneObjectInfo, InSceneObjectInfoEvent } from './InSceneObjectInfo'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfoStorage } from './ObjectInfoStorage'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
-import { ObjectInfo } from './ObjectInfo'
+import { ObjectInfo, ObjectPath } from './ObjectInfo'
 import { BoneObjectInfo } from './BoneObjectInfo'
 
 export const skinMeshObjectConfigSchema = z.object({
@@ -23,7 +23,7 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
   readonly config: SkinMeshObjectConfig
   readonly data: THREE.SkinnedMesh
   readonly eventDispatcher: EventDispatcher<SkinMeshObjectInfoEvent>
-
+  private skeletonHelper: THREE.SkeletonHelper | null = null
   constructor(
     data: THREE.SkinnedMesh,
     sceneId: number,
@@ -78,8 +78,31 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
     return this.data.name
   }
 
+  setValue(objectPath: ObjectPath, value: any) {
+    const result = super.setValue(objectPath, value)
+    if (this.skeletonHelper !== null) {
+      this.skeletonHelper.update()
+    }
+    return result
+  }
+
   destroy() {
     this.objectInfoStorage.removeListener('DELETE', this.onDelete)
     super.destroy()
+  }
+
+  helper(value: boolean) {
+    if (value) {
+      if (this.skeletonHelper === null && this.data.parent !== null) {
+        this.skeletonHelper = new THREE.SkeletonHelper(this.data)
+        this.data.parent.add(this.skeletonHelper)
+      }
+    } else {
+      if (this.skeletonHelper !== null && this.skeletonHelper.parent !== null) {
+        this.skeletonHelper.parent.remove(this.skeletonHelper)
+        this.skeletonHelper = null
+      }
+    }
+    super.helper(value)
   }
 }

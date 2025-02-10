@@ -40,6 +40,7 @@ export type InSceneObjectInfoEvent =
       'CHILD_DESTROY',
       { level: number; object: InSceneObjectInfo; parent: InSceneObjectInfo }
     >
+  | EventPacket<'HELPER_CHANGE', { enabled: boolean }>
   | ObjectInfoEvent
 
 export abstract class InSceneObjectInfo extends ObjectInfo {
@@ -48,6 +49,7 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
   children: InSceneObjectInfo[]
   protected objectInfoStorage: ObjectInfoStorage
   abstract readonly eventDispatcher: EventDispatcher<InSceneObjectInfoEvent>
+  private _helperEnabled = false
 
   constructor(
     data: THREE.Object3D,
@@ -259,5 +261,16 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
       this.objectInfoStorage.delete(child.config.id)
     }
     super.destroy()
+  }
+
+  helper(boolean: boolean) {
+    this.eventDispatcher.dispatch('HELPER_CHANGE', {
+      enabled: boolean,
+    })
+    this._helperEnabled = boolean
+  }
+
+  isHelperEnabled(): boolean {
+    return this._helperEnabled
   }
 }

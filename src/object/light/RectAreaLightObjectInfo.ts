@@ -12,4 +12,15 @@ export class RectAreaLightObjectInfo extends LightObjectInfo {
   ) {
     super(data, sceneId, objectInfoStorage, id)
   }
+
+  helper(value: boolean) {
+    if (value) {
+      this.data.add(new THREE.BoxHelper(this.data))
+    } else {
+      this.data.children = this.data.children.filter(
+        child => !(child instanceof THREE.BoxHelper)
+      )
+    }
+    super.helper(value)
+  }
 }
