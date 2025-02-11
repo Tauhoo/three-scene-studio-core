@@ -38,10 +38,6 @@ export class BoneObjectInfo extends InSceneObjectInfo {
     this.eventDispatcher = new EventDispatcher()
   }
 
-  get name() {
-    return this.data.name
-  }
-
   setValue(objectPath: ObjectPath, value: any) {
     const result = super.setValue(objectPath, value)
     if (this.boxHelper !== null) {

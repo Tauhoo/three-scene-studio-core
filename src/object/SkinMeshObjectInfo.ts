@@ -23,7 +23,7 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
   readonly config: SkinMeshObjectConfig
   readonly data: THREE.SkinnedMesh
   readonly eventDispatcher: EventDispatcher<SkinMeshObjectInfoEvent>
-  private skeletonHelper: THREE.SkeletonHelper | null = null
+
   constructor(
     data: THREE.SkinnedMesh,
     sceneId: number,
@@ -74,35 +74,13 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
     return boneObjectInfos
   }
 
-  get name() {
-    return this.data.name
-  }
-
   setValue(objectPath: ObjectPath, value: any) {
     const result = super.setValue(objectPath, value)
-    if (this.skeletonHelper !== null) {
-      this.skeletonHelper.update()
-    }
     return result
   }
 
-  destroy() {
+  destroy(): void {
     this.objectInfoStorage.removeListener('DELETE', this.onDelete)
     super.destroy()
-  }
-
-  helper(value: boolean) {
-    if (value) {
-      if (this.skeletonHelper === null && this.data.parent !== null) {
-        this.skeletonHelper = new THREE.SkeletonHelper(this.data)
-        this.data.parent.add(this.skeletonHelper)
-      }
-    } else {
-      if (this.skeletonHelper !== null && this.skeletonHelper.parent !== null) {
-        this.skeletonHelper.parent.remove(this.skeletonHelper)
-        this.skeletonHelper = null
-      }
-    }
-    super.helper(value)
   }
 }

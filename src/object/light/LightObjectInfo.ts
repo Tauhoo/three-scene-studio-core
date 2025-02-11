@@ -36,8 +36,4 @@ export class LightObjectInfo extends InSceneObjectInfo {
     this.data = data
     this.eventDispatcher = new EventDispatcher()
   }
-
-  get name() {
-    return this.data.name
-  }
 }
