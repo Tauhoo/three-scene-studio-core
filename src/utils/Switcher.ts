@@ -11,10 +11,12 @@ type EventPackage = {
 class Switcher<T> extends EventDispatcher<EventPackage> {
   values: T[]
   private _index = 0
+  name: string
 
-  constructor(values: T[]) {
+  constructor(name: string, values: T[]) {
     super()
     this.values = values
+    this.name = name
   }
 
   remove(value: T) {
@@ -27,6 +29,7 @@ class Switcher<T> extends EventDispatcher<EventPackage> {
 
   get current() {
     if (this._index < 0 || this._index >= this.values.length) return null
+    if (this._index % 1 !== 0) return null
     return this.values[this._index]
   }
 
@@ -35,8 +38,17 @@ class Switcher<T> extends EventDispatcher<EventPackage> {
   }
 
   set index(index: number) {
-    this.dispatch('INDEX_CHANGE', { from: this._index, to: index })
-    this._index = index
+    let value = index
+    if (index < 0 || index >= this.values.length) {
+      value = 0
+    }
+    if (index % 1 !== 0) {
+      value = 0
+    }
+    const from = this._index
+    if (from === value) return
+    this._index = value
+    this.dispatch('INDEX_CHANGE', { from, to: value })
   }
 }
 

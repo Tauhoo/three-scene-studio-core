@@ -1,23 +1,16 @@
 import * as z from 'zod'
-import { SceneObjectInfo, sceneObjectConfigSchema } from './SceneObjectInfo'
-import {
-  CameraObjectInfo,
-  cameraObjectConfigSchema,
-} from './camera/CameraObjectInfo'
-import {
-  AnimationObjectInfo,
-  animationObjectConfigSchema,
-} from './AnimationObjectInfo'
-import { MeshObjectInfo, meshObjectConfigSchema } from './MeshObjectInfo'
-import { GroupObjectInfo } from './GroupObjectInfo'
-import {
-  formulaObjectConfigSchema,
-  FormulaObjectInfo,
-} from './FormulaObjectInfo'
-import { lightObjectConfigSchema, LightObjectInfo } from './light'
-import { SkinMeshObjectInfo } from './SkinMeshObjectInfo'
+import { sceneObjectConfigSchema } from './SceneObjectInfo'
+import { cameraObjectConfigSchema } from './camera/CameraObjectInfo'
+import { animationObjectConfigSchema } from './AnimationObjectInfo'
+import { meshObjectConfigSchema } from './MeshObjectInfo'
+import { formulaObjectConfigSchema } from './FormulaObjectInfo'
+import { lightObjectConfigSchema } from './light'
 import { boneObjectConfigSchema } from './BoneObjectInfo'
-import { BoneObjectInfo } from './BoneObjectInfo'
+import { sceneSwitcherObjectConfigSchema } from './SceneSwitcherObjectInfo'
+import { cameraSwitcherObjectConfigSchema } from './CameraSwitcherObjectInfo'
+
+export * from './SceneSwitcherObjectInfo'
+export * from './CameraSwitcherObjectInfo'
 export * from './ObjectInfo'
 export * from './InSceneObjectInfo'
 export * from './SceneObjectInfo'
@@ -33,24 +26,6 @@ export * from './camera'
 
 export * from './ObjectInfoManager'
 
-export type SystemObjectInfo =
-  | FormulaObjectInfo
-  | SceneObjectInfo
-  | CameraObjectInfo
-  | AnimationObjectInfo
-  | LightObjectInfo
-  | MeshObjectInfo
-  | GroupObjectInfo
-  | SkinMeshObjectInfo
-  | BoneObjectInfo
-export type SystemObjectInSceneInfo =
-  | LightObjectInfo
-  | MeshObjectInfo
-  | GroupObjectInfo
-  | SkinMeshObjectInfo
-  | BoneObjectInfo
-
-export type ObjectType = SystemObjectInfo['config']['type']
 export const objectConfigSchema = z.union([
   sceneObjectConfigSchema,
   cameraObjectConfigSchema,
@@ -59,5 +34,7 @@ export const objectConfigSchema = z.union([
   meshObjectConfigSchema,
   formulaObjectConfigSchema,
   boneObjectConfigSchema,
+  sceneSwitcherObjectConfigSchema,
+  cameraSwitcherObjectConfigSchema,
 ])
 export type ObjectConfig = z.infer<typeof objectConfigSchema>

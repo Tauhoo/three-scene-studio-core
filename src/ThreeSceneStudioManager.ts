@@ -40,16 +40,24 @@ export class ThreeSceneStudioManager {
     )
     const cameras =
       this.objectInfoManager.objectInfoStorage.getCameraObjectInfos()
-    this.cameraSwitcher = new Switcher(cameras)
+    this.cameraSwitcher = new Switcher('Camera switcher', cameras)
 
     const scenes =
       this.objectInfoManager.objectInfoStorage.getSceneObjectInfos()
-    this.sceneSwitcher = new Switcher(scenes)
+    this.sceneSwitcher = new Switcher('Scene switcher', scenes)
     this.clock = new Clock(context)
     this.variableManager = new VariableManager(
       this.objectInfoManager,
       this.context,
       this.clock
+    )
+
+    // setup system object infos
+    this.objectInfoManager.objectInfoStorage.createSceneSwitcherObjectInfo(
+      this.sceneSwitcher
+    )
+    this.objectInfoManager.objectInfoStorage.createCameraSwitcherObjectInfo(
+      this.cameraSwitcher
     )
 
     // setup system variables

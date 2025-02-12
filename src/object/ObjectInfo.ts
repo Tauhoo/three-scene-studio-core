@@ -19,6 +19,7 @@ export abstract class ObjectInfo {
   abstract readonly config: ObjectConfig
   abstract readonly data: any
   abstract readonly eventDispatcher: EventDispatcher<ObjectInfoEvent>
+
   serialize() {
     return this.config
   }
@@ -62,5 +63,9 @@ export abstract class ObjectInfo {
 
   destroy() {
     this.eventDispatcher.dispatch('DESTROY', this)
+  }
+
+  unique() {
+    return false
   }
 }

@@ -96,12 +96,19 @@ export class FormulaObjectInfo extends ObjectInfo {
     const defaultNotFoundValue = Object.fromEntries(
       this.notFoundVariables.map(value => [value, 0])
     )
-    const newValue = this.formulaInfo.node.evaluate({
-      ...this.data,
-      ...defaultNotFoundValue,
-    })
-    this.value = newValue
-    this.eventDispatcher.dispatch('FORMULA_VALUE_UPDATE', { value: newValue })
+
+    try {
+      const newValue = this.formulaInfo.node.evaluate({
+        ...this.data,
+        ...defaultNotFoundValue,
+      })
+      this.value = newValue
+      this.eventDispatcher.dispatch('FORMULA_VALUE_UPDATE', { value: newValue })
+    } catch (error) {
+      console.error(error)
+      this.value = 0
+      this.eventDispatcher.dispatch('FORMULA_VALUE_UPDATE', { value: 0 })
+    }
   }
 
   setValue(objectPath: ObjectPath, value: any) {

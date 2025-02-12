@@ -14,6 +14,9 @@ import { createLightObjectFromNative } from './light'
 import { MeshObjectInfo } from './MeshObjectInfo'
 import { GroupObjectInfo } from './GroupObjectInfo'
 import { SkinMeshObjectInfo } from './SkinMeshObjectInfo'
+import { SceneSwitcherInfo } from './SceneSwitcherObjectInfo'
+import { CameraSwitcherInfo } from './CameraSwitcherObjectInfo'
+import Switcher from '../utils/Switcher'
 
 export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   constructor() {
@@ -85,8 +88,42 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     return result
   }
 
+  createSceneSwitcherObjectInfo(sceneSwitcher: Switcher<SceneObjectInfo>) {
+    const result = new SceneSwitcherInfo(sceneSwitcher)
+    const sceneSwitcherInfo = this.getSceneSwitcherObjectInfo()
+    if (sceneSwitcherInfo !== null) {
+      this.delete(sceneSwitcherInfo.config.id)
+    }
+    this.set(result.config.id, result)
+    return result
+  }
+
+  createCameraSwitcherObjectInfo(cameraSwitcher: Switcher<CameraObjectInfo>) {
+    const result = new CameraSwitcherInfo(cameraSwitcher)
+    const cameraSwitcherInfo = this.getCameraSwitcherObjectInfo()
+    if (cameraSwitcherInfo !== null) {
+      this.delete(cameraSwitcherInfo.config.id)
+    }
+    this.set(result.config.id, result)
+    return result
+  }
+
   setObjectInfo(objectInfo: ObjectInfo) {
     this.set(objectInfo.config.id, objectInfo)
+  }
+
+  getSceneSwitcherObjectInfo() {
+    const sceneSwitcherInfos = this.getAll().filter(
+      value => value instanceof SceneSwitcherInfo
+    )
+    return sceneSwitcherInfos[0] ?? null
+  }
+
+  getCameraSwitcherObjectInfo() {
+    const cameraSwitcherInfos = this.getAll().filter(
+      value => value instanceof CameraSwitcherInfo
+    )
+    return cameraSwitcherInfos[0] ?? null
   }
 
   getCameraObjectInfos() {

@@ -9,6 +9,8 @@ import { ContainerHeightVariable, ContainerWidthVariable } from './variable'
 type RendererEventPacket =
   | EventPacket<'UPDATE_OVERRIDE_CAMERA', CameraObjectInfo | null>
   | EventPacket<'UPDATE_OVERRIDE_SCENE', SceneObjectInfo | null>
+  | EventPacket<'ACTIVE_SCENE_CHANGED', SceneObjectInfo | null>
+  | EventPacket<'ACTIVE_CAMERA_CHANGED', CameraObjectInfo | null>
 
 class Renderer extends EventDispatcher<RendererEventPacket> {
   renderer: THREE.WebGLRenderer
@@ -52,6 +54,18 @@ class Renderer extends EventDispatcher<RendererEventPacket> {
       'VALUE_CHANGED',
       this.onContainerResize
     )
+
+    this.sceneSwitcher.addListener('INDEX_CHANGE', ({ from, to }) => {
+      if (this._overrideScene === null) {
+        this.dispatch('ACTIVE_SCENE_CHANGED', this.sceneSwitcher.values[to])
+      }
+    })
+
+    this.cameraSwitcher.addListener('INDEX_CHANGE', ({ from, to }) => {
+      if (this._overrideCamera === null) {
+        this.dispatch('ACTIVE_CAMERA_CHANGED', this.cameraSwitcher.values[to])
+      }
+    })
   }
 
   private onContainerResize = () => {
@@ -68,13 +82,17 @@ class Renderer extends EventDispatcher<RendererEventPacket> {
   }
 
   set overrideCamera(camera: CameraObjectInfo | null) {
+    if (camera === this._overrideCamera) return
     this._overrideCamera = camera
     this.dispatch('UPDATE_OVERRIDE_CAMERA', camera)
+    this.dispatch('ACTIVE_CAMERA_CHANGED', camera)
   }
 
   set overrideScene(scene: SceneObjectInfo | null) {
+    if (scene === this._overrideScene) return
     this._overrideScene = scene
     this.dispatch('UPDATE_OVERRIDE_SCENE', scene)
+    this.dispatch('ACTIVE_SCENE_CHANGED', scene)
   }
 
   getActiveScene = () => {
