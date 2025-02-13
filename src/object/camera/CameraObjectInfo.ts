@@ -7,7 +7,6 @@ import EventDispatcher, { EventPacket } from '../../utils/EventDispatcher'
 export const cameraObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_CAMERA'),
   id: z.string(),
-  cameraId: z.number(),
 })
 
 export type CameraObjectConfig = z.infer<typeof cameraObjectConfigSchema>
@@ -24,10 +23,11 @@ export class CameraObjectInfo extends ObjectInfo {
 
   constructor(data: THREE.Camera, id?: string) {
     super()
+    const actualId = id ?? uuidv4()
+    data.userData['THREE_SCENE_STUDIO.OBJECT_INFO_ID'] = actualId
     this.config = {
       type: 'OBJECT_3D_CAMERA',
-      id: id ?? uuidv4(),
-      cameraId: data.id,
+      id: actualId,
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()

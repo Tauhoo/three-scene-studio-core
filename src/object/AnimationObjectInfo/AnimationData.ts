@@ -240,6 +240,10 @@ export class AnimationData {
     return this._weight
   }
 
+  get name() {
+    return this.data.name
+  }
+
   set name(value: string) {
     this.data.name = value
   }

@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import * as z from 'zod'
-import { getChildren } from './children'
 import { InSceneObjectInfo, InSceneObjectInfoEvent } from './InSceneObjectInfo'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfoStorage } from './ObjectInfoStorage'
@@ -9,8 +8,8 @@ import { ObjectPath } from './ObjectInfo'
 export const groupObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_GROUP'),
   id: z.string(),
-  sceneId: z.number(),
-  inSceneId: z.number(),
+  sceneId: z.string(),
+  childrenIds: z.array(z.string()),
 })
 
 export type GroupObjectConfig = z.infer<typeof groupObjectConfigSchema>
@@ -23,16 +22,18 @@ export class GroupObjectInfo extends InSceneObjectInfo {
 
   constructor(
     data: THREE.Object3D,
-    sceneId: number,
+    sceneId: string,
     objectInfoStorage: ObjectInfoStorage,
-    id?: string
+    id?: string,
+    children?: InSceneObjectInfo[]
   ) {
-    super(data, sceneId, objectInfoStorage)
+    const actualId = id ?? uuidv4()
+    super(data, actualId, sceneId, objectInfoStorage, children)
     this.config = {
       type: 'OBJECT_3D_GROUP',
-      id: id ?? uuidv4(),
-      sceneId: sceneId,
-      inSceneId: data.id,
+      id: actualId,
+      sceneId,
+      childrenIds: this.children.map(child => child.config.id),
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()

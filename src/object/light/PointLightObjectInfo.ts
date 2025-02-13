@@ -1,16 +1,17 @@
 import * as THREE from 'three'
 import { LightObjectInfo } from './LightObjectInfo'
 import { ObjectInfoStorage } from '../ObjectInfoStorage'
-
+import { InSceneObjectInfo } from '../InSceneObjectInfo'
 export class PointLightObjectInfo extends LightObjectInfo {
   declare data: THREE.PointLight
   constructor(
     data: THREE.PointLight,
-    sceneId: number,
+    sceneId: string,
     objectInfoStorage: ObjectInfoStorage,
-    id?: string
+    id?: string,
+    children?: InSceneObjectInfo[]
   ) {
-    super(data, sceneId, objectInfoStorage, id)
+    super(data, sceneId, objectInfoStorage, id, children)
   }
 
   helper(value: boolean) {

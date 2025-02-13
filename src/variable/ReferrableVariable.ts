@@ -27,6 +27,10 @@ export abstract class ReferrableVariable extends Variable {
     this._ref = ref
   }
 
+  get name() {
+    return this._name
+  }
+
   set name(name: string) {
     this._name = name
     this.dispatcher.dispatch('NAME_CHANGED', name)

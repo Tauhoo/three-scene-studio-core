@@ -8,7 +8,6 @@ import { CameraObjectInfo } from './camera/CameraObjectInfo'
 export const cameraSwitcherObjectConfigSchema = z.object({
   type: z.literal('CAMERA_SWITCHER'),
   id: z.string(),
-  cameras: z.array(z.string()),
 })
 
 export type CameraSwitcherObjectConfig = z.infer<
@@ -26,7 +25,6 @@ export class CameraSwitcherInfo extends ObjectInfo {
     this.config = {
       type: 'CAMERA_SWITCHER',
       id: uuidv4(),
-      cameras: data.values.map(camera => camera.config.id),
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()

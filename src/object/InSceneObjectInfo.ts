@@ -1,5 +1,6 @@
 import {
   ObjectConfig,
+  objectConfigSchema,
   ObjectInfo,
   ObjectInfoEvent,
   ObjectPath,
@@ -10,13 +11,16 @@ import { getChildren } from './children'
 import { SceneObjectInfo } from './SceneObjectInfo'
 import { EventPacket } from '../utils'
 import EventDispatcher from '../utils/EventDispatcher'
+import { z } from 'zod'
 
-export type InSceneIdentifier = {
-  sceneId: number
-  inSceneId: number
-}
+export const inSceneObjectInfoConfigSchema = objectConfigSchema.extend({
+  sceneId: z.string(),
+  childrenIds: z.array(z.string()),
+})
 
-export type ObjectInSceneInfoConfig = ObjectConfig & InSceneIdentifier
+export type InSceneObjectInfoConfig = z.infer<
+  typeof inSceneObjectInfoConfigSchema
+>
 
 export type InSceneObjectInfoEvent =
   | EventPacket<'DESTROY', InSceneObjectInfo>
@@ -44,7 +48,7 @@ export type InSceneObjectInfoEvent =
   | ObjectInfoEvent
 
 export abstract class InSceneObjectInfo extends ObjectInfo {
-  abstract readonly config: ObjectInSceneInfoConfig
+  abstract readonly config: InSceneObjectInfoConfig
   abstract readonly data: THREE.Object3D
   children: InSceneObjectInfo[]
   protected objectInfoStorage: ObjectInfoStorage
@@ -53,12 +57,15 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
 
   constructor(
     data: THREE.Object3D,
-    sceneId: number,
-    objectInfoStorage: ObjectInfoStorage
+    id: string,
+    sceneId: string,
+    objectInfoStorage: ObjectInfoStorage,
+    children?: InSceneObjectInfo[]
   ) {
     super()
+    data.userData['THREE_SCENE_STUDIO.OBJECT_INFO_ID'] = id
     this.objectInfoStorage = objectInfoStorage
-    this.children = getChildren(data, sceneId, objectInfoStorage)
+    this.children = children ?? getChildren(data, sceneId, objectInfoStorage)
     for (const child of this.children) {
       child.eventDispatcher.addListener('DESTROY', this.onChildrenDestroyed)
       child.eventDispatcher.addListener(
@@ -120,7 +127,7 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     object: InSceneObjectInfo
     to: SceneObjectInfo
   }) => {
-    if (data.to.config.sceneId === this.config.sceneId) return
+    if (data.to.config.id === this.config.sceneId) return
     data.object.eventDispatcher.removeListener(
       'MOVE_TO_NEW_SCENE',
       this.onChildMoveToNewScene
@@ -176,21 +183,6 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     return result
   }
 
-  findChildrenByInSceneId(id: number): InSceneObjectInfo | null {
-    if (this.config.inSceneId === id) {
-      return this
-    }
-
-    for (const child of this.children) {
-      const result = child.findChildrenByInSceneId(id)
-      if (result !== null) {
-        return result
-      }
-    }
-
-    return null
-  }
-
   addObjectInSceneInfo(objectInfo: InSceneObjectInfo) {
     this.children.push(objectInfo)
     this.data.add(objectInfo.data as THREE.Object3D)
@@ -227,8 +219,7 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
   }
 
   updateScene(scene: SceneObjectInfo) {
-    this.config.sceneId = scene.config.sceneId
-    this.config.inSceneId = this.data.id
+    this.config.sceneId = scene.config.id
     for (const child of this.children) {
       child.updateScene(scene)
     }

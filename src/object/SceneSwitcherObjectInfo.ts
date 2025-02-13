@@ -12,7 +12,6 @@ import { v4 as uuidv4 } from 'uuid'
 export const sceneSwitcherObjectConfigSchema = z.object({
   type: z.literal('SCENE_SWITCHER'),
   id: z.string(),
-  scenes: z.array(z.string()),
 })
 
 export type SceneSwitcherObjectConfig = z.infer<
@@ -30,7 +29,6 @@ export class SceneSwitcherInfo extends ObjectInfo {
     this.config = {
       type: 'SCENE_SWITCHER',
       id: uuidv4(),
-      scenes: data.values.map(scene => scene.config.id),
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()

@@ -3,6 +3,7 @@ import {
   CameraObjectInfo,
   ObjectInfo,
   ObjectInfoManager,
+  objectInfoManagerConfigSchema,
   SceneObjectInfo,
 } from './object'
 import Switcher from './utils/Switcher'
@@ -12,20 +13,29 @@ import VariableManager, {
 import Context from './utils/Context'
 import Renderer from './Renderer'
 import { Clock } from './Clock'
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
-  variableManagerConfig: variableManagerConfigSchema,
-  referableVariableManagerConfig: variableManagerConfigSchema,
+  variableManager: variableManagerConfigSchema,
+  objectInfoManager: objectInfoManagerConfigSchema,
 })
 export type ThreeSceneStudioManagerConfig = z.infer<
   typeof threeSceneStudioManagerConfigSchema
 >
 
 export class ThreeSceneStudioManager {
+  // config loadable
   readonly objectInfoManager: ObjectInfoManager
-  readonly cameraSwitcher: Switcher<CameraObjectInfo>
-  readonly sceneSwitcher: Switcher<SceneObjectInfo>
   readonly variableManager: VariableManager
+
+  readonly cameraSwitcher: Switcher<CameraObjectInfo> = new Switcher(
+    'Camera switcher',
+    []
+  )
+  readonly sceneSwitcher: Switcher<SceneObjectInfo> = new Switcher(
+    'Scene switcher',
+    []
+  )
   readonly renderer: Renderer
   readonly context: Context
   readonly clock: Clock
@@ -38,13 +48,7 @@ export class ThreeSceneStudioManager {
       'ADD',
       this.onObjectInfoAdded
     )
-    const cameras =
-      this.objectInfoManager.objectInfoStorage.getCameraObjectInfos()
-    this.cameraSwitcher = new Switcher('Camera switcher', cameras)
 
-    const scenes =
-      this.objectInfoManager.objectInfoStorage.getSceneObjectInfos()
-    this.sceneSwitcher = new Switcher('Scene switcher', scenes)
     this.clock = new Clock(context)
     this.variableManager = new VariableManager(
       this.objectInfoManager,
@@ -69,6 +73,8 @@ export class ThreeSceneStudioManager {
     const containerWidthVariable =
       this.variableManager.createContainerWidthVariable('CONTAINER_WIDTH', 'cw')
     this.variableManager.createTimeVariable('TIME', 't')
+
+    // setup renderer
     this.renderer = new Renderer(
       context,
       this.cameraSwitcher,
@@ -87,17 +93,18 @@ export class ThreeSceneStudioManager {
     }
   }
 
-  loadConfig(context: Context, config: ThreeSceneStudioManagerConfig) {
-    // implement load gltf
+  loadConfig(gltf: GLTF, config: ThreeSceneStudioManagerConfig) {
+    this.objectInfoManager.loadConfig(gltf, config.objectInfoManager)
     this.variableManager.loadConfig(
-      config.variableManagerConfig,
+      config.variableManager,
       this.objectInfoManager
     )
   }
 
-  serialize() {
+  serialize(): ThreeSceneStudioManagerConfig {
     return {
-      variableManagerConfig: this.variableManager.serialize(),
+      variableManager: this.variableManager.serialize(),
+      objectInfoManager: this.objectInfoManager.serialize(),
     }
   }
 }

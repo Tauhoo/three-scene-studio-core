@@ -8,7 +8,7 @@ export interface Parent {
 
 export const getChildren = (
   data: Parent,
-  sceneId: number,
+  sceneId: string,
   objectInfoStorage: ObjectInfoStorage
 ): InSceneObjectInfo[] => {
   return data.children

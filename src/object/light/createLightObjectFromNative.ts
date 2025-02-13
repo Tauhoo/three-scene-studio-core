@@ -6,19 +6,22 @@ import { PointLightObjectInfo } from './PointLightObjectInfo'
 import { RectAreaLightObjectInfo } from './RectAreaLightObjectInfo'
 import { SpotLightObjectInfo } from './SpotLightObjectInfo'
 import { ObjectInfoStorage } from '../ObjectInfoStorage'
+import { InSceneObjectInfo } from '../InSceneObjectInfo'
 
 export function createLightObjectFromNative(
   light: THREE.Light,
   objectInfoStorage: ObjectInfoStorage,
-  sceneId: number,
-  id?: string
+  sceneId: string,
+  id?: string,
+  children?: InSceneObjectInfo[]
 ) {
   if (light instanceof THREE.AmbientLight) {
     const result = new AmbientLightObjectInfo(
       light,
       sceneId,
       objectInfoStorage,
-      id
+      id,
+      children
     )
     return result
   } else if (light instanceof THREE.DirectionalLight) {
@@ -26,7 +29,8 @@ export function createLightObjectFromNative(
       light,
       sceneId,
       objectInfoStorage,
-      id
+      id,
+      children
     )
     return result
   } else if (light instanceof THREE.HemisphereLight) {
@@ -34,7 +38,8 @@ export function createLightObjectFromNative(
       light,
       sceneId,
       objectInfoStorage,
-      id
+      id,
+      children
     )
     return result
   } else if (light instanceof THREE.PointLight) {
@@ -42,7 +47,8 @@ export function createLightObjectFromNative(
       light,
       sceneId,
       objectInfoStorage,
-      id
+      id,
+      children
     )
     return result
   } else if (light instanceof THREE.RectAreaLight) {
@@ -50,7 +56,8 @@ export function createLightObjectFromNative(
       light,
       sceneId,
       objectInfoStorage,
-      id
+      id,
+      children
     )
     return result
   } else if (light instanceof THREE.SpotLight) {
@@ -58,7 +65,8 @@ export function createLightObjectFromNative(
       light,
       sceneId,
       objectInfoStorage,
-      id
+      id,
+      children
     )
     return result
   } else {

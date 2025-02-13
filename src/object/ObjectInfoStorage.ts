@@ -7,35 +7,71 @@ import {
   createCameraObjectFromInfo,
   createCameraObjectFromNative,
 } from './camera'
-import { ObjectInfo } from './ObjectInfo'
+import { ObjectConfig, objectConfigSchema, ObjectInfo } from './ObjectInfo'
 import { SceneObjectInfo } from './SceneObjectInfo'
-import { BoneObjectInfo } from './BoneObjectInfo'
-import { createLightObjectFromNative } from './light'
-import { MeshObjectInfo } from './MeshObjectInfo'
-import { GroupObjectInfo } from './GroupObjectInfo'
-import { SkinMeshObjectInfo } from './SkinMeshObjectInfo'
+import { boneObjectConfigSchema, BoneObjectInfo } from './BoneObjectInfo'
+import { createLightObjectFromNative, lightObjectConfigSchema } from './light'
+import { meshObjectConfigSchema, MeshObjectInfo } from './MeshObjectInfo'
+import { groupObjectConfigSchema, GroupObjectInfo } from './GroupObjectInfo'
+import {
+  skinMeshObjectConfigSchema,
+  SkinMeshObjectInfo,
+} from './SkinMeshObjectInfo'
 import { SceneSwitcherInfo } from './SceneSwitcherObjectInfo'
 import { CameraSwitcherInfo } from './CameraSwitcherObjectInfo'
 import Switcher from '../utils/Switcher'
+import { FormulaObjectInfo } from './FormulaObjectInfo'
+import {
+  InSceneObjectInfo,
+  InSceneObjectInfoConfig,
+  inSceneObjectInfoConfigSchema,
+} from './InSceneObjectInfo'
+import { z } from 'zod'
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
+import { FormulaInfo } from '../utils'
+import ObjectInfoStorageConfigLoader from './ObjectInfoStorageConfigLoader'
+
+export const objectInfoStorageConfigSchema = z.object({
+  inSceneObjectInfos: z.array(inSceneObjectInfoConfigSchema),
+  uniqueObjectInfos: z.object({
+    cameraSwitcher: objectConfigSchema.nullable(),
+    sceneSwitcher: objectConfigSchema.nullable(),
+  }),
+  formulaObjectInfos: z.array(objectConfigSchema),
+  animationObjectInfos: z.array(objectConfigSchema),
+  cameraObjectInfos: z.array(objectConfigSchema),
+})
+
+export type ObjectInfoStorageConfig = z.infer<
+  typeof objectInfoStorageConfigSchema
+>
 
 export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   constructor() {
     super(value => value)
   }
 
-  createSceneObjectInfo(group: THREE.Group) {
+  createSceneObjectInfo(
+    group: THREE.Group,
+    id?: string,
+    children?: InSceneObjectInfo[]
+  ) {
     const scene = new THREE.Scene()
     scene.add(...group.children)
     scene.name = group.name
-    const result = new SceneObjectInfo(scene, this)
+    const result = new SceneObjectInfo(scene, this, id, children)
     this.set(result.config.id, result)
     return result
   }
 
-  createEmptySceneObjectInfo(name: string) {
+  createEmptySceneObjectInfo(
+    name: string,
+    id?: string,
+    children?: InSceneObjectInfo[]
+  ) {
     const scene = new THREE.Scene()
     scene.name = name
-    const result = new SceneObjectInfo(scene, this)
+    const result = new SceneObjectInfo(scene, this, id, children)
     this.set(result.config.id, result)
     return result
   }
@@ -52,38 +88,69 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     return camera
   }
 
-  createAnimationObjectInfo(animation: THREE.AnimationClip) {
-    const result = new AnimationObjectInfo(animation, this)
+  createAnimationObjectInfo(animation: THREE.AnimationClip, id?: string) {
+    const result = new AnimationObjectInfo(animation, this, id)
     this.set(result.config.id, result)
     return result
   }
 
-  createBoneObjectInfo(bone: THREE.Bone, sceneId: number) {
-    const result = new BoneObjectInfo(bone, sceneId, this)
+  createBoneObjectInfo(
+    bone: THREE.Bone,
+    sceneId: string,
+    id?: string,
+    children?: InSceneObjectInfo[]
+  ) {
+    const result = new BoneObjectInfo(bone, sceneId, this, id, children)
     this.set(result.config.id, result)
     return result
   }
 
-  createLightObjectInfo(light: THREE.Light, sceneId: number) {
-    const result = createLightObjectFromNative(light, this, sceneId)
+  createLightObjectInfo(
+    light: THREE.Light,
+    sceneId: string,
+    id?: string,
+    children?: InSceneObjectInfo[]
+  ) {
+    const result = createLightObjectFromNative(
+      light,
+      this,
+      sceneId,
+      id,
+      children
+    )
     this.set(result.config.id, result)
     return result
   }
 
-  createMeshObjectInfo(mesh: THREE.Mesh, sceneId: number) {
-    const result = new MeshObjectInfo(mesh, sceneId, this)
+  createMeshObjectInfo(
+    mesh: THREE.Mesh,
+    sceneId: string,
+    id?: string,
+    children?: InSceneObjectInfo[]
+  ) {
+    const result = new MeshObjectInfo(mesh, sceneId, this, id, children)
     this.set(result.config.id, result)
     return result
   }
 
-  createGroupObjectInfo(group: THREE.Object3D, sceneId: number) {
-    const result = new GroupObjectInfo(group, sceneId, this)
+  createGroupObjectInfo(
+    group: THREE.Object3D,
+    sceneId: string,
+    id?: string,
+    children?: InSceneObjectInfo[]
+  ) {
+    const result = new GroupObjectInfo(group, sceneId, this, id, children)
     this.set(result.config.id, result)
     return result
   }
 
-  createSkinMeshObjectInfo(mesh: THREE.SkinnedMesh, sceneId: number) {
-    const result = new SkinMeshObjectInfo(mesh, sceneId, this)
+  createSkinMeshObjectInfo(
+    mesh: THREE.SkinnedMesh,
+    sceneId: string,
+    id?: string,
+    children?: InSceneObjectInfo[]
+  ) {
+    const result = new SkinMeshObjectInfo(mesh, sceneId, this, id, children)
     this.set(result.config.id, result)
     return result
   }
@@ -108,18 +175,24 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     return result
   }
 
+  createFormulaObjectInfo(formulaInfo: FormulaInfo, id?: string) {
+    const result = new FormulaObjectInfo(formulaInfo, id)
+    this.set(result.config.id, result)
+    return result
+  }
+
   setObjectInfo(objectInfo: ObjectInfo) {
     this.set(objectInfo.config.id, objectInfo)
   }
 
-  getSceneSwitcherObjectInfo() {
+  getSceneSwitcherObjectInfo(): SceneSwitcherInfo | null {
     const sceneSwitcherInfos = this.getAll().filter(
       value => value instanceof SceneSwitcherInfo
     )
     return sceneSwitcherInfos[0] ?? null
   }
 
-  getCameraSwitcherObjectInfo() {
+  getCameraSwitcherObjectInfo(): CameraSwitcherInfo | null {
     const cameraSwitcherInfos = this.getAll().filter(
       value => value instanceof CameraSwitcherInfo
     )
@@ -138,11 +211,20 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     return this.getAll().filter(value => value instanceof AnimationObjectInfo)
   }
 
-  getSceneBySceneId(sceneId: number) {
-    return this.getAll().find(
-      value =>
-        value instanceof SceneObjectInfo && value.config.sceneId === sceneId
-    )
+  getFormulaObjectInfos() {
+    return this.getAll().filter(value => value instanceof FormulaObjectInfo)
+  }
+
+  getInSceneObjectInfos() {
+    return this.getAll().filter(value => value instanceof InSceneObjectInfo)
+  }
+
+  getSceneById(id: string) {
+    const result = this.get(id)
+    if (result instanceof SceneObjectInfo) {
+      return result
+    }
+    return null
   }
 
   delete(reference: string) {
@@ -152,5 +234,42 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     }
     objectInfo.destroy()
     return super.delete(reference)
+  }
+
+  loadConfig(gltf: GLTF, config: ObjectInfoStorageConfig) {
+    const objectInfoStorageConfigLoader = new ObjectInfoStorageConfigLoader(
+      this
+    )
+    objectInfoStorageConfigLoader.loadConfig(gltf, config)
+  }
+
+  serialize(): ObjectInfoStorageConfig {
+    const cameraSwitcherObjectInfo = this.getCameraSwitcherObjectInfo()
+    const sceneSwitcherObjectInfo = this.getSceneSwitcherObjectInfo()
+    const result = {
+      inSceneObjectInfos: this.getInSceneObjectInfos().map(objectInfo =>
+        objectInfo.serialize()
+      ),
+      uniqueObjectInfos: {
+        cameraSwitcher:
+          cameraSwitcherObjectInfo === null
+            ? null
+            : cameraSwitcherObjectInfo.serialize(),
+        sceneSwitcher:
+          sceneSwitcherObjectInfo === null
+            ? null
+            : sceneSwitcherObjectInfo.serialize(),
+      },
+      formulaObjectInfos: this.getFormulaObjectInfos().map(objectInfo =>
+        objectInfo.serialize()
+      ),
+      animationObjectInfos: this.getAnimationObjectInfos().map(objectInfo =>
+        objectInfo.serialize()
+      ),
+      cameraObjectInfos: this.getCameraObjectInfos().map(objectInfo =>
+        objectInfo.serialize()
+      ),
+    }
+    return result
   }
 }

@@ -11,8 +11,8 @@ import { ObjectPath } from './ObjectInfo'
 export const meshObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_MESH'),
   id: z.string(),
-  sceneId: z.number(),
-  inSceneId: z.number(),
+  sceneId: z.string(),
+  childrenIds: z.array(z.string()),
 })
 
 export type MeshObjectConfig = z.infer<typeof meshObjectConfigSchema>
@@ -25,16 +25,18 @@ export class MeshObjectInfo extends InSceneObjectInfo {
 
   constructor(
     data: THREE.Mesh,
-    sceneId: number,
+    sceneId: string,
     objectInfoStorage: ObjectInfoStorage,
-    id?: string
+    id?: string,
+    children?: InSceneObjectInfo[]
   ) {
-    super(data, sceneId, objectInfoStorage)
+    const actualId = id ?? uuidv4()
+    super(data, actualId, sceneId, objectInfoStorage, children)
     this.config = {
       type: 'OBJECT_3D_MESH',
-      id: id ?? uuidv4(),
+      id: actualId,
       sceneId,
-      inSceneId: data.id,
+      childrenIds: this.children.map(child => child.config.id),
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()

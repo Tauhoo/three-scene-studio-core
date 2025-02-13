@@ -5,10 +5,12 @@ import { z } from 'zod'
 export const objectPathSchema = z.array(z.string())
 export type ObjectPath = z.infer<typeof objectPathSchema>
 
-export interface ObjectConfig {
-  type: string
-  id: string
-}
+export const objectConfigSchema = z.object({
+  type: z.string(),
+  id: z.string(),
+})
+
+export type ObjectConfig = z.infer<typeof objectConfigSchema>
 
 export type ObjectInfoEvent =
   | EventPacket<string & {}, any>

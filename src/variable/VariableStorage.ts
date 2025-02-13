@@ -121,6 +121,7 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
           formulaObject,
           objectInfoManager,
           this.variableConnectorStorage,
+          this,
           config.id
         )
       case 'GLOBAL_FORMULA': {
@@ -136,6 +137,7 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
           config.name,
           objectInfoManager,
           this.variableConnectorStorage,
+          this,
           config.id
         )
       }

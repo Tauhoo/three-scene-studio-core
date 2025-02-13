@@ -17,8 +17,8 @@ import { Clock } from '../Clock'
 import { parseExpression } from '../utils'
 
 export const variableManagerConfigSchema = z.object({
-  variableStorageConfig: variableStorageConfigSchema,
-  variableConnectorStorageConfig: variableConnectorStorageConfigSchema,
+  variableStorage: variableStorageConfigSchema,
+  variableConnectorStorage: variableConnectorStorageConfigSchema,
 })
 
 export type VariableManagerConfig = z.infer<typeof variableManagerConfigSchema>
@@ -49,11 +49,15 @@ class VariableManager {
     if (parsedResult.status === 'ERROR') {
       throw new Error(parsedResult.error)
     }
-    const formulaObjectInfo = new FormulaObjectInfo(this, parsedResult.data)
+    const formulaObjectInfo =
+      this.objectInfoManager.objectInfoStorage.createFormulaObjectInfo(
+        parsedResult.data
+      )
     const variable = new FormulaVariable(
       formulaObjectInfo,
       this.objectInfoManager,
       this.variableConnectorStorage,
+      this.variableStorage,
       id
     )
     this.variableStorage.setVariable(variable)
@@ -70,11 +74,10 @@ class VariableManager {
     if (parsedResult.status === 'ERROR') {
       throw new Error(parsedResult.error)
     }
-    const formulaObjectInfo = new FormulaObjectInfo(
-      this,
-      parsedResult.data,
-      ref
-    )
+    const formulaObjectInfo =
+      this.objectInfoManager.objectInfoStorage.createFormulaObjectInfo(
+        parsedResult.data
+      )
     this.objectInfoManager.objectInfoStorage.setObjectInfo(formulaObjectInfo)
     const variable = new GlobalFormulaVariable(
       this.variableStorage.convertToNoneDuplicateRef(ref),
@@ -82,6 +85,7 @@ class VariableManager {
       name,
       this.objectInfoManager,
       this.variableConnectorStorage,
+      this.variableStorage,
       id
     )
     this.variableStorage.setVariable(variable)
@@ -157,12 +161,9 @@ class VariableManager {
     config: VariableManagerConfig,
     objectInfoManager: ObjectInfoManager
   ) {
-    this.variableStorage.loadConfig(
-      objectInfoManager,
-      config.variableStorageConfig
-    )
+    this.variableStorage.loadConfig(objectInfoManager, config.variableStorage)
     this.variableConnectorStorage.loadConfig(
-      config.variableConnectorStorageConfig,
+      config.variableConnectorStorage,
       objectInfoManager,
       this.variableStorage
     )
@@ -170,8 +171,8 @@ class VariableManager {
 
   serialize(): VariableManagerConfig {
     return {
-      variableStorageConfig: this.variableStorage.serialize(),
-      variableConnectorStorageConfig: this.variableConnectorStorage.serialize(),
+      variableStorage: this.variableStorage.serialize(),
+      variableConnectorStorage: this.variableConnectorStorage.serialize(),
     }
   }
 }

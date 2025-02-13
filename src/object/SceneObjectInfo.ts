@@ -8,8 +8,8 @@ import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 export const sceneObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_SCENE'),
   id: z.string(),
-  inSceneId: z.number(),
-  sceneId: z.number(),
+  sceneId: z.string(),
+  childrenIds: z.array(z.string()),
 })
 
 export type SceneObjectConfig = z.infer<typeof sceneObjectConfigSchema>
@@ -30,14 +30,16 @@ export class SceneObjectInfo extends InSceneObjectInfo {
   constructor(
     data: THREE.Scene,
     objectInfoStorage: ObjectInfoStorage,
-    id?: string
+    id?: string,
+    children?: InSceneObjectInfo[]
   ) {
-    super(data, data.id, objectInfoStorage)
+    const actualId = id ?? uuidv4()
+    super(data, actualId, actualId, objectInfoStorage, children)
     this.config = {
       type: 'OBJECT_3D_SCENE',
-      id: id ?? uuidv4(),
-      sceneId: data.id,
-      inSceneId: data.id,
+      id: actualId,
+      sceneId: actualId,
+      childrenIds: this.children.map(child => child.config.id),
     }
     this.data = data
     this.animationMixer = new THREE.AnimationMixer(this.data)
