@@ -4,8 +4,8 @@ import { ObjectPath } from '../ObjectInfo'
 
 export class PerspectiveCameraObjectInfo extends CameraObjectInfo {
   declare data: THREE.PerspectiveCamera
-  constructor(data: THREE.PerspectiveCamera) {
-    super(data)
+  constructor(data: THREE.PerspectiveCamera, id?: string) {
+    super(data, id)
   }
 
   setValue(objectPath: ObjectPath, value: any) {

@@ -8,7 +8,7 @@ import { boneObjectConfigSchema } from './BoneObjectInfo'
 import { groupObjectConfigSchema } from './GroupObjectInfo'
 import { meshObjectConfigSchema } from './MeshObjectInfo'
 import { skinMeshObjectConfigSchema } from './SkinMeshObjectInfo'
-import { sceneObjectConfigSchema } from './SceneObjectInfo'
+import { sceneObjectConfigSchema, SceneObjectInfo } from './SceneObjectInfo'
 import {
   formulaObjectConfigSchema,
   FormulaObjectInfo,
@@ -18,12 +18,18 @@ import {
   animationObjectConfigSchema,
   AnimationObjectInfo,
 } from './AnimationObjectInfo'
-import { CameraObjectInfo } from './camera'
+import {
+  CameraObjectConfig,
+  cameraObjectConfigSchema,
+  CameraObjectInfo,
+} from './camera'
 import { CameraSwitcherInfo } from './CameraSwitcherObjectInfo'
 import { SceneSwitcherInfo } from './SceneSwitcherObjectInfo'
+import Switcher from '../utils/Switcher'
 
 type SceneMap = Map<string, Map<string, THREE.Object3D>>
 type InSceneObjectInfoConfigMap = Map<string, InSceneObjectInfoConfig>
+type CameraObjectInfoConfigMap = Map<string, CameraObjectConfig>
 
 class ObjectInfoStorageConfigLoader {
   constructor(private readonly objectInfoStorage: ObjectInfoStorage) {}
@@ -32,14 +38,14 @@ class ObjectInfoStorageConfigLoader {
     const sceneMap: SceneMap = new Map<string, Map<string, THREE.Object3D>>()
     for (const scene of gltf.scenes) {
       const sceneObjectId = scene.userData['THREE_SCENE_STUDIO.OBJECT_INFO_ID']
-      if (sceneObjectId === undefined) {
+      if (typeof sceneObjectId !== 'string') {
         continue
       }
       const sceneObjectMap = new Map<string, THREE.Object3D>()
       scene.traverse(object => {
         const objectInfoId =
           object.userData['THREE_SCENE_STUDIO.OBJECT_INFO_ID']
-        if (objectInfoId === undefined) {
+        if (typeof objectInfoId !== 'string') {
           return
         }
         sceneObjectMap.set(objectInfoId, object)
@@ -52,17 +58,29 @@ class ObjectInfoStorageConfigLoader {
   createInSceneObjectInfoConfigMap(
     config: InSceneObjectInfoConfig[]
   ): InSceneObjectInfoConfigMap {
-    const inSceneObjectInfoConfigMap = new Map<
-      string,
-      InSceneObjectInfoConfig
-    >()
+    const inSceneObjectInfoConfigMap: InSceneObjectInfoConfigMap = new Map()
     for (const inSceneObjectInfo of config) {
       inSceneObjectInfoConfigMap.set(inSceneObjectInfo.id, inSceneObjectInfo)
     }
     return inSceneObjectInfoConfigMap
   }
 
-  loadConfig(gltf: GLTF, config: ObjectInfoStorageConfig) {
+  createCameraObjectInfoConfigMap(
+    config: CameraObjectConfig[]
+  ): CameraObjectInfoConfigMap {
+    const cameraObjectInfoConfigMap: CameraObjectInfoConfigMap = new Map()
+    for (const cameraObjectInfo of config) {
+      cameraObjectInfoConfigMap.set(cameraObjectInfo.id, cameraObjectInfo)
+    }
+    return cameraObjectInfoConfigMap
+  }
+
+  loadConfig(
+    gltf: GLTF,
+    cameraSwitcher: Switcher<CameraObjectInfo>,
+    sceneSwitcher: Switcher<SceneObjectInfo>,
+    config: ObjectInfoStorageConfig
+  ) {
     const sceneMap = this.createSceneMap(gltf)
     const inSceneObjectInfoConfigMap = this.createInSceneObjectInfoConfigMap(
       config.inSceneObjectInfos
@@ -75,29 +93,61 @@ class ObjectInfoStorageConfigLoader {
     this.loadFormulaObjectInfoList(config.formulaObjectInfos)
     this.loadAnimationObjectInfoList(gltf, config.animationObjectInfos)
     this.loadCameraObjectInfoList(gltf, config.cameraObjectInfos)
-    this.loadUniqueObjectInfoList(config.uniqueObjectInfos)
+    this.loadUniqueObjectInfoList(
+      cameraSwitcher,
+      sceneSwitcher,
+      config.uniqueObjectInfos
+    )
   }
 
   loadCameraObjectInfoList(
     gltf: GLTF,
     cameraObjectInfoConfigList: ObjectConfig[]
   ): CameraObjectInfo[] {
-    // TODO: implement
     const cameraObjectInfos: CameraObjectInfo[] = []
+    const parsedResult = cameraObjectInfoConfigList
+      .map(value => cameraObjectConfigSchema.safeParse(value))
+      .filter(value => value.success)
+    const cameraObjectInfoConfigMap = this.createCameraObjectInfoConfigMap(
+      parsedResult.map(value => value.data)
+    )
+    for (const cameraData of gltf.cameras) {
+      const value = cameraData.userData['THREE_SCENE_STUDIO.OBJECT_INFO_ID']
+      if (typeof value !== 'string') continue
+      const cameraObjectInfoConfig = cameraObjectInfoConfigMap.get(value)
+      if (cameraObjectInfoConfig === undefined) continue
+      const cameraObjectInfo = this.objectInfoStorage.createCameraObjectInfo(
+        cameraData,
+        cameraObjectInfoConfig.id
+      )
+      if (cameraObjectInfo === null) continue
+      cameraObjectInfos.push(cameraObjectInfo)
+    }
     return cameraObjectInfos
   }
 
-  loadUniqueObjectInfoList(uniqueObjectInfoConfigList: {
-    cameraSwitcher: ObjectConfig | null
-    sceneSwitcher: ObjectConfig | null
-  }): {
-    cameraSwitcher: CameraSwitcherInfo | null
-    sceneSwitcher: SceneSwitcherInfo | null
-  } {
-    // TODO: implement
+  loadUniqueObjectInfoList(
+    cameraSwitcher: Switcher<CameraObjectInfo>,
+    sceneSwitcher: Switcher<SceneObjectInfo>,
+    uniqueObjectInfoConfigList: {
+      cameraSwitcher: ObjectConfig | null
+      sceneSwitcher: ObjectConfig | null
+    }
+  ) {
+    const cameraSwitcherInfo =
+      this.objectInfoStorage.createCameraSwitcherObjectInfo(
+        cameraSwitcher,
+        uniqueObjectInfoConfigList.cameraSwitcher?.id
+      )
+    const sceneSwitcherInfo =
+      this.objectInfoStorage.createSceneSwitcherObjectInfo(
+        sceneSwitcher,
+        uniqueObjectInfoConfigList.sceneSwitcher?.id
+      )
+
     return {
-      cameraSwitcher: null,
-      sceneSwitcher: null,
+      cameraSwitcher: cameraSwitcherInfo,
+      sceneSwitcher: sceneSwitcherInfo,
     }
   }
 

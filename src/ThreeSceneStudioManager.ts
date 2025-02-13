@@ -14,6 +14,7 @@ import Context from './utils/Context'
 import Renderer from './Renderer'
 import { Clock } from './Clock'
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
   variableManager: variableManagerConfigSchema,
@@ -93,12 +94,52 @@ export class ThreeSceneStudioManager {
     }
   }
 
-  loadConfig(gltf: GLTF, config: ThreeSceneStudioManagerConfig) {
-    this.objectInfoManager.loadConfig(gltf, config.objectInfoManager)
+  loadGLTF(gltf: GLTF) {
+    const config = gltf.userData['THREE_SCENE_STUDIO.CONFIG']
+    const parsedConfig = threeSceneStudioManagerConfigSchema.safeParse(config)
+    if (!parsedConfig.success) return
+    this.loadConfig(gltf, parsedConfig.data)
+  }
+
+  private loadConfig(gltf: GLTF, config: ThreeSceneStudioManagerConfig) {
+    this.objectInfoManager.loadConfig(
+      gltf,
+      this.cameraSwitcher,
+      this.sceneSwitcher,
+      config.objectInfoManager
+    )
     this.variableManager.loadConfig(
       config.variableManager,
       this.objectInfoManager
     )
+  }
+
+  exportGLTF(): Promise<ArrayBuffer> {
+    return new Promise((resolve, reject) => {
+      const exporter = new GLTFExporter()
+      // TODO: export configuration
+      exporter.parse(
+        this.objectInfoManager.objectInfoStorage
+          .getSceneObjectInfos()
+          .map(info => info.data),
+        result => {
+          if (result instanceof ArrayBuffer) {
+            resolve(result)
+          } else {
+            reject('Invalid result format')
+          }
+        },
+        error => reject(error),
+        {
+          binary: true,
+          includeCustomExtensions: true,
+          onlyVisible: false,
+          animations: this.objectInfoManager.objectInfoStorage
+            .getAnimationObjectInfos()
+            .map(info => info.data.data),
+        } // Set to true for GLB export
+      )
+    })
   }
 
   serialize(): ThreeSceneStudioManagerConfig {

@@ -76,8 +76,8 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     return result
   }
 
-  createCameraObjectInfo(camera: THREE.Camera) {
-    const result = createCameraObjectFromNative(camera)
+  createCameraObjectInfo(camera: THREE.Camera, id?: string) {
+    const result = createCameraObjectFromNative(camera, id)
     this.set(result.config.id, result)
     return result
   }
@@ -155,8 +155,11 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     return result
   }
 
-  createSceneSwitcherObjectInfo(sceneSwitcher: Switcher<SceneObjectInfo>) {
-    const result = new SceneSwitcherInfo(sceneSwitcher)
+  createSceneSwitcherObjectInfo(
+    sceneSwitcher: Switcher<SceneObjectInfo>,
+    id?: string
+  ) {
+    const result = new SceneSwitcherInfo(sceneSwitcher, id)
     const sceneSwitcherInfo = this.getSceneSwitcherObjectInfo()
     if (sceneSwitcherInfo !== null) {
       this.delete(sceneSwitcherInfo.config.id)
@@ -165,8 +168,11 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     return result
   }
 
-  createCameraSwitcherObjectInfo(cameraSwitcher: Switcher<CameraObjectInfo>) {
-    const result = new CameraSwitcherInfo(cameraSwitcher)
+  createCameraSwitcherObjectInfo(
+    cameraSwitcher: Switcher<CameraObjectInfo>,
+    id?: string
+  ) {
+    const result = new CameraSwitcherInfo(cameraSwitcher, id)
     const cameraSwitcherInfo = this.getCameraSwitcherObjectInfo()
     if (cameraSwitcherInfo !== null) {
       this.delete(cameraSwitcherInfo.config.id)
@@ -236,11 +242,21 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     return super.delete(reference)
   }
 
-  loadConfig(gltf: GLTF, config: ObjectInfoStorageConfig) {
+  loadConfig(
+    gltf: GLTF,
+    cameraSwitcher: Switcher<CameraObjectInfo>,
+    sceneSwitcher: Switcher<SceneObjectInfo>,
+    config: ObjectInfoStorageConfig
+  ) {
     const objectInfoStorageConfigLoader = new ObjectInfoStorageConfigLoader(
       this
     )
-    objectInfoStorageConfigLoader.loadConfig(gltf, config)
+    objectInfoStorageConfigLoader.loadConfig(
+      gltf,
+      cameraSwitcher,
+      sceneSwitcher,
+      config
+    )
   }
 
   serialize(): ObjectInfoStorageConfig {

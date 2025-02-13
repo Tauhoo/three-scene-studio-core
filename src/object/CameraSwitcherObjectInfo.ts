@@ -20,11 +20,11 @@ export class CameraSwitcherInfo extends ObjectInfo {
   readonly config: CameraSwitcherObjectConfig
   readonly data: Switcher<CameraObjectInfo>
   readonly eventDispatcher: EventDispatcher<CameraSwitcherObjectInfoEvent>
-  constructor(data: Switcher<CameraObjectInfo>) {
+  constructor(data: Switcher<CameraObjectInfo>, id?: string) {
     super()
     this.config = {
       type: 'CAMERA_SWITCHER',
-      id: uuidv4(),
+      id: id ?? uuidv4(),
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()

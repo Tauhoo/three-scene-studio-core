@@ -4,8 +4,8 @@ import { ObjectPath } from '../ObjectInfo'
 
 export class OrthographicCameraObjectInfo extends CameraObjectInfo {
   declare data: THREE.OrthographicCamera
-  constructor(data: THREE.OrthographicCamera) {
-    super(data)
+  constructor(data: THREE.OrthographicCamera, id?: string) {
+    super(data, id)
   }
 
   setValue(objectPath: ObjectPath, value: any) {
