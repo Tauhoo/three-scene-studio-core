@@ -13,7 +13,7 @@ import VariableManager, {
 import Context from './utils/Context'
 import Renderer from './Renderer'
 import { Clock } from './Clock'
-import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
+import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
@@ -94,6 +94,12 @@ export class ThreeSceneStudioManager {
     }
   }
 
+  async loadGLTFByURL(url: string) {
+    const loader = new GLTFLoader()
+    const result = await loader.loadAsync(url)
+    this.loadGLTF(result)
+  }
+
   loadGLTF(gltf: GLTF) {
     const config = gltf.userData['THREE_SCENE_STUDIO.CONFIG']
     const parsedConfig = threeSceneStudioManagerConfigSchema.safeParse(config)
@@ -115,13 +121,31 @@ export class ThreeSceneStudioManager {
   }
 
   exportGLTF(): Promise<ArrayBuffer> {
+    const input = this.objectInfoManager.objectInfoStorage
+      .getSceneObjectInfos()
+      .map(info => info.data)
+    const config = this.serialize()
     return new Promise((resolve, reject) => {
       const exporter = new GLTFExporter()
-      // TODO: export configuration
+      exporter.register(writer => {
+        return {
+          beforeParse: objects => {
+            if ((objects as any) === input) {
+              const dummy: any = writer
+              if (dummy.json === undefined) {
+                reject('Invalid writer: json is undefined')
+                return {}
+              }
+              if (dummy.json.extras === undefined) {
+                dummy.json.extras = {}
+              }
+              dummy.json.extras['THREE_SCENE_STUDIO.CONFIG'] = config
+            }
+          },
+        }
+      })
       exporter.parse(
-        this.objectInfoManager.objectInfoStorage
-          .getSceneObjectInfos()
-          .map(info => info.data),
+        input,
         result => {
           if (result instanceof ArrayBuffer) {
             resolve(result)
