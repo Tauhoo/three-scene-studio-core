@@ -39,20 +39,43 @@ export class Exporter {
       .getSceneObjectInfos()
       .map(info => info.data)
     const config = this.manager.serialize()
+
+    const id = uuidv4()
+
+    // create dummy scene
     const dummyScene = new THREE.Scene()
-    dummyScene.name = uuidv4()
+    dummyScene.name = id
     dummyScene.add(
       ...this.manager.objectInfoManager.objectInfoStorage
         .getCameraObjectInfos()
         .map(info => info.data)
     )
 
+    const animations = this.manager.objectInfoManager.objectInfoStorage
+      .getAnimationObjectInfos()
+      .map(info => info.data.data)
+
+    // create animation dummy target
+    const nodeNameSet = new Set<string>()
+    for (const animation of animations) {
+      for (const track of animation.tracks) {
+        const parsed = THREE.PropertyBinding.parseTrackName(track.name)
+        nodeNameSet.add(parsed.nodeName)
+      }
+    }
+
+    for (const nodeName of nodeNameSet) {
+      const dummy = new THREE.Object3D()
+      dummy.name = nodeName
+      dummyScene.add(dummy)
+    }
+
     return new Promise((resolve, reject) => {
       const exporter = new GLTFExporter()
-      const cameraExtrasMap = new Map<number, Extras>()
-      const animations = this.manager.objectInfoManager.objectInfoStorage
-        .getAnimationObjectInfos()
-        .map(info => info.data.data)
+      const cameraExtrasMap = new Map<
+        number,
+        { name: string; extras: Extras }
+      >()
 
       exporter.register(writer => {
         const dummy: any = writer
@@ -73,10 +96,10 @@ export class Exporter {
                 reject('Invalid camera node definition: camera is undefined')
                 return {}
               }
-              cameraExtrasMap.set(
-                cameraNodeDefParsed.data.camera,
-                object.userData
-              )
+              cameraExtrasMap.set(cameraNodeDefParsed.data.camera, {
+                name: object.name,
+                extras: object.userData,
+              })
               nodeDef.extras = object.userData
             }
           },
@@ -86,26 +109,25 @@ export class Exporter {
               json.extras = {}
             }
             json.extras['THREE_SCENE_STUDIO.CONFIG'] = config
-
-            // remove dummy scene
-            if (Array.isArray(json.scenes)) {
-              json.scenes = json.scenes.filter(
-                (scene: { name?: string }) => scene.name !== dummyScene.name
-              )
-            }
+            json.extras['THREE_SCENE_STUDIO.DUMMY_SCENE_NAME'] = dummyScene.name
 
             // inject camera extras
             if (Array.isArray(json.cameras)) {
               json.cameras = json.cameras.map((camera, index) => {
-                camera.extras = cameraExtrasMap.get(index) ?? {}
+                const data = cameraExtrasMap.get(index)
+                if (data === undefined) return camera
+                camera.extras = data.extras
+                camera.name = data.name
+
                 return camera
               })
             }
           },
         }
       })
+
       exporter.parse(
-        [...input, dummyScene],
+        [dummyScene, ...input],
         result => {
           if (result instanceof ArrayBuffer) {
             resolve(result)
