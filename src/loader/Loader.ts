@@ -1,4 +1,7 @@
-import { ThreeSceneStudioManager } from '../ThreeSceneStudioManager'
+import {
+  ThreeSceneStudioManager,
+  ThreeSceneStudioManagerConfig,
+} from '../ThreeSceneStudioManager'
 import { GLTFLoader, GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 import { threeSceneStudioManagerConfigSchema } from '../ThreeSceneStudioManager'
 import { z } from 'zod'
@@ -80,6 +83,6 @@ export class Loader {
     const parsedConfig = threeSceneStudioManagerConfigSchema.safeParse(config)
     if (!parsedConfig.success) return
     gltf.scenes = gltf.scenes.filter(scene => scene.name !== dummySceneName)
-    this.manager.loadConfig(gltf, parsedConfig.data)
+    this.manager.loadConfig(gltf, config as ThreeSceneStudioManagerConfig)
   }
 }

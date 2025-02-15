@@ -90,9 +90,9 @@ class ObjectInfoStorageConfigLoader {
       sceneMap,
       inSceneObjectInfoConfigMap
     )
-    this.loadFormulaObjectInfoList(config.formulaObjectInfos)
-    this.loadAnimationObjectInfoList(gltf, config.animationObjectInfos)
     this.loadCameraObjectInfoList(gltf, config.cameraObjectInfos)
+    this.loadAnimationObjectInfoList(gltf, config.animationObjectInfos)
+    this.loadFormulaObjectInfoList(config.formulaObjectInfos)
     this.loadUniqueObjectInfoList(
       cameraSwitcher,
       sceneSwitcher,

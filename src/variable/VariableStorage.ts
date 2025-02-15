@@ -1,6 +1,8 @@
 import * as z from 'zod'
 import DataStorage from '../utils/DataStorage'
 import {
+  ContainerHeightVariable,
+  ContainerWidthVariable,
   FormulaVariable,
   GlobalFormulaVariable,
   ReferrableVariable,
@@ -13,6 +15,8 @@ import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { FormulaObjectInfo, ObjectInfoManager } from '../object'
 import VariableConnectorStorage from './VariableConnectorStorage'
 import { convertToNoneDuplicateRef } from '../utils/naming'
+import { TimeVariable } from './TimeVariable'
+import { ThreeSceneStudioManager } from '../ThreeSceneStudioManager'
 
 export const variableStorageConfigSchema = z.object({
   variables: z.array(variableConfigSchema),
@@ -38,11 +42,13 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
   protected idStorage: DataStorage<string, Variable>
   private refStorage: DataStorage<string, ReferrableVariable>
   private variableConnectorStorage: VariableConnectorStorage
+  private systemVariables: DataStorage<string, Variable>
 
   constructor(variableConnectorStorage: VariableConnectorStorage) {
     super()
     this.idStorage = new DataStorage<string, Variable>(id => id)
     this.refStorage = new DataStorage<string, ReferrableVariable>(ref => ref)
+    this.systemVariables = new DataStorage<string, Variable>(id => id)
     this.variableConnectorStorage = variableConnectorStorage
   }
 
@@ -57,6 +63,9 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
     this.idStorage.delete(id)
     if (variable instanceof ReferrableVariable) {
       this.refStorage.delete(variable.ref)
+    }
+    if (variable.group === 'SYSTEM') {
+      this.systemVariables.delete(variable.type)
     }
     this.dispatch('DELETE_VARIABLE', {
       variable,
@@ -76,6 +85,13 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
   }
 
   setVariable(variable: Variable) {
+    if (variable.group === 'SYSTEM') {
+      const systemVariable = this.systemVariables.get(variable.type)
+      if (systemVariable !== null) {
+        this.deleteVariableById(systemVariable.id)
+      }
+      this.systemVariables.set(variable.type, variable)
+    }
     this.idStorage.set(variable.id, variable)
     if (variable instanceof ReferrableVariable) {
       this.refStorage.set(variable.ref, variable)
@@ -106,9 +122,10 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
   }
 
   private createVariableFromConfig(
-    objectInfoManager: ObjectInfoManager,
+    threeSceneStudioManager: ThreeSceneStudioManager,
     config: VariableConfig
   ): Variable | null {
+    const { objectInfoManager, clock, context } = threeSceneStudioManager
     switch (config.type) {
       case 'FORMULA':
         const formulaObject = objectInfoManager.objectInfoStorage.get(
@@ -141,16 +158,35 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
           config.id
         )
       }
+      case 'TIME': {
+        return new TimeVariable(clock, config.name, config.ref, config.id)
+      }
+      case 'CONTAINER_WIDTH': {
+        return new ContainerWidthVariable(
+          context,
+          config.name,
+          config.ref,
+          config.id
+        )
+      }
+      case 'CONTAINER_HEIGHT': {
+        return new ContainerHeightVariable(
+          context,
+          config.name,
+          config.ref,
+          config.id
+        )
+      }
     }
   }
 
   loadConfig(
-    objectInfoManager: ObjectInfoManager,
+    threeSceneStudioManager: ThreeSceneStudioManager,
     config: VariableStorageConfig
   ) {
     config.variables.forEach(variableConfig => {
       const variable = this.createVariableFromConfig(
-        objectInfoManager,
+        threeSceneStudioManager,
         variableConfig
       )
       if (variable instanceof Variable) {
@@ -163,7 +199,6 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
     return {
       variables: this.idStorage
         .getAll()
-        .filter(variable => variable.group !== 'SYSTEM')
         .map(variable => variable.serialize() as VariableConfig),
     }
   }

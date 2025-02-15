@@ -100,10 +100,7 @@ export class ThreeSceneStudioManager {
       this.sceneSwitcher,
       config.objectInfoManager
     )
-    this.variableManager.loadConfig(
-      config.variableManager,
-      this.objectInfoManager
-    )
+    this.variableManager.loadConfig(config.variableManager, this)
   }
 
   serialize(): ThreeSceneStudioManagerConfig {

@@ -15,6 +15,7 @@ import {
 import { TimeVariable } from './TimeVariable'
 import { Clock } from '../Clock'
 import { parseExpression } from '../utils'
+import { ThreeSceneStudioManager } from '../ThreeSceneStudioManager'
 
 export const variableManagerConfigSchema = z.object({
   variableStorage: variableStorageConfigSchema,
@@ -159,12 +160,15 @@ class VariableManager {
 
   loadConfig(
     config: VariableManagerConfig,
-    objectInfoManager: ObjectInfoManager
+    threeSceneStudioManager: ThreeSceneStudioManager
   ) {
-    this.variableStorage.loadConfig(objectInfoManager, config.variableStorage)
+    this.variableStorage.loadConfig(
+      threeSceneStudioManager,
+      config.variableStorage
+    )
     this.variableConnectorStorage.loadConfig(
       config.variableConnectorStorage,
-      objectInfoManager,
+      threeSceneStudioManager.objectInfoManager,
       this.variableStorage
     )
   }

@@ -31,7 +31,7 @@ export class FormulaObjectInfo extends ObjectInfo {
     this.config = {
       type: 'FORMULA',
       id: id ?? uuidv4(),
-      formula: '',
+      formula: formulaInfo.expression,
       value: 0,
     }
     this.formulaInfo = formulaInfo
@@ -39,6 +39,8 @@ export class FormulaObjectInfo extends ObjectInfo {
   }
 
   updateFormula(formulaInfo: FormulaInfo) {
+    this.config.formula = formulaInfo.expression
+
     // update formula
     this.formulaInfo = formulaInfo
 
