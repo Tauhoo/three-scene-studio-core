@@ -14,7 +14,6 @@ import Context from './utils/Context'
 import Renderer from './Renderer'
 import { Clock } from './Clock'
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
   variableManager: variableManagerConfigSchema,
@@ -94,20 +93,7 @@ export class ThreeSceneStudioManager {
     }
   }
 
-  async loadGLTFByURL(url: string) {
-    const loader = new GLTFLoader()
-    const result = await loader.loadAsync(url)
-    this.loadGLTF(result)
-  }
-
-  loadGLTF(gltf: GLTF) {
-    const config = gltf.userData['THREE_SCENE_STUDIO.CONFIG']
-    const parsedConfig = threeSceneStudioManagerConfigSchema.safeParse(config)
-    if (!parsedConfig.success) return
-    this.loadConfig(gltf, parsedConfig.data)
-  }
-
-  private loadConfig(gltf: GLTF, config: ThreeSceneStudioManagerConfig) {
+  loadConfig(gltf: GLTF, config: ThreeSceneStudioManagerConfig) {
     this.objectInfoManager.loadConfig(
       gltf,
       this.cameraSwitcher,
@@ -118,52 +104,6 @@ export class ThreeSceneStudioManager {
       config.variableManager,
       this.objectInfoManager
     )
-  }
-
-  exportGLTF(): Promise<ArrayBuffer> {
-    const input = this.objectInfoManager.objectInfoStorage
-      .getSceneObjectInfos()
-      .map(info => info.data)
-    const config = this.serialize()
-    return new Promise((resolve, reject) => {
-      const exporter = new GLTFExporter()
-      exporter.register(writer => {
-        return {
-          beforeParse: objects => {
-            if ((objects as any) === input) {
-              const dummy: any = writer
-              if (dummy.json === undefined) {
-                reject('Invalid writer: json is undefined')
-                return {}
-              }
-              if (dummy.json.extras === undefined) {
-                dummy.json.extras = {}
-              }
-              dummy.json.extras['THREE_SCENE_STUDIO.CONFIG'] = config
-            }
-          },
-        }
-      })
-      exporter.parse(
-        input,
-        result => {
-          if (result instanceof ArrayBuffer) {
-            resolve(result)
-          } else {
-            reject('Invalid result format')
-          }
-        },
-        error => reject(error),
-        {
-          binary: true,
-          includeCustomExtensions: true,
-          onlyVisible: false,
-          animations: this.objectInfoManager.objectInfoStorage
-            .getAnimationObjectInfos()
-            .map(info => info.data.data),
-        } // Set to true for GLB export
-      )
-    })
   }
 
   serialize(): ThreeSceneStudioManagerConfig {

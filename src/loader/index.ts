@@ -15,6 +15,7 @@ import {
 } from './types'
 export * from './types'
 import { v4 as uuidv4 } from 'uuid'
+export * from './Loader'
 
 export interface GLTFLoaderOptions {
   dracoFilePath?: string
