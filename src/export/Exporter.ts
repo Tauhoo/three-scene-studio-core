@@ -80,7 +80,7 @@ export class Exporter {
     this.sceneHideHelperMap.clear()
   }
 
-  exportGLTF(): Promise<ArrayBuffer> {
+  exportGLTF(extraData?: Record<string, any>): Promise<ArrayBuffer> {
     this.hideHelper()
     const input = this.manager.objectInfoManager.objectInfoStorage
       .getSceneObjectInfos()
@@ -159,6 +159,7 @@ export class Exporter {
             }
             json.extras['THREE_SCENE_STUDIO.CONFIG'] = config
             json.extras['THREE_SCENE_STUDIO.DUMMY_SCENE_NAME'] = dummyScene.name
+            json.extras['THREE_SCENE_STUDIO.EXTRA_DATA'] = extraData ?? null
 
             // inject camera extras
             if (Array.isArray(json.cameras)) {

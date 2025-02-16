@@ -74,15 +74,17 @@ export class Loader {
       }
     }
 
-    this.loadGLTF(gltf)
+    return this.loadGLTF(gltf)
   }
 
   loadGLTF(gltf: GLTF) {
     const dummySceneName = gltf.userData['THREE_SCENE_STUDIO.DUMMY_SCENE_NAME']
     const config = gltf.userData['THREE_SCENE_STUDIO.CONFIG']
+    const extraData = gltf.userData['THREE_SCENE_STUDIO.EXTRA_DATA']
     const parsedConfig = threeSceneStudioManagerConfigSchema.safeParse(config)
-    if (!parsedConfig.success) return
+    if (!parsedConfig.success) return null
     gltf.scenes = gltf.scenes.filter(scene => scene.name !== dummySceneName)
     this.manager.loadConfig(gltf, config as ThreeSceneStudioManagerConfig)
+    return extraData as Record<string, any> | null
   }
 }

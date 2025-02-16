@@ -7,23 +7,19 @@ import {
   createCameraObjectFromInfo,
   createCameraObjectFromNative,
 } from './camera'
-import { ObjectConfig, objectConfigSchema, ObjectInfo } from './ObjectInfo'
+import { objectConfigSchema, ObjectInfo } from './ObjectInfo'
 import { SceneObjectInfo } from './SceneObjectInfo'
-import { boneObjectConfigSchema, BoneObjectInfo } from './BoneObjectInfo'
-import { createLightObjectFromNative, lightObjectConfigSchema } from './light'
-import { meshObjectConfigSchema, MeshObjectInfo } from './MeshObjectInfo'
-import { groupObjectConfigSchema, GroupObjectInfo } from './GroupObjectInfo'
-import {
-  skinMeshObjectConfigSchema,
-  SkinMeshObjectInfo,
-} from './SkinMeshObjectInfo'
+import { BoneObjectInfo } from './BoneObjectInfo'
+import { createLightObjectFromNative } from './light'
+import { MeshObjectInfo } from './MeshObjectInfo'
+import { GroupObjectInfo } from './GroupObjectInfo'
+import { SkinMeshObjectInfo } from './SkinMeshObjectInfo'
 import { SceneSwitcherInfo } from './SceneSwitcherObjectInfo'
 import { CameraSwitcherInfo } from './CameraSwitcherObjectInfo'
 import Switcher from '../utils/Switcher'
 import { FormulaObjectInfo } from './FormulaObjectInfo'
 import {
   InSceneObjectInfo,
-  InSceneObjectInfoConfig,
   inSceneObjectInfoConfigSchema,
 } from './InSceneObjectInfo'
 import { z } from 'zod'
