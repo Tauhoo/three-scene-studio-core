@@ -22,9 +22,16 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -rf dist && tsc --module commonjs --outDir dist/cjs && tsc --module ES2022 --outDir dist/esm && tsc --declaration --emitDeclarationOnly --declarationDir dist/types"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tauhoo/three-scene-studio-core.git"
+  },
+  "author": "Wachirawit Wacharak",
   "license": "ISC",
-  "description": "",
+  "bugs": {
+    "url": "https://github.com/Tauhoo/three-scene-studio-core/issues"
+  },
+  "description": "Use to render the result from Three Scene Studio editor.",
   "devDependencies": {
     "@types/three": "^0.169.0",
     "@types/uuid": "^10.0.0",
