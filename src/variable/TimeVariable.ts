@@ -1,4 +1,3 @@
-import Context from '../utils/Context'
 import EventDispatcher from '../utils/EventDispatcher'
 import {
   ReferrableVariable,

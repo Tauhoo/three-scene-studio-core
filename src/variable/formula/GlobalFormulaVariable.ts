@@ -4,8 +4,8 @@ import { FormulaInfo } from '../../utils/expression'
 import EventDispatcher, { EventPacket } from '../../utils/EventDispatcher'
 import { ReferrableVariable } from '../ReferrableVariable'
 import { FormulaObjectInfo, ObjectInfoManager } from '../../object'
-import VariableConnectorStorage from '../VariableConnectorStorage'
-import VariableStorage from '../VariableStorage'
+import { VariableConnectorStorage } from '../VariableConnectorStorage'
+import { VariableStorage } from '../VariableStorage'
 
 export const globalFormulaVariableConfigSchema = z.object({
   type: z.literal('GLOBAL_FORMULA'),

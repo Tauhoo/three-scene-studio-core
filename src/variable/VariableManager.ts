@@ -1,21 +1,19 @@
 import * as z from 'zod'
-import VariableStorage, { variableStorageConfigSchema } from './VariableStorage'
-import VariableConnectorStorage, {
+import { VariableStorage, variableStorageConfigSchema } from './VariableStorage'
+import {
+  VariableConnectorStorage,
   variableConnectorStorageConfigSchema,
 } from './VariableConnectorStorage'
-import { FormulaObjectInfo, ObjectInfoManager } from '../object'
+import { ObjectInfoManager } from '../object'
 import Context from '../utils/Context'
-import {
-  ContainerHeightVariable,
-  ContainerWidthVariable,
-  ExternalVariable,
-  FormulaVariable,
-  GlobalFormulaVariable,
-} from '.'
 import { TimeVariable } from './TimeVariable'
 import { Clock } from '../Clock'
 import { parseExpression } from '../utils'
 import { ThreeSceneStudioManager } from '../ThreeSceneStudioManager'
+import { FormulaVariable, GlobalFormulaVariable } from './formula'
+import { ContainerHeightVariable } from './ContainerHeightVariable'
+import { ContainerWidthVariable } from './ContainerWidthVariable'
+import { ExternalVariable } from './ExternalVariable'
 
 export const variableManagerConfigSchema = z.object({
   variableStorage: variableStorageConfigSchema,
@@ -24,7 +22,7 @@ export const variableManagerConfigSchema = z.object({
 
 export type VariableManagerConfig = z.infer<typeof variableManagerConfigSchema>
 
-class VariableManager {
+export class VariableManager {
   readonly variableStorage
   readonly variableConnectorStorage
   private objectInfoManager: ObjectInfoManager
@@ -180,5 +178,3 @@ class VariableManager {
     }
   }
 }
-
-export default VariableManager

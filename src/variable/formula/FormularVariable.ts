@@ -2,9 +2,9 @@ import * as z from 'zod'
 import { Variable, VariableEventPacket } from '../Variable'
 import EventDispatcher from '../../utils/EventDispatcher'
 import { FormulaObjectInfo, ObjectInfoManager } from '../../object'
-import VariableConnectorStorage from '../VariableConnectorStorage'
+import { VariableConnectorStorage } from '../VariableConnectorStorage'
 import { ReferrableVariable } from '../ReferrableVariable'
-import VariableStorage from '../VariableStorage'
+import { VariableStorage } from '../VariableStorage'
 
 export const formulaVariableConfigSchema = z.object({
   type: z.literal('FORMULA'),

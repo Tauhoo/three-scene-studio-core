@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { ThreeSceneStudioManager } from '../ThreeSceneStudioManager'
 import { v4 as uuidv4 } from 'uuid'
-import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js'
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter'
 import * as z from 'zod'
 import { InSceneObjectInfo, SceneObjectInfo } from '../object'
 
@@ -200,5 +200,3 @@ export class Exporter {
     })
   }
 }
-
-export default Exporter

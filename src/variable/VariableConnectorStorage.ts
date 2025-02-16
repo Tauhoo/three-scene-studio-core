@@ -1,10 +1,11 @@
 import * as z from 'zod'
 import { ObjectInfoManager } from '../object/ObjectInfoManager'
 import DataStorage from '../utils/DataStorage'
-import VariableConnector, {
+import {
+  VariableConnector,
   variableConnectorConfigSchema,
 } from './VariableConnector'
-import VariableStorage from './VariableStorage'
+import { VariableStorage } from './VariableStorage'
 import { ReferrableVariable } from './ReferrableVariable'
 import { Variable } from './Variable'
 import { ObjectInfo, ObjectPath } from '../object'
@@ -21,7 +22,7 @@ type PathStorageKey = {
   objectId: string
 }
 
-class VariableConnectorStorage {
+export class VariableConnectorStorage {
   private pathStorage: DataStorage<PathStorageKey, VariableConnector>
 
   constructor() {
@@ -111,5 +112,3 @@ class VariableConnectorStorage {
     }
   }
 }
-
-export default VariableConnectorStorage

@@ -7,7 +7,8 @@ import {
   SceneObjectInfo,
 } from './object'
 import Switcher from './utils/Switcher'
-import VariableManager, {
+import {
+  VariableManager,
   variableManagerConfigSchema,
 } from './variable/VariableManager'
 import Context from './utils/Context'

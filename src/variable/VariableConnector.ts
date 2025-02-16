@@ -14,7 +14,7 @@ export type VariableConnectorConfig = z.infer<
   typeof variableConnectorConfigSchema
 >
 
-class VariableConnector {
+export class VariableConnector {
   readonly id: string
   private variable: Variable
   private objectInfo: ObjectInfo
@@ -68,5 +68,3 @@ class VariableConnector {
     }
   }
 }
-
-export default VariableConnector

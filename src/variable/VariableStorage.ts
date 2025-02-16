@@ -1,22 +1,18 @@
 import * as z from 'zod'
 import DataStorage from '../utils/DataStorage'
-import {
-  ContainerHeightVariable,
-  ContainerWidthVariable,
-  FormulaVariable,
-  GlobalFormulaVariable,
-  ReferrableVariable,
-  VariableConfig,
-  variableConfigSchema,
-  VariableGroup,
-} from '.'
 import { Variable } from './Variable'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
-import { FormulaObjectInfo, ObjectInfoManager } from '../object'
-import VariableConnectorStorage from './VariableConnectorStorage'
+import { FormulaObjectInfo } from '../object'
+import { VariableConnectorStorage } from './VariableConnectorStorage'
 import { convertToNoneDuplicateRef } from '../utils/naming'
 import { TimeVariable } from './TimeVariable'
 import { ThreeSceneStudioManager } from '../ThreeSceneStudioManager'
+import { VariableConfig, variableConfigSchema } from './schema'
+import { ReferrableVariable } from './ReferrableVariable'
+import { VariableGroup } from './types'
+import { FormulaVariable, GlobalFormulaVariable } from './formula'
+import { ContainerWidthVariable } from './ContainerWidthVariable'
+import { ContainerHeightVariable } from './ContainerHeightVariable'
 
 export const variableStorageConfigSchema = z.object({
   variables: z.array(variableConfigSchema),
@@ -38,7 +34,7 @@ export type VariableStorageEvent =
       }
     >
 
-class VariableStorage extends EventDispatcher<VariableStorageEvent> {
+export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
   protected idStorage: DataStorage<string, Variable>
   private refStorage: DataStorage<string, ReferrableVariable>
   private variableConnectorStorage: VariableConnectorStorage
@@ -203,5 +199,3 @@ class VariableStorage extends EventDispatcher<VariableStorageEvent> {
     }
   }
 }
-
-export default VariableStorage
