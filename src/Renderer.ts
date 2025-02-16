@@ -107,7 +107,10 @@ class Renderer extends EventDispatcher<RendererEventPacket> {
     const scene = this.getActiveScene()
     const camera = this.getActiveCamera()
 
-    if (scene === null || camera === null) return
+    if (scene === null || camera === null) {
+      this.renderer.clear()
+      return
+    }
     this.renderer.render(scene.data, camera.data)
   }
 }

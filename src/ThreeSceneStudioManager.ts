@@ -48,6 +48,10 @@ export class ThreeSceneStudioManager {
       'ADD',
       this.onObjectInfoAdded
     )
+    this.objectInfoManager.objectInfoStorage.addListener(
+      'DELETE',
+      this.onObjectInfoRemoved
+    )
 
     this.clock = new Clock(context)
     this.variableManager = new VariableManager(
@@ -90,6 +94,14 @@ export class ThreeSceneStudioManager {
       this.cameraSwitcher.add(objectInfo)
     } else if (objectInfo instanceof SceneObjectInfo) {
       this.sceneSwitcher.add(objectInfo)
+    }
+  }
+
+  private onObjectInfoRemoved = (objectInfo: ObjectInfo) => {
+    if (objectInfo instanceof CameraObjectInfo) {
+      this.cameraSwitcher.remove(objectInfo)
+    } else if (objectInfo instanceof SceneObjectInfo) {
+      this.sceneSwitcher.remove(objectInfo)
     }
   }
 
