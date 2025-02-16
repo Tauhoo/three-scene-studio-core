@@ -3,6 +3,7 @@ import { ThreeSceneStudioManager } from '../ThreeSceneStudioManager'
 import { v4 as uuidv4 } from 'uuid'
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js'
 import * as z from 'zod'
+import { InSceneObjectInfo, SceneObjectInfo } from '../object'
 
 const extrasSchema = z.record(z.any())
 
@@ -29,12 +30,58 @@ type Json = z.infer<typeof jsonSchema>
 
 export class Exporter {
   readonly manager: ThreeSceneStudioManager
+  private objectHideHelperMap: Map<string, boolean> = new Map()
+  private sceneHideHelperMap: Map<string, [boolean, boolean]> = new Map()
 
   constructor(manager: ThreeSceneStudioManager) {
     this.manager = manager
   }
 
+  private hideHelper() {
+    const objectInfos =
+      this.manager.objectInfoManager.objectInfoStorage.getAll()
+    for (const objectInfo of objectInfos) {
+      if (!(objectInfo instanceof InSceneObjectInfo)) continue
+      if (objectInfo.isHelperEnabled()) {
+        this.objectHideHelperMap.set(objectInfo.config.id, true)
+        objectInfo.helper(false)
+      }
+
+      if (objectInfo instanceof SceneObjectInfo) {
+        const isHelperAxisActive = objectInfo.getIsHelperAxisActive()
+        const isHelperGridActive = objectInfo.getIsHelperGridActive()
+        this.sceneHideHelperMap.set(objectInfo.config.id, [
+          isHelperAxisActive,
+          isHelperGridActive,
+        ])
+        objectInfo.helperAxis(false)
+        objectInfo.helperGrid(false)
+      }
+    }
+  }
+
+  private unhideHelper() {
+    const objectInfos =
+      this.manager.objectInfoManager.objectInfoStorage.getAll()
+    for (const objectInfo of objectInfos) {
+      if (!(objectInfo instanceof InSceneObjectInfo)) continue
+      if (this.objectHideHelperMap.has(objectInfo.config.id)) {
+        objectInfo.helper(true)
+      }
+
+      if (objectInfo instanceof SceneObjectInfo) {
+        const [isHelperAxisActive, isHelperGridActive] =
+          this.sceneHideHelperMap.get(objectInfo.config.id) ?? [false, false]
+        objectInfo.helperAxis(isHelperAxisActive)
+        objectInfo.helperGrid(isHelperGridActive)
+      }
+    }
+    this.objectHideHelperMap.clear()
+    this.sceneHideHelperMap.clear()
+  }
+
   exportGLTF(): Promise<ArrayBuffer> {
+    this.hideHelper()
     const input = this.manager.objectInfoManager.objectInfoStorage
       .getSceneObjectInfos()
       .map(info => info.data)
@@ -81,6 +128,7 @@ export class Exporter {
         const dummy: any = writer
         const jsonParsed = jsonSchema.safeParse(dummy.json)
         if (!jsonParsed.success) {
+          this.unhideHelper()
           reject('Invalid writer: json is not valid')
           return {}
         }
@@ -88,11 +136,12 @@ export class Exporter {
         const json = dummy.json as Json
 
         return {
-          writeNode(object, nodeDef) {
+          writeNode: (object, nodeDef) => {
             if (object instanceof THREE.Camera) {
               const cameraNodeDefParsed =
                 cameraNodeDefinitionSchema.safeParse(nodeDef)
               if (!cameraNodeDefParsed.success) {
+                this.unhideHelper()
                 reject('Invalid camera node definition: camera is undefined')
                 return {}
               }
@@ -130,12 +179,17 @@ export class Exporter {
         [dummyScene, ...input],
         result => {
           if (result instanceof ArrayBuffer) {
+            this.unhideHelper()
             resolve(result)
           } else {
+            this.unhideHelper()
             reject('Invalid result format')
           }
         },
-        error => reject(error),
+        error => {
+          this.unhideHelper()
+          reject(error)
+        },
         {
           binary: true,
           includeCustomExtensions: true,
