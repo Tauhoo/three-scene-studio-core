@@ -14,7 +14,8 @@ import {
 import Context from './utils/Context'
 import Renderer from './Renderer'
 import { Clock } from './Clock'
-import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
+import { Loader } from './loader'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
   variableManager: variableManagerConfigSchema,
@@ -104,6 +105,11 @@ export class ThreeSceneStudioManager {
     } else if (objectInfo instanceof SceneObjectInfo) {
       this.sceneSwitcher.remove(objectInfo)
     }
+  }
+
+  async loadWorkFromURL(url: string) {
+    const loader = new Loader(this)
+    await loader.loadGLTFByURL(url)
   }
 
   loadConfig(gltf: GLTF, config: ThreeSceneStudioManagerConfig) {
