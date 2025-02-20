@@ -31,6 +31,22 @@ export class CameraObjectInfo extends ObjectInfo {
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()
+
+    const worldPosition = new THREE.Vector3()
+    const worldQuaternion = new THREE.Quaternion()
+    const worldScale = new THREE.Vector3()
+
+    // detach from parent and update world matrix
+    this.data.getWorldPosition(worldPosition)
+    this.data.getWorldQuaternion(worldQuaternion)
+    this.data.getWorldScale(worldScale)
+
+    this.data.removeFromParent()
+
+    this.data.position.copy(worldPosition)
+    this.data.quaternion.copy(worldQuaternion)
+    this.data.scale.copy(worldScale)
+    this.data.updateMatrixWorld()
   }
 
   setValue(objectPath: ObjectPath, value: any) {
