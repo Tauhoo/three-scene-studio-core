@@ -31,7 +31,9 @@ class Renderer extends EventDispatcher<RendererEventPacket> {
   ) {
     super()
     this.context = context
-    this.renderer = new THREE.WebGLRenderer()
+    this.renderer = new THREE.WebGLRenderer({ alpha: true })
+    this.renderer.setClearColor(0x000000, 0)
+
     this.renderer.setPixelRatio(context.window.devicePixelRatio)
     const rect = context.canvasContainer.getBoundingClientRect()
     this.renderer.setSize(rect.width, rect.height)
