@@ -262,6 +262,7 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     for (const child of this.children) {
       this.objectInfoStorage.delete(child.config.id)
     }
+    this.helper(false)
     super.destroy()
   }
 
