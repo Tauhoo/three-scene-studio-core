@@ -240,6 +240,17 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     return setResult
   }
 
+  calculateObjectBounds() {
+    const box = new THREE.Box3().setFromObject(this.data)
+    const size = new THREE.Vector3()
+    box.getSize(size)
+    return {
+      width: size.x,
+      height: size.y,
+      depth: size.z,
+    }
+  }
+
   traverseChildren(callback: (child: InSceneObjectInfo) => void) {
     callback(this)
     for (const child of this.children) {
