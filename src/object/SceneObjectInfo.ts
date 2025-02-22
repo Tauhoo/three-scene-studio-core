@@ -52,7 +52,7 @@ export class SceneObjectInfo extends InSceneObjectInfo {
     )
   }
 
-  updateHelper() {
+  updateHelper = () => {
     if (this.axisHelper !== null) {
       this.helperAxis(false)
       this.helperAxis(true)
