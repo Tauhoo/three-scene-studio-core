@@ -63,7 +63,11 @@ export class CameraObjectInfo extends ObjectInfo {
     if (value) {
       if (this.cameraHelper === null && this.data.parent !== null) {
         this.cameraHelper = new THREE.CameraHelper(this.data)
-        this.data.parent.add(this.cameraHelper)
+        this.data.traverseAncestors(object => {
+          if (object instanceof THREE.Scene && this.cameraHelper !== null) {
+            object.add(this.cameraHelper)
+          }
+        })
       }
     } else {
       if (this.cameraHelper !== null && this.cameraHelper.parent !== null) {

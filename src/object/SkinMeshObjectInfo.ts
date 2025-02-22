@@ -23,6 +23,7 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
   readonly config: SkinMeshObjectConfig
   readonly data: THREE.SkinnedMesh
   readonly eventDispatcher: EventDispatcher<SkinMeshObjectInfoEvent>
+  private boxHelper: THREE.BoxHelper | null = null
 
   constructor(
     data: THREE.SkinnedMesh,
@@ -78,7 +79,29 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
 
   setValue(objectPath: ObjectPath, value: any) {
     const result = super.setValue(objectPath, value)
+    if (this.boxHelper !== null) {
+      this.boxHelper.update()
+    }
     return result
+  }
+
+  helper(value: boolean) {
+    if (value) {
+      if (this.boxHelper === null && this.data.parent !== null) {
+        this.boxHelper = new THREE.BoxHelper(this.data)
+        this.data.traverseAncestors(object => {
+          if (object instanceof THREE.Scene && this.boxHelper !== null) {
+            object.add(this.boxHelper)
+          }
+        })
+      }
+    } else {
+      if (this.boxHelper !== null && this.boxHelper.parent !== null) {
+        this.boxHelper.parent.remove(this.boxHelper)
+        this.boxHelper = null
+      }
+    }
+    super.helper(value)
   }
 
   destroy(): void {

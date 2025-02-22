@@ -53,7 +53,11 @@ export class BoneObjectInfo extends InSceneObjectInfo {
       if (this.boxHelper === null && this.data.parent !== null) {
         this.boxHelper = new THREE.BoxHelper(this.data)
         this.boxHelper.update()
-        this.data.parent.add(this.boxHelper)
+        this.data.traverseAncestors(object => {
+          if (object instanceof THREE.Scene && this.boxHelper !== null) {
+            object.add(this.boxHelper)
+          }
+        })
       }
     } else {
       if (this.boxHelper !== null && this.boxHelper.parent !== null) {

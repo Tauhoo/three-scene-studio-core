@@ -1,11 +1,9 @@
 import * as THREE from 'three'
 import * as z from 'zod'
-import { getChildren } from './children'
 import { InSceneObjectInfo, InSceneObjectInfoEvent } from './InSceneObjectInfo'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfoStorage } from './ObjectInfoStorage'
 import EventDispatcher from '../utils/EventDispatcher'
-import { ErrorResponse, SuccessResponse } from '../utils'
 import { ObjectPath } from './ObjectInfo'
 
 export const meshObjectConfigSchema = z.object({
@@ -55,7 +53,11 @@ export class MeshObjectInfo extends InSceneObjectInfo {
       if (this.boxHelper === null && this.data.parent !== null) {
         this.boxHelper = new THREE.BoxHelper(this.data)
         this.boxHelper.update()
-        this.data.parent.add(this.boxHelper)
+        this.data.traverseAncestors(object => {
+          if (object instanceof THREE.Scene && this.boxHelper !== null) {
+            object.add(this.boxHelper)
+          }
+        })
       }
     } else {
       if (this.boxHelper !== null && this.boxHelper.parent !== null) {
