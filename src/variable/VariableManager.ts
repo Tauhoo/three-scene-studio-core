@@ -23,8 +23,8 @@ export const variableManagerConfigSchema = z.object({
 export type VariableManagerConfig = z.infer<typeof variableManagerConfigSchema>
 
 export class VariableManager {
-  readonly variableStorage
-  readonly variableConnectorStorage
+  readonly variableStorage: VariableStorage
+  readonly variableConnectorStorage: VariableConnectorStorage
   private objectInfoManager: ObjectInfoManager
   private context: Context
   private clock: Clock
@@ -176,5 +176,9 @@ export class VariableManager {
       variableStorage: this.variableStorage.serialize(),
       variableConnectorStorage: this.variableConnectorStorage.serialize(),
     }
+  }
+
+  destroy() {
+    this.variableStorage.destroy()
   }
 }

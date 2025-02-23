@@ -14,6 +14,7 @@ export type ContextEventPacket =
 class Context extends EventDispatcher<ContextEventPacket> {
   canvasContainer: HTMLDivElement
   window: Window
+  resizeObserver: ResizeObserver
 
   getDefaultCanvasContainer(window: Window) {
     const elem = window.document.createElement('div')
@@ -28,23 +29,37 @@ class Context extends EventDispatcher<ContextEventPacket> {
     this.canvasContainer =
       canvasContainer ?? this.getDefaultCanvasContainer(window)
     // observe canvas resize
-    const resizeObserver = new ResizeObserver(entries => {
+    this.resizeObserver = new ResizeObserver(entries => {
       for (let entry of entries) {
         const { width, height } = entry.contentRect
         this.dispatch('CANVAS_RESIZE', { width, height })
         return
       }
     })
-    resizeObserver.observe(this.canvasContainer)
+    this.resizeObserver.observe(this.canvasContainer)
 
     // observe visibility change
-    window.document.addEventListener('visibilitychange', () => {
-      if (window.document.hidden) {
-        this.dispatch('VISIBILITY_CHANGE', { visible: false })
-      } else {
-        this.dispatch('VISIBILITY_CHANGE', { visible: true })
-      }
-    })
+    window.document.addEventListener(
+      'visibilitychange',
+      this.onVisibilityChange
+    )
+  }
+
+  onVisibilityChange = () => {
+    if (window.document.hidden) {
+      this.dispatch('VISIBILITY_CHANGE', { visible: false })
+    } else {
+      this.dispatch('VISIBILITY_CHANGE', { visible: true })
+    }
+  }
+
+  destroy() {
+    this.canvasContainer.remove()
+    window.document.removeEventListener(
+      'visibilitychange',
+      this.onVisibilityChange
+    )
+    this.resizeObserver.disconnect()
   }
 }
 

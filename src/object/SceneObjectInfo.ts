@@ -127,11 +127,15 @@ export class SceneObjectInfo extends InSceneObjectInfo {
   }
 
   destroy() {
+    for (const child of this.children) {
+      this.objectInfoStorage.delete(child.config.id)
+    }
     this.eventDispatcher.removeListener('NEW_OBJECT_ADDED', this.updateHelper)
     this.eventDispatcher.removeListener('CHILD_DESTROY', this.updateHelper)
     this.eventDispatcher.removeListener(
       'CHILD_MOVE_TO_NEW_SCENE',
       this.updateHelper
     )
+    super.destroy()
   }
 }

@@ -260,6 +260,25 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
 
   destroy() {
     for (const child of this.children) {
+      child.eventDispatcher.removeListener('DESTROY', this.onChildrenDestroyed)
+      child.eventDispatcher.removeListener(
+        'MOVE_TO_NEW_SCENE',
+        this.onChildMoveToNewScene
+      )
+      child.eventDispatcher.removeListener(
+        'CHILD_MOVE_TO_NEW_SCENE',
+        this.onDeptChildMoveToNewScene
+      )
+      child.eventDispatcher.removeListener(
+        'CHILD_NAME_CHANGE',
+        this.onDeptChildNameChange
+      )
+      child.eventDispatcher.removeListener(
+        'CHILD_DESTROY',
+        this.onDeptChildDestroy
+      )
+    }
+    for (const child of this.children) {
       this.objectInfoStorage.delete(child.config.id)
     }
     this.helper(false)

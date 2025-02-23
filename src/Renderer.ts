@@ -25,9 +25,7 @@ class Renderer extends EventDispatcher<RendererEventPacket> {
     context: Context,
     cameraSwitcher: Switcher<CameraObjectInfo>,
     sceneSwitcher: Switcher<SceneObjectInfo>,
-    containerHeightVariable: ContainerHeightVariable,
-    containerWidthVariable: ContainerWidthVariable,
-    clock: Clock
+    private clock: Clock
   ) {
     super()
     this.context = context
@@ -48,15 +46,7 @@ class Renderer extends EventDispatcher<RendererEventPacket> {
         activeScene.animationMixer.update(0)
       }
     })
-    containerHeightVariable.dispatcher.addListener(
-      'VALUE_CHANGED',
-      this.onContainerResize
-    )
-    containerWidthVariable.dispatcher.addListener(
-      'VALUE_CHANGED',
-      this.onContainerResize
-    )
-
+    this.context.addListener('CANVAS_RESIZE', this.onContainerResize)
     this.sceneSwitcher.addListener('INDEX_CHANGE', ({ from, to }) => {
       if (this._overrideScene === null) {
         this.dispatch('ACTIVE_SCENE_CHANGED', this.sceneSwitcher.values[to])
@@ -114,6 +104,25 @@ class Renderer extends EventDispatcher<RendererEventPacket> {
       return
     }
     this.renderer.render(scene.data, camera.data)
+  }
+
+  destroy() {
+    this.context.removeListener('CANVAS_RESIZE', this.onContainerResize)
+    this.sceneSwitcher.removeListener('INDEX_CHANGE', ({ from, to }) => {
+      if (this._overrideScene === null) {
+        this.dispatch('ACTIVE_SCENE_CHANGED', this.sceneSwitcher.values[to])
+      }
+    })
+
+    this.cameraSwitcher.removeListener('INDEX_CHANGE', ({ from, to }) => {
+      if (this._overrideCamera === null) {
+        this.dispatch('ACTIVE_CAMERA_CHANGED', this.cameraSwitcher.values[to])
+      }
+    })
+    this.clock.removeListener('TICK', this.render)
+    this.renderer.dispose() // Release GPU resources
+    this.renderer.forceContextLoss()
+    this.renderer.domElement.remove()
   }
 }
 

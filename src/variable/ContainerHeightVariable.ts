@@ -26,12 +26,19 @@ export class ContainerHeightVariable extends ReferrableVariable {
     ReferrableVariableEventPacket | VariableEventPacket
   >()
 
-  constructor(context: Context, name: string, ref: string, id?: string) {
+  constructor(
+    private context: Context,
+    name: string,
+    ref: string,
+    id?: string
+  ) {
     const rect = context.canvasContainer.getBoundingClientRect()
-    context.addListener('CANVAS_RESIZE', event => {
-      this.value = event.height
-    })
     super(name, rect.height, ref, id)
+    context.addListener('CANVAS_RESIZE', this.onCanvasResize)
+  }
+
+  private onCanvasResize = (event: { height: number }) => {
+    this.value = event.height
   }
 
   serialize(): ContainerHeightVariableConfig {
@@ -42,5 +49,10 @@ export class ContainerHeightVariable extends ReferrableVariable {
       value: this.value,
       ref: this.ref,
     }
+  }
+
+  destroy() {
+    this.context.removeListener('CANVAS_RESIZE', this.onCanvasResize)
+    super.destroy()
   }
 }

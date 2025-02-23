@@ -256,4 +256,32 @@ export class AnimationData {
     )
     return [...nameSet]
   }
+
+  destroy() {
+    this.objectInfoStorage.removeListener('DELETE', this.onDeleteObjectInfo)
+    this.objectInfoStorage.removeListener('UPDATE', this.onUpdateObjectInfo)
+    this.objectInfoStorage.removeListener('ADD', this.onAddObjectInfo)
+    for (const sceneObjectInfo of this.objectInfoStorage.getSceneObjectInfos()) {
+      sceneObjectInfo.eventDispatcher.removeListener(
+        'NEW_OBJECT_ADDED',
+        this.onNewObjectAddedInSceneObjectInfo
+      )
+      sceneObjectInfo.eventDispatcher.removeListener(
+        'CHILD_MOVE_TO_NEW_SCENE',
+        this.onChildMoveToNewScene
+      )
+      sceneObjectInfo.eventDispatcher.removeListener(
+        'CHILD_NAME_CHANGE',
+        this.onChildNameChange
+      )
+      sceneObjectInfo.eventDispatcher.removeListener(
+        'CHILD_DESTROY',
+        this.onChildDestroy
+      )
+    }
+    for (const animationAction of this.animationActionStorage.getAll()) {
+      animationAction.stop()
+      animationAction.enabled = false
+    }
+  }
 }

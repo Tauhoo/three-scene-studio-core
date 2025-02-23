@@ -26,12 +26,24 @@ export class ContainerWidthVariable extends ReferrableVariable {
     ReferrableVariableEventPacket | VariableEventPacket
   >()
 
-  constructor(context: Context, name: string, ref: string, id?: string) {
+  constructor(
+    private context: Context,
+    name: string,
+    ref: string,
+    id?: string
+  ) {
     const rect = context.canvasContainer.getBoundingClientRect()
-    context.addListener('CANVAS_RESIZE', event => {
-      this.value = event.width
-    })
     super(name, rect.width, ref, id)
+    context.addListener('CANVAS_RESIZE', this.onCanvasResize)
+  }
+
+  private onCanvasResize = (event: { width: number }) => {
+    this.value = event.width
+  }
+
+  destroy() {
+    this.context.removeListener('CANVAS_RESIZE', this.onCanvasResize)
+    super.destroy()
   }
 
   serialize(): ContainerWidthVariableConfig {

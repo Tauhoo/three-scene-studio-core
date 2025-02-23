@@ -71,6 +71,7 @@ export class VariableConnectorStorage {
   deleteVariableConnectors(variableId: string) {
     for (const connector of this.pathStorage.getAll()) {
       if (connector.getVariable().id === variableId) {
+        connector.destroy()
         this.delete(
           connector.getObjectInfo().config.id,
           connector.getObjectPath()

@@ -12,16 +12,19 @@ export class Clock extends EventDispatcher<ClockEventPacket> {
   active: boolean = false
   lastTime: number = 0
 
-  constructor(context: Context) {
+  constructor(private context: Context) {
     super()
-    context.addListener('VISIBILITY_CHANGE', ({ visible }) => {
-      if (visible) {
-        this.start()
-      } else {
-        this.stop()
-      }
-    })
+    context.addListener('VISIBILITY_CHANGE', this.onVisibilityChange)
   }
+
+  onVisibilityChange = ({ visible }: { visible: boolean }) => {
+    if (visible) {
+      this.start()
+    } else {
+      this.stop()
+    }
+  }
+
   start() {
     this.lastTime = Date.now()
     this.active = true
@@ -39,5 +42,10 @@ export class Clock extends EventDispatcher<ClockEventPacket> {
     this.dispatch('TICK', { delta })
     this.lastTime = now
     requestAnimationFrame(this.update)
+  }
+
+  destroy() {
+    this.stop()
+    this.context.removeListener('VISIBILITY_CHANGE', this.onVisibilityChange)
   }
 }

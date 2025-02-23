@@ -72,6 +72,14 @@ export class MeshObjectInfo extends InSceneObjectInfo {
     if (this.boxHelper) {
       this.helper(false)
     }
+    this.data.geometry.dispose()
+    if (Array.isArray(this.data.material)) {
+      for (const material of this.data.material) {
+        material.dispose()
+      }
+    } else {
+      this.data.material.dispose()
+    }
     super.destroy()
   }
 }

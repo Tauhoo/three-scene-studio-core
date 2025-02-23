@@ -40,4 +40,8 @@ export class ObjectInfoManager {
       objectInfoStorage: this.objectInfoStorage.serialize(),
     }
   }
+
+  destroy() {
+    this.objectInfoStorage.destroy()
+  }
 }

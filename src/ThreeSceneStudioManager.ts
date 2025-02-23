@@ -42,8 +42,17 @@ export class ThreeSceneStudioManager {
   readonly context: Context
   readonly clock: Clock
 
-  constructor(context: Context) {
-    this.context = context
+  constructor(context?: Context) {
+    if (context) {
+      this.context = context
+    } else {
+      if (typeof window !== 'undefined') {
+        this.context = new Context(window)
+      } else {
+        throw new Error('window is undefined')
+      }
+    }
+
     this.objectInfoManager = new ObjectInfoManager()
 
     this.objectInfoManager.objectInfoStorage.addListener(
@@ -55,7 +64,7 @@ export class ThreeSceneStudioManager {
       this.onObjectInfoRemoved
     )
 
-    this.clock = new Clock(context)
+    this.clock = new Clock(this.context)
     this.variableManager = new VariableManager(
       this.objectInfoManager,
       this.context,
@@ -71,22 +80,15 @@ export class ThreeSceneStudioManager {
     )
 
     // setup system variables
-    const containerHeightVariable =
-      this.variableManager.createContainerHeightVariable(
-        'CONTAINER_HEIGHT',
-        'ch'
-      )
-    const containerWidthVariable =
-      this.variableManager.createContainerWidthVariable('CONTAINER_WIDTH', 'cw')
+    this.variableManager.createContainerHeightVariable('CONTAINER_HEIGHT', 'ch')
+    this.variableManager.createContainerWidthVariable('CONTAINER_WIDTH', 'cw')
     this.variableManager.createTimeVariable('TIME', 't')
 
     // setup renderer
     this.renderer = new Renderer(
-      context,
+      this.context,
       this.cameraSwitcher,
       this.sceneSwitcher,
-      containerHeightVariable,
-      containerWidthVariable,
       this.clock
     )
   }
@@ -127,5 +129,21 @@ export class ThreeSceneStudioManager {
       variableManager: this.variableManager.serialize(),
       objectInfoManager: this.objectInfoManager.serialize(),
     }
+  }
+
+  destroy() {
+    this.objectInfoManager.objectInfoStorage.removeListener(
+      'ADD',
+      this.onObjectInfoAdded
+    )
+    this.objectInfoManager.objectInfoStorage.removeListener(
+      'DELETE',
+      this.onObjectInfoRemoved
+    )
+    this.renderer.destroy()
+    this.variableManager.destroy()
+    this.objectInfoManager.destroy()
+    this.clock.destroy()
+    this.context.destroy()
   }
 }

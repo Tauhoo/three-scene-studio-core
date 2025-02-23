@@ -284,4 +284,13 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     }
     return result
   }
+
+  destroy() {
+    for (const objectInfo of this.getSceneObjectInfos()) {
+      this.delete(objectInfo.config.id)
+    }
+    for (const objectInfo of this.getAll()) {
+      this.delete(objectInfo.config.id)
+    }
+  }
 }

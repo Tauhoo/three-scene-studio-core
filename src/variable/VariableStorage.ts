@@ -63,6 +63,8 @@ export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
     if (variable.group === 'SYSTEM') {
       this.systemVariables.delete(variable.type)
     }
+    this.variableConnectorStorage.deleteVariableConnectors(variable.id)
+    variable.destroy()
     this.dispatch('DELETE_VARIABLE', {
       variable,
     })
@@ -196,6 +198,12 @@ export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
       variables: this.idStorage
         .getAll()
         .map(variable => variable.serialize() as VariableConfig),
+    }
+  }
+
+  destroy() {
+    for (const variable of this.getAllVariables()) {
+      this.deleteVariableById(variable.id)
     }
   }
 }

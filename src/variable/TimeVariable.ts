@@ -25,13 +25,15 @@ export class TimeVariable extends ReferrableVariable {
   >()
   private _enabled = true
 
-  constructor(clock: Clock, name: string, ref: string, id?: string) {
-    clock.addListener('TICK', event => {
-      if (this.enabled) {
-        this.value = Date.now()
-      }
-    })
+  constructor(private clock: Clock, name: string, ref: string, id?: string) {
     super(name, 0, ref, id)
+    clock.addListener('TICK', this.onTick)
+  }
+
+  private onTick = () => {
+    if (this.enabled) {
+      this.value = Date.now()
+    }
   }
 
   get enabled() {
@@ -53,5 +55,9 @@ export class TimeVariable extends ReferrableVariable {
       value: this.value,
       ref: this.ref,
     }
+  }
+
+  destroy(): void {
+    this.clock.removeListener('TICK', this.onTick)
   }
 }

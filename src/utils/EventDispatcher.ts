@@ -1,3 +1,5 @@
+import { ContainerWidthVariable } from '../variable'
+
 export interface EventPacket<T extends string, D> {
   type: T
   data: D

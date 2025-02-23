@@ -106,6 +106,15 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
 
   destroy(): void {
     this.objectInfoStorage.removeListener('DELETE', this.onDelete)
+    this.data.geometry.dispose()
+    this.data.skeleton.dispose()
+    if (Array.isArray(this.data.material)) {
+      for (const material of this.data.material) {
+        material.dispose()
+      }
+    } else {
+      this.data.material.dispose()
+    }
     super.destroy()
   }
 }

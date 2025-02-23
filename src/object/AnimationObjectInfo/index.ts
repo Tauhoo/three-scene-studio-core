@@ -33,4 +33,9 @@ export class AnimationObjectInfo extends ObjectInfo {
     this.data = new AnimationData(data, objectInfoStorage)
     this.eventDispatcher = new EventDispatcher()
   }
+
+  destroy() {
+    this.data.destroy()
+    super.destroy()
+  }
 }
