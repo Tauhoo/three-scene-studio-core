@@ -25,6 +25,11 @@ export type GlobalFormulaVariableEventPacket = EventPacket<
   { formulaInfo: FormulaInfo }
 >
 
+type RecursiveInfo = {
+  ref: string
+  children: RecursiveInfo[]
+}
+
 export class GlobalFormulaVariable extends ReferrableVariable {
   type: 'GLOBAL_FORMULA' = 'GLOBAL_FORMULA'
   group: 'USER_DEFINED' = 'USER_DEFINED'
@@ -67,7 +72,22 @@ export class GlobalFormulaVariable extends ReferrableVariable {
     this.value = value
   }
 
-  updateReferredVariables() {
+  allReferredVariables = () => {
+    const connectors = this.variableConnectorStorage.getByObjectInfoId(
+      this.formulaObjectInfo.config.id
+    )
+    if (connectors === null) return []
+    const result: string[] = []
+    for (const connector of connectors) {
+      const variable = connector.getVariable()
+      if (variable instanceof GlobalFormulaVariable) {
+        result.push(...variable.allReferredVariables())
+      }
+    }
+    return result
+  }
+
+  updateReferredVariables = () => {
     const variableRefs = this.formulaObjectInfo.getFormulaInfo().variables
 
     // clear old referred variables

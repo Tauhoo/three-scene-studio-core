@@ -24,11 +24,13 @@ type PathStorageKey = {
 
 export class VariableConnectorStorage {
   private pathStorage: DataStorage<PathStorageKey, VariableConnector>
+  private objectInfoIdStorage: DataStorage<string, VariableConnector[]>
 
   constructor() {
     this.pathStorage = new DataStorage<PathStorageKey, VariableConnector>(
       key => key.objectId + '.' + key.objectPath.join('.')
     )
+    this.objectInfoIdStorage = new DataStorage(key => key)
   }
 
   delete(objectId: string, objectPath: ObjectPath) {
@@ -38,6 +40,13 @@ export class VariableConnectorStorage {
       objectPath,
       objectId,
     })
+    const connectors = this.objectInfoIdStorage.get(objectId)
+    if (connectors !== null) {
+      const newConnectors = connectors.filter(
+        c => c.getObjectPath().join('.') !== objectPath.join('.')
+      )
+      this.objectInfoIdStorage.set(objectId, newConnectors)
+    }
     connector.destroy()
   }
 
@@ -48,7 +57,12 @@ export class VariableConnectorStorage {
     })
   }
 
+  getByObjectInfoId(objectId: string) {
+    return this.objectInfoIdStorage.get(objectId)
+  }
+
   set(connector: VariableConnector) {
+    this.delete(connector.getObjectInfo().config.id, connector.getObjectPath())
     this.pathStorage.set(
       {
         objectPath: connector.getObjectPath(),
@@ -56,6 +70,15 @@ export class VariableConnectorStorage {
       },
       connector
     )
+    const connectors = this.objectInfoIdStorage.get(
+      connector.getObjectInfo().config.id
+    )
+    if (connectors !== null) {
+      this.objectInfoIdStorage.set(connector.getObjectInfo().config.id, [
+        ...connectors,
+        connector,
+      ])
+    }
   }
 
   connectVariableToObjectInfo(
