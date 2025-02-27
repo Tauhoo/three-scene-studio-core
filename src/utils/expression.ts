@@ -4,17 +4,35 @@ import { v4 as uuidv4 } from 'uuid'
 
 const knownFunctions = new Set(Object.keys(math))
 
-function getVariablesFromExpression(node: math.MathNode): string[] {
+type Info = {
+  variables: string[]
+  functions: string[]
+}
+
+function getInfoFromExpression(node: math.MathNode): Info {
   try {
     const variables = new Set<string>()
+    const functions = new Set<string>()
     node.traverse(child => {
       if (child instanceof math.SymbolNode) {
-        variables.add(child.toString())
+        const name = child.toString()
+
+        if (knownFunctions.has(name)) {
+          functions.add(name)
+        } else {
+          variables.add(name)
+        }
       }
     })
-    return Array.from(variables).filter(v => !knownFunctions.has(v))
+    return {
+      variables: Array.from(variables),
+      functions: Array.from(functions),
+    }
   } catch (e) {
-    return []
+    return {
+      variables: [],
+      functions: [],
+    }
   }
 }
 
@@ -37,38 +55,40 @@ export interface FormulaInfo {
 
 function expressionToBlock(
   expression: string,
-  variables: string[]
+  variables: string[],
+  functions: string[]
 ): ExpressionBlock[] {
   let state: 'search' | 'process' = 'search'
-  let accumNonVartiable = ''
-  let accumVariable = ''
+  let accumNonSymbol = ''
+  let accumSymbol = ''
+  let symbolList = [...variables, ...functions]
   for (let index = 0; index < expression.length; index++) {
     const currentText = expression[index]
 
     if (state === 'process') {
-      if (startWith(variables, accumVariable + currentText).length > 0) {
-        accumVariable += currentText
+      if (startWith(symbolList, accumSymbol + currentText).length > 0) {
+        accumSymbol += currentText
       } else {
         break
       }
     } else if (state === 'search') {
-      if (startWith(variables, accumVariable + currentText).length > 0) {
+      if (startWith(symbolList, accumSymbol + currentText).length > 0) {
         state = 'process'
-        accumVariable += currentText
+        accumSymbol += currentText
       } else {
-        accumNonVartiable += currentText
+        accumNonSymbol += currentText
       }
     }
   }
   const nextExpression = expression.slice(
-    accumNonVartiable.length + accumVariable.length
+    accumNonSymbol.length + accumSymbol.length
   )
 
   const currentResult = [
-    { type: 'expression', value: accumNonVartiable, id: uuidv4() },
+    { type: 'expression', value: accumNonSymbol, id: uuidv4() },
     {
-      type: knownFunctions.has(accumVariable) ? 'function' : 'variable',
-      value: accumVariable,
+      type: knownFunctions.has(accumSymbol) ? 'function' : 'variable',
+      value: accumSymbol,
       id: uuidv4(),
     },
   ].filter(value => value.value !== '') as ExpressionBlock[]
@@ -76,7 +96,10 @@ function expressionToBlock(
   if (nextExpression.length === 0) {
     return currentResult
   } else {
-    return [...currentResult, ...expressionToBlock(nextExpression, variables)]
+    return [
+      ...currentResult,
+      ...expressionToBlock(nextExpression, variables, functions),
+    ]
   }
 }
 
@@ -85,11 +108,11 @@ export function parseExpression(expression: string) {
     if (expression.trim() === '')
       return errorResponse('INVALID_EXPRESSION', 'Empty expression')
     const node = math.parse(expression)
-    const variables = getVariablesFromExpression(node)
-    const blocks = expressionToBlock(expression, variables)
+    const info = getInfoFromExpression(node)
+    const blocks = expressionToBlock(expression, info.variables, info.functions)
     return successResponse({
       blocks,
-      variables,
+      variables: info.variables,
       node,
       expression,
     } as FormulaInfo)
