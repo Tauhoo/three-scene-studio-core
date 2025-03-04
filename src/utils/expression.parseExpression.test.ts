@@ -64,4 +64,27 @@ describe('parseExpression', () => {
     }
     expect(result).toMatchObject(expected)
   })
+
+  it('expression with function', () => {
+    const expression = 'a + sin(b)'
+    const result = parseExpression(expression, {
+      existVariables: ['a'],
+    })
+    const expected = {
+      status: 'SUCCESS',
+      data: {
+        expression,
+        variables: ['a', 'b'],
+        blocks: [
+          { type: 'variable', value: 'a', id: expect.any(String) },
+          { type: 'expression', value: ' + ', id: expect.any(String) },
+          { type: 'function', value: 'sin', id: expect.any(String) },
+          { type: 'expression', value: '(', id: expect.any(String) },
+          { type: 'unknown_variable', value: 'b', id: expect.any(String) },
+          { type: 'expression', value: ')', id: expect.any(String) },
+        ],
+      },
+    }
+    expect(result).toMatchObject(expected)
+  })
 })

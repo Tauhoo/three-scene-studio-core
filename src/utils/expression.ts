@@ -42,7 +42,7 @@ function startWith(source: string[], target: string) {
 
 export type ExpressionBlock = {
   id: string
-  type: 'variable' | 'expression' | 'function'
+  type: 'variable' | 'expression' | 'function' | 'unknown_variable'
   value: string
 }
 
@@ -56,12 +56,14 @@ export interface FormulaInfo {
 function expressionToBlock(
   expression: string,
   variables: string[],
-  functions: string[]
+  functions: string[],
+  allPossibleVariables: string[]
 ): ExpressionBlock[] {
   let state: 'search' | 'process' = 'search'
   let accumNonSymbol = ''
   let accumSymbol = ''
   let symbolList = [...variables, ...functions]
+  const allPossibleVariablesSet = new Set(allPossibleVariables)
   for (let index = 0; index < expression.length; index++) {
     const currentText = expression[index]
 
@@ -84,32 +86,70 @@ function expressionToBlock(
     accumNonSymbol.length + accumSymbol.length
   )
 
-  const currentResult = [
-    { type: 'expression', value: accumNonSymbol, id: uuidv4() },
-    {
-      type: knownFunctions.has(accumSymbol) ? 'function' : 'variable',
+  const currentResult: ExpressionBlock[] = []
+  if (accumNonSymbol.length > 0) {
+    currentResult.push({
+      type: 'expression',
+      value: accumNonSymbol,
+      id: uuidv4(),
+    })
+  }
+
+  if (knownFunctions.has(accumSymbol)) {
+    currentResult.push({
+      type: 'function',
       value: accumSymbol,
       id: uuidv4(),
-    },
-  ].filter(value => value.value !== '') as ExpressionBlock[]
+    })
+  } else if (allPossibleVariablesSet.has(accumSymbol)) {
+    currentResult.push({
+      type: 'variable',
+      value: accumSymbol,
+      id: uuidv4(),
+    })
+  } else if (accumSymbol.length > 0) {
+    currentResult.push({
+      type: 'unknown_variable',
+      value: accumSymbol,
+      id: uuidv4(),
+    })
+  }
 
   if (nextExpression.length === 0) {
     return currentResult
   } else {
     return [
       ...currentResult,
-      ...expressionToBlock(nextExpression, variables, functions),
+      ...expressionToBlock(
+        nextExpression,
+        variables,
+        functions,
+        allPossibleVariables
+      ),
     ]
   }
 }
 
-export function parseExpression(expression: string) {
+type ParseExpressionOptions = {
+  existVariables: string[]
+}
+
+export function parseExpression(
+  expression: string,
+  options?: Partial<ParseExpressionOptions>
+) {
   try {
     if (expression.trim() === '')
       return errorResponse('INVALID_EXPRESSION', 'Empty expression')
     const node = math.parse(expression)
     const info = getInfoFromExpression(node)
-    const blocks = expressionToBlock(expression, info.variables, info.functions)
+    const allPossibleVariables = options?.existVariables ?? info.variables
+    const blocks = expressionToBlock(
+      expression,
+      info.variables,
+      info.functions,
+      allPossibleVariables
+    )
     return successResponse({
       blocks,
       variables: info.variables,
