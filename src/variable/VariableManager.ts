@@ -44,7 +44,11 @@ export class VariableManager {
   // Variable initializers
 
   createFormulaVariable(formula: string, id?: string): FormulaVariable {
-    const parsedResult = parseExpression(formula)
+    const parsedResult = parseExpression(formula, {
+      existVariables: this.variableStorage
+        .getAllReferrableVariables()
+        .map(variable => variable.ref),
+    })
     if (parsedResult.status === 'ERROR') {
       throw new Error(parsedResult.error)
     }

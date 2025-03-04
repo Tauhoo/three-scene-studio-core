@@ -24,6 +24,7 @@ export class FormulaObjectInfo extends ObjectInfo {
   private formulaInfo: FormulaInfo
   readonly eventDispatcher: EventDispatcher<FormulaObjectEventPacket>
   value: number = 0
+  private initData: Record<string, number>
 
   constructor(formulaInfo: FormulaInfo, id?: string) {
     super()
@@ -35,6 +36,9 @@ export class FormulaObjectInfo extends ObjectInfo {
       value: 0,
     }
     this.formulaInfo = formulaInfo
+    this.initData = Object.fromEntries(
+      this.formulaInfo.variables.map(ref => [ref, 0])
+    )
     this.updateFormula(formulaInfo)
   }
 
@@ -48,6 +52,11 @@ export class FormulaObjectInfo extends ObjectInfo {
     for (const [key, value] of Object.entries(this.data)) {
       delete this.data[key]
     }
+
+    // update init data
+    this.initData = Object.fromEntries(
+      this.formulaInfo.variables.map(ref => [ref, 0])
+    )
     this.eventDispatcher.dispatch('FORMULA_INFO_UPDATE', { formulaInfo })
   }
 
@@ -58,6 +67,7 @@ export class FormulaObjectInfo extends ObjectInfo {
   calculateValue() {
     try {
       const newValue = this.formulaInfo.node.evaluate({
+        ...this.initData,
         ...this.data,
       })
       this.value = newValue
