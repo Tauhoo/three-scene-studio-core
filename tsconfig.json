@@ -7,7 +7,9 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": false,
     "sourceMap": true,
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "allowJs": true,
+    "noEmit": true
   },
   "exclude": ["node_modules", "dist", "src/**/*.test.ts"],
   "include": ["src/**/*"]

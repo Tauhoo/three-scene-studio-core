@@ -20,7 +20,8 @@
   ],
   "scripts": {
     "test": "jest",
-    "build": "rm -rf dist && tsc --module commonjs --outDir dist/cjs && tsc --module ES2022 --outDir dist/esm && tsc --declaration --emitDeclarationOnly --declarationDir dist/types"
+    "generate-formula-grammar": "nearleyc ./formula-grammar/index.ne -o src/utils/formula-parser/grammar.js",
+    "build": "rm -rf dist && tsc --module commonjs --outDir dist/cjs && tsc --noEmit false --module ES2022 --outDir dist/esm && tsc --declaration --emitDeclarationOnly --declarationDir dist/types"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
   },
   "description": "Use to render the result from Three Scene Studio editor.",
   "devDependencies": {
+    "@types/nearley": "^2.11.5",
     "@types/three": "^0.169.0",
     "@types/uuid": "^10.0.0",
     "typescript": "^5.6.2"
@@ -44,6 +46,7 @@
     "@types/jest": "^29.5.14",
     "jest": "^29.7.0",
     "mathjs": "^14.0.1",
+    "nearley": "^2.20.1",
     "ts-jest": "^29.2.6",
     "uuid": "^10.0.0",
     "zod": "^3.23.8"
