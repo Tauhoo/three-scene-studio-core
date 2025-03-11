@@ -1,5 +1,5 @@
 import * as math from 'mathjs'
-import { errorResponse, successResponse } from './response'
+import { errorResponse, successResponse } from '../response'
 import { v4 as uuidv4 } from 'uuid'
 
 const knownFunctions = new Set(Object.keys(math))
