@@ -1,6 +1,29 @@
 import nearley from 'nearley'
-import grammar from './grammar'
+import { default as grammar } from './grammar'
+import { Expression } from 'typescript'
 
-const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar as any))
+const grammarAny = grammar as any
 
-export default parser
+export const parse = (input: string) => {
+  const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammarAny))
+  parser.feed(input)
+  return parser.finish()[0] as ExpressionNode
+}
+
+type ExpressionNode = NumberNode | UnaryOperatorNode
+
+type NumberNode = {
+  type: 'NUMBER'
+  value: number
+  text: string
+}
+
+type UnaryOperatorNode = PrefixUnaryNode
+
+type PrefixUnaryNode = MinusPrefixUnaryNode
+
+type MinusPrefixUnaryNode = {
+  type: 'MINUS_PREFIX_UNARY'
+  input: NumberNode
+  text: '-'
+}
