@@ -23,7 +23,10 @@ var grammar = {
             return { type: "NUMBER", value: Number(text), text }
         } 
         },
-    {"name": "minus_prefix_unary", "symbols": [{"literal":"-"}, "number"], "postprocess": 
+    {"name": "number_expression$macrocall$2", "symbols": ["number"], "postprocess": data => data[0]},
+    {"name": "number_expression$macrocall$1$macrocall$2", "symbols": ["number_expression$macrocall$2"], "postprocess": data => data[0]},
+    {"name": "number_expression$macrocall$1$macrocall$1$macrocall$2", "symbols": ["number_expression$macrocall$1$macrocall$2"], "postprocess": data => data[0]},
+    {"name": "number_expression$macrocall$1$macrocall$1$macrocall$1", "symbols": [{"literal":"-"}, "number_expression$macrocall$1$macrocall$1$macrocall$2"], "postprocess": 
         data => {
             return {
                 type: "MINUS_PREFIX_UNARY",
@@ -32,12 +35,63 @@ var grammar = {
             }
         }
         },
-    {"name": "prefix_unary", "symbols": ["minus_prefix_unary"], "postprocess": data => data[0]},
-    {"name": "unary", "symbols": ["prefix_unary"], "postprocess": data => data[0]},
-    {"name": "expression", "symbols": ["unary"], "postprocess": data => data[0]},
-    {"name": "expression", "symbols": ["number"], "postprocess": data => data[0]}
+    {"name": "number_expression$macrocall$1$macrocall$1", "symbols": ["number_expression$macrocall$1$macrocall$1$macrocall$1"], "postprocess": data => data[0]},
+    {"name": "number_expression$macrocall$1", "symbols": ["number_expression$macrocall$1$macrocall$1"], "postprocess": data => data[0]},
+    {"name": "number_expression", "symbols": ["number_expression$macrocall$1"], "postprocess": data => ({ type: "NUMBER_EXPRESSION", expression: data[0]})},
+    {"name": "number_expression", "symbols": ["number"], "postprocess": data => ({ type: "NUMBER_EXPRESSION", expression: data[0]})},
+    {"name": "vector_expression$macrocall$2", "symbols": ["vector"], "postprocess": data => data[0]},
+    {"name": "vector_expression$macrocall$1$macrocall$2", "symbols": ["vector_expression$macrocall$2"], "postprocess": data => data[0]},
+    {"name": "vector_expression$macrocall$1$macrocall$1$macrocall$2", "symbols": ["vector_expression$macrocall$1$macrocall$2"], "postprocess": data => data[0]},
+    {"name": "vector_expression$macrocall$1$macrocall$1$macrocall$1", "symbols": [{"literal":"-"}, "vector_expression$macrocall$1$macrocall$1$macrocall$2"], "postprocess": 
+        data => {
+            return {
+                type: "MINUS_PREFIX_UNARY",
+                input: data[1],
+                text: "-"
+            }
+        }
+        },
+    {"name": "vector_expression$macrocall$1$macrocall$1", "symbols": ["vector_expression$macrocall$1$macrocall$1$macrocall$1"], "postprocess": data => data[0]},
+    {"name": "vector_expression$macrocall$1", "symbols": ["vector_expression$macrocall$1$macrocall$1"], "postprocess": data => data[0]},
+    {"name": "vector_expression", "symbols": ["vector_expression$macrocall$1"], "postprocess": data => ({ type: "VECTOR_EXPRESSION", expression: data[0]})},
+    {"name": "vector_expression", "symbols": ["vector"], "postprocess": data => ({ type: "VECTOR_EXPRESSION", expression: data[0]})},
+    {"name": "vector$ebnf$1", "symbols": []},
+    {"name": "vector$ebnf$1", "symbols": ["vector$ebnf$1", "number_expression"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "vector", "symbols": [{"literal":"["}, "vector$ebnf$1", {"literal":"]"}], "postprocess": data => ({ type: "NUMBER", value: data[1]})},
+    {"name": "number_expression$macrocall$2", "symbols": ["number"], "postprocess": data => data[0]},
+    {"name": "number_expression$macrocall$1$macrocall$2", "symbols": ["number_expression$macrocall$2"], "postprocess": data => data[0]},
+    {"name": "number_expression$macrocall$1$macrocall$1$macrocall$2", "symbols": ["number_expression$macrocall$1$macrocall$2"], "postprocess": data => data[0]},
+    {"name": "number_expression$macrocall$1$macrocall$1$macrocall$1", "symbols": [{"literal":"-"}, "number_expression$macrocall$1$macrocall$1$macrocall$2"], "postprocess": 
+        data => {
+            return {
+                type: "MINUS_PREFIX_UNARY",
+                input: data[1],
+                text: "-"
+            }
+        }
+        },
+    {"name": "number_expression$macrocall$1$macrocall$1", "symbols": ["number_expression$macrocall$1$macrocall$1$macrocall$1"], "postprocess": data => data[0]},
+    {"name": "number_expression$macrocall$1", "symbols": ["number_expression$macrocall$1$macrocall$1"], "postprocess": data => data[0]},
+    {"name": "number_expression", "symbols": ["number_expression$macrocall$1"], "postprocess": data => ({ type: "NUMBER_EXPRESSION", expression: data[0]})},
+    {"name": "number_expression", "symbols": ["number"], "postprocess": data => ({ type: "NUMBER_EXPRESSION", expression: data[0]})},
+    {"name": "vector_expression$macrocall$2", "symbols": ["vector"], "postprocess": data => data[0]},
+    {"name": "vector_expression$macrocall$1$macrocall$2", "symbols": ["vector_expression$macrocall$2"], "postprocess": data => data[0]},
+    {"name": "vector_expression$macrocall$1$macrocall$1$macrocall$2", "symbols": ["vector_expression$macrocall$1$macrocall$2"], "postprocess": data => data[0]},
+    {"name": "vector_expression$macrocall$1$macrocall$1$macrocall$1", "symbols": [{"literal":"-"}, "vector_expression$macrocall$1$macrocall$1$macrocall$2"], "postprocess": 
+        data => {
+            return {
+                type: "MINUS_PREFIX_UNARY",
+                input: data[1],
+                text: "-"
+            }
+        }
+        },
+    {"name": "vector_expression$macrocall$1$macrocall$1", "symbols": ["vector_expression$macrocall$1$macrocall$1$macrocall$1"], "postprocess": data => data[0]},
+    {"name": "vector_expression$macrocall$1", "symbols": ["vector_expression$macrocall$1$macrocall$1"], "postprocess": data => data[0]},
+    {"name": "vector_expression", "symbols": ["vector_expression$macrocall$1"], "postprocess": data => ({ type: "VECTOR_EXPRESSION", expression: data[0]})},
+    {"name": "vector_expression", "symbols": ["vector"], "postprocess": data => ({ type: "VECTOR_EXPRESSION", expression: data[0]})}
 ]
-  , ParserStart: "expression"
+  , ParserStart: "number_expression"
 }
 if (typeof module !== 'undefined'&& typeof module.exports !== 'undefined') {
    module.exports = grammar;
