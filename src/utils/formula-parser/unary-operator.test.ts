@@ -1,5 +1,5 @@
 import { parse } from './index'
-describe('parseExpression', () => {
+describe('parse unary operator', () => {
   test('integer', () => {
     const result = parse('-3.3')
     const expected = {
@@ -9,9 +9,7 @@ describe('parseExpression', () => {
         input: {
           type: 'NUMBER',
           value: 3.3,
-          text: '3.3',
         },
-        text: '-',
       },
     }
     expect(result).toEqual(expected)

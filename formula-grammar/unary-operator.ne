@@ -5,8 +5,7 @@ minus_prefix_unary[E] -> "-" $E {%
     d => {
         return {
             type: "MINUS_PREFIX_UNARY",
-            input: d[1],
-            text: "-"
+            input: d[1]
         }
     }
 %}

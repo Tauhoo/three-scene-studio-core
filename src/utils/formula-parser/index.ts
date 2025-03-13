@@ -1,13 +1,13 @@
 import nearley from 'nearley'
 import { default as grammar } from './grammar'
-import { Expression } from 'typescript'
 
 const grammarAny = grammar as any
 
 export const parse = (input: string) => {
+  const cleanedInput = input.replace(/\s+/g, '')
   const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammarAny))
-  parser.feed(input)
-  return parser.finish()[0] as ExpressionNode
+  parser.feed(cleanedInput)
+  return parser.finish()[0]
 }
 
 type ExpressionNode = NumberNode | UnaryOperatorNode
