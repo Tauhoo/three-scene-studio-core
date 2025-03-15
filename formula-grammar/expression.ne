@@ -20,13 +20,13 @@ vector_unary ->
     vector_primary {% d => d[0] %}
     | unary_operator[vector_primary {% d => d[0] %}] {% d => d[0] %}
 
-vector_multiplicative -> 
+vector_term -> 
     vector_unary {% d => d[0] %}
-    | term_binary_operator[vector_multiplicative {% d => d[0] %}, vector_unary {% d => d[0] %}] {% d => d[0] %}
+    | term_binary_operator[vector_term {% d => d[0] %}, vector_unary {% d => d[0] %}] {% d => d[0] %}
 
 vector_expression -> 
-    vector_multiplicative {% d => d[0] %}
-    | expression_binary_operator[vector_expression {% d => d[0] %}, vector_multiplicative {% d => d[0] %}] {% d => d[0] %}
+    vector_term {% d => d[0] %}
+    | expression_binary_operator[vector_expression {% d => d[0] %}, vector_term {% d => d[0] %}] {% d => d[0] %}
 
 # Number expressions
 number_primary -> 
@@ -37,10 +37,10 @@ number_unary ->
     number_primary {% d => d[0] %}
     | unary_operator[number_primary {% d => d[0] %}] {% d => d[0] %}
 
-number_multiplicative -> 
+number_term -> 
     number_unary {% d => d[0] %}
-    | term_binary_operator[number_multiplicative {% d => d[0] %}, number_unary {% d => d[0] %}] {% d => d[0] %}
+    | term_binary_operator[number_term {% d => d[0] %}, number_unary {% d => d[0] %}] {% d => d[0] %}
 
 number_expression -> 
-    number_multiplicative {% d => d[0] %}
-    | expression_binary_operator[number_expression {% d => d[0] %}, number_multiplicative {% d => d[0] %}] {% d => d[0] %}
+    number_term {% d => d[0] %}
+    | expression_binary_operator[number_expression {% d => d[0] %}, number_term {% d => d[0] %}] {% d => d[0] %}
