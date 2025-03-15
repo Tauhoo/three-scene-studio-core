@@ -11,28 +11,24 @@ expression ->
 # Parentheses expression
 parentheses_expression[E] -> "(" $E ")" {% data => ({ type: "PARENTHESES_EXPRESSION", expression: data[1] }) %}
 
-# Vector expressions
-vector_expression -> 
+# Vector expressions - simplified to remove ambiguity
+vector_primary -> 
     vector {% d => d[0] %}
-    | vector_operation {% d => d[0] %}
+    | parentheses_expression[vector_expression {% d => d[0] %}] {% d => d[0] %}
 
-vector_operation ->
-    vector_additive {% d => d[0] %}
+vector_unary ->
+    vector_primary {% d => d[0] %}
+    | unary_operator[vector_primary {% d => d[0] %}] {% d => d[0] %}
 
-vector_additive ->
-    vector_multiplicative {% d => d[0] %}
-    | expression_binary_operator[vector_additive {% d => d[0] %}, vector_multiplicative {% d => d[0] %}] {% d => d[0] %}
-
-vector_multiplicative ->
+vector_multiplicative -> 
     vector_unary {% d => d[0] %}
     | term_binary_operator[vector_multiplicative {% d => d[0] %}, vector_unary {% d => d[0] %}] {% d => d[0] %}
 
-vector_unary ->
-    vector {% d => d[0] %}
-    | unary_operator[vector {% d => d[0] %}] {% d => d[0] %}
-    | parentheses_expression[vector_operation {% d => d[0] %}] {% d => d[0] %}
+vector_expression -> 
+    vector_multiplicative {% d => d[0] %}
+    | expression_binary_operator[vector_expression {% d => d[0] %}, vector_multiplicative {% d => d[0] %}] {% d => d[0] %}
 
-# Number expressions - simplified to remove ambiguity
+# Number expressions
 number_primary -> 
     number {% d => d[0] %}
     | parentheses_expression[number_expression {% d => d[0] %}] {% d => d[0] %}
