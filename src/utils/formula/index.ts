@@ -11,8 +11,6 @@ export const parse = (input: string) => {
   )
   parser.feed(cleanedInput)
   const result = parser.finish()
-  console.log('DEBUG: ', input, '=>', result.length) // JSON.stringify(result, null, 2))
-
   return result[0] as Expression
 }
 
