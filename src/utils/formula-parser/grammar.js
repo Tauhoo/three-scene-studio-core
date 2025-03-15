@@ -142,23 +142,25 @@ var grammar = {
     {"name": "vector_unary$macrocall$4", "symbols": ["vector_operation"], "postprocess": d => d[0]},
     {"name": "vector_unary$macrocall$3", "symbols": [{"literal":"("}, "vector_unary$macrocall$4", {"literal":")"}], "postprocess": data => ({ type: "PARENTHESES_EXPRESSION", expression: data[1] })},
     {"name": "vector_unary", "symbols": ["vector_unary$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "number_expression", "symbols": ["number"], "postprocess": d => d[0]},
-    {"name": "number_expression", "symbols": ["number_operation"], "postprocess": d => d[0]},
-    {"name": "number_operation", "symbols": ["number_additive"], "postprocess": d => d[0]},
-    {"name": "number_additive", "symbols": ["number_multiplicative"], "postprocess": d => d[0]},
-    {"name": "number_additive$macrocall$2", "symbols": ["number_additive"], "postprocess": d => d[0]},
-    {"name": "number_additive$macrocall$3", "symbols": ["number_multiplicative"], "postprocess": d => d[0]},
-    {"name": "number_additive$macrocall$1$macrocall$2", "symbols": ["number_additive$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "number_additive$macrocall$1$macrocall$3", "symbols": [{"literal":"+"}]},
-    {"name": "number_additive$macrocall$1$macrocall$4", "symbols": ["number_additive$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "number_additive$macrocall$1$macrocall$1", "symbols": ["number_additive$macrocall$1$macrocall$2", "number_additive$macrocall$1$macrocall$3", "number_additive$macrocall$1$macrocall$4"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "number_additive$macrocall$1", "symbols": ["number_additive$macrocall$1$macrocall$1"], "postprocess": data => ({ type: "ADD_BINARY", inputs: data[0].inputs })},
-    {"name": "number_additive$macrocall$1$macrocall$6", "symbols": ["number_additive$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "number_additive$macrocall$1$macrocall$7", "symbols": [{"literal":"-"}]},
-    {"name": "number_additive$macrocall$1$macrocall$8", "symbols": ["number_additive$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "number_additive$macrocall$1$macrocall$5", "symbols": ["number_additive$macrocall$1$macrocall$6", "number_additive$macrocall$1$macrocall$7", "number_additive$macrocall$1$macrocall$8"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "number_additive$macrocall$1", "symbols": ["number_additive$macrocall$1$macrocall$5"], "postprocess": data => ({ type: "SUB_BINARY", inputs: data[0].inputs })},
-    {"name": "number_additive", "symbols": ["number_additive$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "number_primary", "symbols": ["number"], "postprocess": d => d[0]},
+    {"name": "number_primary$macrocall$2", "symbols": ["number_expression"], "postprocess": d => d[0]},
+    {"name": "number_primary$macrocall$1", "symbols": [{"literal":"("}, "number_primary$macrocall$2", {"literal":")"}], "postprocess": data => ({ type: "PARENTHESES_EXPRESSION", expression: data[1] })},
+    {"name": "number_primary", "symbols": ["number_primary$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "number_unary", "symbols": ["number_primary"], "postprocess": d => d[0]},
+    {"name": "number_unary$macrocall$2", "symbols": ["number_primary"], "postprocess": d => d[0]},
+    {"name": "number_unary$macrocall$1$macrocall$2", "symbols": ["number_unary$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "number_unary$macrocall$1$macrocall$1$macrocall$2", "symbols": ["number_unary$macrocall$1$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "number_unary$macrocall$1$macrocall$1$macrocall$1", "symbols": [{"literal":"-"}, "number_unary$macrocall$1$macrocall$1$macrocall$2"], "postprocess": 
+        d => {
+            return {
+                type: "MINUS_PREFIX_UNARY",
+                input: d[1]
+            }
+        }
+        },
+    {"name": "number_unary$macrocall$1$macrocall$1", "symbols": ["number_unary$macrocall$1$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "number_unary$macrocall$1", "symbols": ["number_unary$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "number_unary", "symbols": ["number_unary$macrocall$1"], "postprocess": d => d[0]},
     {"name": "number_multiplicative", "symbols": ["number_unary"], "postprocess": d => d[0]},
     {"name": "number_multiplicative$macrocall$2", "symbols": ["number_multiplicative"], "postprocess": d => d[0]},
     {"name": "number_multiplicative$macrocall$3", "symbols": ["number_unary"], "postprocess": d => d[0]},
@@ -178,24 +180,20 @@ var grammar = {
     {"name": "number_multiplicative$macrocall$1$macrocall$9", "symbols": ["number_multiplicative$macrocall$1$macrocall$10", "number_multiplicative$macrocall$1$macrocall$11", "number_multiplicative$macrocall$1$macrocall$12"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
     {"name": "number_multiplicative$macrocall$1", "symbols": ["number_multiplicative$macrocall$1$macrocall$9"], "postprocess": data => ({ type: "MOD_BINARY", inputs: data[0].inputs })},
     {"name": "number_multiplicative", "symbols": ["number_multiplicative$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "number_unary", "symbols": ["number"], "postprocess": d => d[0]},
-    {"name": "number_unary$macrocall$2", "symbols": ["number"], "postprocess": d => d[0]},
-    {"name": "number_unary$macrocall$1$macrocall$2", "symbols": ["number_unary$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "number_unary$macrocall$1$macrocall$1$macrocall$2", "symbols": ["number_unary$macrocall$1$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "number_unary$macrocall$1$macrocall$1$macrocall$1", "symbols": [{"literal":"-"}, "number_unary$macrocall$1$macrocall$1$macrocall$2"], "postprocess": 
-        d => {
-            return {
-                type: "MINUS_PREFIX_UNARY",
-                input: d[1]
-            }
-        }
-        },
-    {"name": "number_unary$macrocall$1$macrocall$1", "symbols": ["number_unary$macrocall$1$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "number_unary$macrocall$1", "symbols": ["number_unary$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "number_unary", "symbols": ["number_unary$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "number_unary$macrocall$4", "symbols": ["number_operation"], "postprocess": d => d[0]},
-    {"name": "number_unary$macrocall$3", "symbols": [{"literal":"("}, "number_unary$macrocall$4", {"literal":")"}], "postprocess": data => ({ type: "PARENTHESES_EXPRESSION", expression: data[1] })},
-    {"name": "number_unary", "symbols": ["number_unary$macrocall$3"], "postprocess": d => d[0]}
+    {"name": "number_expression", "symbols": ["number_multiplicative"], "postprocess": d => d[0]},
+    {"name": "number_expression$macrocall$2", "symbols": ["number_expression"], "postprocess": d => d[0]},
+    {"name": "number_expression$macrocall$3", "symbols": ["number_multiplicative"], "postprocess": d => d[0]},
+    {"name": "number_expression$macrocall$1$macrocall$2", "symbols": ["number_expression$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "number_expression$macrocall$1$macrocall$3", "symbols": [{"literal":"+"}]},
+    {"name": "number_expression$macrocall$1$macrocall$4", "symbols": ["number_expression$macrocall$3"], "postprocess": d => d[0]},
+    {"name": "number_expression$macrocall$1$macrocall$1", "symbols": ["number_expression$macrocall$1$macrocall$2", "number_expression$macrocall$1$macrocall$3", "number_expression$macrocall$1$macrocall$4"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
+    {"name": "number_expression$macrocall$1", "symbols": ["number_expression$macrocall$1$macrocall$1"], "postprocess": data => ({ type: "ADD_BINARY", inputs: data[0].inputs })},
+    {"name": "number_expression$macrocall$1$macrocall$6", "symbols": ["number_expression$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "number_expression$macrocall$1$macrocall$7", "symbols": [{"literal":"-"}]},
+    {"name": "number_expression$macrocall$1$macrocall$8", "symbols": ["number_expression$macrocall$3"], "postprocess": d => d[0]},
+    {"name": "number_expression$macrocall$1$macrocall$5", "symbols": ["number_expression$macrocall$1$macrocall$6", "number_expression$macrocall$1$macrocall$7", "number_expression$macrocall$1$macrocall$8"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
+    {"name": "number_expression$macrocall$1", "symbols": ["number_expression$macrocall$1$macrocall$5"], "postprocess": data => ({ type: "SUB_BINARY", inputs: data[0].inputs })},
+    {"name": "number_expression", "symbols": ["number_expression$macrocall$1"], "postprocess": d => d[0]}
 ]
   , ParserStart: "expression"
 }
