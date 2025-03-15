@@ -21,11 +21,8 @@ describe('parse vector', () => {
         type: 'VECTOR',
         items: [
           {
-            type: 'NUMBER_EXPRESSION',
-            expression: {
-              type: 'NUMBER',
-              value: 3,
-            },
+            type: 'NUMBER',
+            value: 3,
           },
         ],
       },
@@ -42,18 +39,12 @@ describe('parse vector', () => {
         type: 'VECTOR',
         items: [
           {
-            type: 'NUMBER_EXPRESSION',
-            expression: {
-              type: 'NUMBER',
-              value: 3,
-            },
+            type: 'NUMBER',
+            value: 3,
           },
           {
-            type: 'NUMBER_EXPRESSION',
-            expression: {
-              type: 'NUMBER',
-              value: 4,
-            },
+            type: 'NUMBER',
+            value: 4,
           },
         ],
       },
@@ -70,21 +61,15 @@ describe('parse vector', () => {
         type: 'VECTOR',
         items: [
           {
-            type: 'NUMBER_EXPRESSION',
-            expression: {
-              type: 'MINUS_PREFIX_UNARY',
-              input: {
-                type: 'NUMBER',
-                value: 3,
-              },
+            type: 'MINUS_PREFIX_UNARY',
+            input: {
+              type: 'NUMBER',
+              value: 3,
             },
           },
           {
-            type: 'NUMBER_EXPRESSION',
-            expression: {
-              type: 'NUMBER',
-              value: 4,
-            },
+            type: 'NUMBER',
+            value: 4,
           },
         ],
       },

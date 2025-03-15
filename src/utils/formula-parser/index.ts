@@ -5,9 +5,15 @@ const grammarAny = grammar as any
 
 export const parse = (input: string) => {
   const cleanedInput = input.replace(/\s+/g, '')
-  const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammarAny))
+  const parser = new nearley.Parser(
+    nearley.Grammar.fromCompiled(grammarAny),
+    {}
+  )
   parser.feed(cleanedInput)
-  return parser.finish()[0]
+  const result = parser.finish()
+  console.log('DEBUG: ', JSON.stringify(result, null, 2))
+
+  return result[0]
 }
 
 type ExpressionNode = NumberNode | UnaryOperatorNode
