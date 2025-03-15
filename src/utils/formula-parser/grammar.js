@@ -23,23 +23,23 @@ var grammar = {
             return { type: "NUMBER", value: Number(text) }
         } 
         },
-    {"name": "vector_element_expression", "symbols": ["number"], "postprocess": d => d[0]},
-    {"name": "vector_element_expression", "symbols": ["vector_element_operation"], "postprocess": d => d[0]},
-    {"name": "vector_element_operation", "symbols": ["vector_element_additive"], "postprocess": d => d[0]},
-    {"name": "vector_element_additive", "symbols": ["vector_element_multiplicative"], "postprocess": d => d[0]},
-    {"name": "vector_element_additive$macrocall$2", "symbols": ["vector_element_additive"], "postprocess": d => d[0]},
-    {"name": "vector_element_additive$macrocall$3", "symbols": ["vector_element_multiplicative"], "postprocess": d => d[0]},
-    {"name": "vector_element_additive$macrocall$1$macrocall$2", "symbols": ["vector_element_additive$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_element_additive$macrocall$1$macrocall$3", "symbols": [{"literal":"+"}]},
-    {"name": "vector_element_additive$macrocall$1$macrocall$4", "symbols": ["vector_element_additive$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "vector_element_additive$macrocall$1$macrocall$1", "symbols": ["vector_element_additive$macrocall$1$macrocall$2", "vector_element_additive$macrocall$1$macrocall$3", "vector_element_additive$macrocall$1$macrocall$4"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "vector_element_additive$macrocall$1", "symbols": ["vector_element_additive$macrocall$1$macrocall$1"], "postprocess": data => ({ type: "ADD_BINARY", inputs: data[0].inputs })},
-    {"name": "vector_element_additive$macrocall$1$macrocall$6", "symbols": ["vector_element_additive$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_element_additive$macrocall$1$macrocall$7", "symbols": [{"literal":"-"}]},
-    {"name": "vector_element_additive$macrocall$1$macrocall$8", "symbols": ["vector_element_additive$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "vector_element_additive$macrocall$1$macrocall$5", "symbols": ["vector_element_additive$macrocall$1$macrocall$6", "vector_element_additive$macrocall$1$macrocall$7", "vector_element_additive$macrocall$1$macrocall$8"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "vector_element_additive$macrocall$1", "symbols": ["vector_element_additive$macrocall$1$macrocall$5"], "postprocess": data => ({ type: "SUB_BINARY", inputs: data[0].inputs })},
-    {"name": "vector_element_additive", "symbols": ["vector_element_additive$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "vector_element_primary", "symbols": ["number"], "postprocess": d => d[0]},
+    {"name": "vector_element_primary", "symbols": [{"literal":"("}, "vector_element_expression", {"literal":")"}], "postprocess": d => ({ type: "PARENTHESES_EXPRESSION", expression: d[1] })},
+    {"name": "vector_element_unary", "symbols": ["vector_element_primary"], "postprocess": d => d[0]},
+    {"name": "vector_element_unary$macrocall$2", "symbols": ["vector_element_primary"], "postprocess": d => d[0]},
+    {"name": "vector_element_unary$macrocall$1$macrocall$2", "symbols": ["vector_element_unary$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "vector_element_unary$macrocall$1$macrocall$1$macrocall$2", "symbols": ["vector_element_unary$macrocall$1$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "vector_element_unary$macrocall$1$macrocall$1$macrocall$1", "symbols": [{"literal":"-"}, "vector_element_unary$macrocall$1$macrocall$1$macrocall$2"], "postprocess": 
+        d => {
+            return {
+                type: "MINUS_PREFIX_UNARY",
+                input: d[1]
+            }
+        }
+        },
+    {"name": "vector_element_unary$macrocall$1$macrocall$1", "symbols": ["vector_element_unary$macrocall$1$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "vector_element_unary$macrocall$1", "symbols": ["vector_element_unary$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "vector_element_unary", "symbols": ["vector_element_unary$macrocall$1"], "postprocess": d => d[0]},
     {"name": "vector_element_multiplicative", "symbols": ["vector_element_unary"], "postprocess": d => d[0]},
     {"name": "vector_element_multiplicative$macrocall$2", "symbols": ["vector_element_multiplicative"], "postprocess": d => d[0]},
     {"name": "vector_element_multiplicative$macrocall$3", "symbols": ["vector_element_unary"], "postprocess": d => d[0]},
@@ -59,22 +59,20 @@ var grammar = {
     {"name": "vector_element_multiplicative$macrocall$1$macrocall$9", "symbols": ["vector_element_multiplicative$macrocall$1$macrocall$10", "vector_element_multiplicative$macrocall$1$macrocall$11", "vector_element_multiplicative$macrocall$1$macrocall$12"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
     {"name": "vector_element_multiplicative$macrocall$1", "symbols": ["vector_element_multiplicative$macrocall$1$macrocall$9"], "postprocess": data => ({ type: "MOD_BINARY", inputs: data[0].inputs })},
     {"name": "vector_element_multiplicative", "symbols": ["vector_element_multiplicative$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary", "symbols": ["number"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary$macrocall$2", "symbols": ["number"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary$macrocall$1$macrocall$2", "symbols": ["vector_element_unary$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary$macrocall$1$macrocall$1$macrocall$2", "symbols": ["vector_element_unary$macrocall$1$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary$macrocall$1$macrocall$1$macrocall$1", "symbols": [{"literal":"-"}, "vector_element_unary$macrocall$1$macrocall$1$macrocall$2"], "postprocess": 
-        d => {
-            return {
-                type: "MINUS_PREFIX_UNARY",
-                input: d[1]
-            }
-        }
-        },
-    {"name": "vector_element_unary$macrocall$1$macrocall$1", "symbols": ["vector_element_unary$macrocall$1$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary$macrocall$1", "symbols": ["vector_element_unary$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary", "symbols": ["vector_element_unary$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary", "symbols": [{"literal":"("}, "vector_element_operation", {"literal":")"}], "postprocess": d => ({ type: "PARENTHESES_EXPRESSION", expression: d[1] })},
+    {"name": "vector_element_expression", "symbols": ["vector_element_multiplicative"], "postprocess": d => d[0]},
+    {"name": "vector_element_expression$macrocall$2", "symbols": ["vector_element_expression"], "postprocess": d => d[0]},
+    {"name": "vector_element_expression$macrocall$3", "symbols": ["vector_element_multiplicative"], "postprocess": d => d[0]},
+    {"name": "vector_element_expression$macrocall$1$macrocall$2", "symbols": ["vector_element_expression$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "vector_element_expression$macrocall$1$macrocall$3", "symbols": [{"literal":"+"}]},
+    {"name": "vector_element_expression$macrocall$1$macrocall$4", "symbols": ["vector_element_expression$macrocall$3"], "postprocess": d => d[0]},
+    {"name": "vector_element_expression$macrocall$1$macrocall$1", "symbols": ["vector_element_expression$macrocall$1$macrocall$2", "vector_element_expression$macrocall$1$macrocall$3", "vector_element_expression$macrocall$1$macrocall$4"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
+    {"name": "vector_element_expression$macrocall$1", "symbols": ["vector_element_expression$macrocall$1$macrocall$1"], "postprocess": data => ({ type: "ADD_BINARY", inputs: data[0].inputs })},
+    {"name": "vector_element_expression$macrocall$1$macrocall$6", "symbols": ["vector_element_expression$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "vector_element_expression$macrocall$1$macrocall$7", "symbols": [{"literal":"-"}]},
+    {"name": "vector_element_expression$macrocall$1$macrocall$8", "symbols": ["vector_element_expression$macrocall$3"], "postprocess": d => d[0]},
+    {"name": "vector_element_expression$macrocall$1$macrocall$5", "symbols": ["vector_element_expression$macrocall$1$macrocall$6", "vector_element_expression$macrocall$1$macrocall$7", "vector_element_expression$macrocall$1$macrocall$8"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
+    {"name": "vector_element_expression$macrocall$1", "symbols": ["vector_element_expression$macrocall$1$macrocall$5"], "postprocess": data => ({ type: "SUB_BINARY", inputs: data[0].inputs })},
+    {"name": "vector_element_expression", "symbols": ["vector_element_expression$macrocall$1"], "postprocess": d => d[0]},
     {"name": "vector_items$ebnf$1", "symbols": []},
     {"name": "vector_items$ebnf$1$subexpression$1", "symbols": [{"literal":","}, "vector_element_expression"]},
     {"name": "vector_items$ebnf$1", "symbols": ["vector_items$ebnf$1", "vector_items$ebnf$1$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
