@@ -13,23 +13,69 @@ export const parse = (input: string) => {
   const result = parser.finish()
   console.log('DEBUG: ', input, '=>', result.length) // JSON.stringify(result, null, 2))
 
-  return result[0]
+  return result[0] as Expression
 }
 
-type ExpressionNode = NumberNode | UnaryOperatorNode
+type Expression = {
+  type: 'VECTOR_EXPRESSION' | 'NUMBER_EXPRESSION'
+  expression: ExpressionNode
+}
+
+type ExpressionNode =
+  | NumberNode
+  | VectorNode
+  | UnaryOperatorNode
+  | BinaryOperatorNode
+  | ParenthesesNode
 
 type NumberNode = {
   type: 'NUMBER'
   value: number
-  text: string
 }
 
-type UnaryOperatorNode = PrefixUnaryNode
+type VectorNode = {
+  type: 'VECTOR'
+  items: ExpressionNode[]
+}
 
-type PrefixUnaryNode = MinusPrefixUnaryNode
+type ParenthesesNode = {
+  type: 'PARENTHESES_EXPRESSION'
+  expression: ExpressionNode
+}
 
-type MinusPrefixUnaryNode = {
+type UnaryOperatorNode = {
   type: 'MINUS_PREFIX_UNARY'
-  input: NumberNode
-  text: '-'
+  input: ExpressionNode
+}
+
+type BinaryOperatorNode =
+  | AddBinaryNode
+  | SubBinaryNode
+  | MulBinaryNode
+  | DivBinaryNode
+  | ModBinaryNode
+
+type AddBinaryNode = {
+  type: 'ADD_BINARY'
+  inputs: [ExpressionNode, ExpressionNode]
+}
+
+type SubBinaryNode = {
+  type: 'SUB_BINARY'
+  inputs: [ExpressionNode, ExpressionNode]
+}
+
+type MulBinaryNode = {
+  type: 'MUL_BINARY'
+  inputs: [ExpressionNode, ExpressionNode]
+}
+
+type DivBinaryNode = {
+  type: 'DIV_BINARY'
+  inputs: [ExpressionNode, ExpressionNode]
+}
+
+type ModBinaryNode = {
+  type: 'MOD_BINARY'
+  inputs: [ExpressionNode, ExpressionNode]
 }
