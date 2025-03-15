@@ -1,3 +1,4 @@
+@include "./function.ne"
 @include "./number.ne"
 @include "./unary-operator.ne"
 @include "./binary-operator.ne"
@@ -18,6 +19,7 @@ vector_element_term ->
 vector_element_expression -> 
     vector_element_term {% d => d[0] %}
     | expression_binary_operator[vector_element_expression {% d => d[0] %}, vector_element_term {% d => d[0] %}] {% d => d[0] %}
+    | number_function[vector_element_expression {% d => d[0] %}] {% d => d[0] %}
 
 vector_items -> vector_element_expression ("," vector_element_expression):* {% d => {
     const items = [d[0], ...d[1].map(([_, expr]) => expr)]

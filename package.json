@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "test": "jest",
-    "generate-formula-grammar": "nearleyc ./formula-grammar/expression.ne -o src/utils/formula-parser/grammar.js",
+    "generate-formula-grammar": "nearleyc ./formula-grammar/expression.ne -o src/utils/formula/grammar.js",
     "build": "rm -rf dist && tsc --module commonjs --outDir dist/cjs && tsc --noEmit false --module ES2022 --outDir dist/esm && tsc --declaration --emitDeclarationOnly --declarationDir dist/types"
   },
   "repository": {

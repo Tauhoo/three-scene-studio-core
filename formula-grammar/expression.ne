@@ -1,5 +1,6 @@
 @include "./number.ne"
 @include "./vector.ne"
+@include "./function.ne"
 @include "./unary-operator.ne"
 @include "./binary-operator.ne"
 
@@ -27,6 +28,7 @@ vector_term ->
 vector_expression -> 
     vector_term {% d => d[0] %}
     | expression_binary_operator[vector_expression {% d => d[0] %}, vector_term {% d => d[0] %}] {% d => d[0] %}
+    | vector_function[vector_expression {% d => d[0] %}] {% d => d[0] %}
 
 # Number expressions
 number_primary -> 
@@ -43,4 +45,5 @@ number_term ->
 
 number_expression -> 
     number_term {% d => d[0] %}
+    | number_function[number_expression {% d => d[0] %}] {% d => d[0] %}
     | expression_binary_operator[number_expression {% d => d[0] %}, number_term {% d => d[0] %}] {% d => d[0] %}
