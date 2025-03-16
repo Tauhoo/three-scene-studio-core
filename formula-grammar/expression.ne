@@ -21,6 +21,9 @@ vector_short_multiply ->
     vector {% d => d[0] %}
     | vector_factor {% d => d[0] %}
     | vector_short_multiply vector_factor {% data => ({ type: "MUL_BINARY", inputs: data}) %}
+    | vector_factor vector_short_multiply {% data => ({ type: "MUL_BINARY", inputs: data}) %}
+    | number_short_multiply vector_short_multiply {% data => ({ type: "MUL_BINARY", inputs: data}) %}
+    | vector_short_multiply number_short_multiply {% data => ({ type: "MUL_BINARY", inputs: data}) %}
 
 vector_term -> 
     vector_short_multiply {% d => d[0] %}
@@ -40,6 +43,7 @@ number_short_multiply ->
     number {% d => d[0] %}
     | number_factor {% d => d[0] %}
     | number_short_multiply number_factor {% data => ({ type: "MUL_BINARY", inputs: data}) %}
+    | number_factor number_short_multiply {% data => ({ type: "MUL_BINARY", inputs: data}) %}
 
 number_term -> 
     number_short_multiply {% d => d[0] %}
