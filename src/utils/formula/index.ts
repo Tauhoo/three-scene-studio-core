@@ -1,18 +1,24 @@
 import nearley from 'nearley'
 import { default as grammar } from './grammar'
+import { errorResponse, successResponse } from '../response'
 
 const grammarAny = grammar as any
 
 export const parse = (input: string) => {
-  const cleanedInput = input.replace(/\s+/g, '')
-  const parser = new nearley.Parser(
-    nearley.Grammar.fromCompiled(grammarAny),
-    {}
-  )
-  parser.feed(cleanedInput)
-  const result = parser.finish()
-  return result[0] as FormulaNode
+  try {
+    const cleanedInput = input.replace(/\s+/g, '')
+    const parser = new nearley.Parser(
+      nearley.Grammar.fromCompiled(grammarAny),
+      {}
+    )
+    parser.feed(cleanedInput)
+    const result = parser.finish()
+    return successResponse<FormulaNode>(result[0])
+  } catch (error) {
+    return errorResponse('INVALID_FORMULA', `${error}`)
+  }
 }
+
 export interface NumberNode {
   type: 'NUMBER'
   value: number

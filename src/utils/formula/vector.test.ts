@@ -3,8 +3,11 @@ describe('parse vector', () => {
   test('empty vector', () => {
     const result = parse('[]')
     const expected = {
-      type: 'VECTOR',
-      items: [],
+      status: 'SUCCESS',
+      data: {
+        type: 'VECTOR',
+        items: [],
+      },
     }
 
     expect(result).toEqual(expected)
@@ -13,14 +16,17 @@ describe('parse vector', () => {
   test('one number', () => {
     const result = parse('[3]')
     const expected = {
-      type: 'VECTOR',
-      items: [
-        {
-          type: 'NUMBER',
-          value: 3,
-          text: '3',
-        },
-      ],
+      status: 'SUCCESS',
+      data: {
+        type: 'VECTOR',
+        items: [
+          {
+            type: 'NUMBER',
+            value: 3,
+            text: '3',
+          },
+        ],
+      },
     }
 
     expect(result).toEqual(expected)
@@ -29,19 +35,22 @@ describe('parse vector', () => {
   test('two numbers', () => {
     const result = parse('[3, 4]')
     const expected = {
-      type: 'VECTOR',
-      items: [
-        {
-          type: 'NUMBER',
-          value: 3,
-          text: '3',
-        },
-        {
-          type: 'NUMBER',
-          value: 4,
-          text: '4',
-        },
-      ],
+      status: 'SUCCESS',
+      data: {
+        type: 'VECTOR',
+        items: [
+          {
+            type: 'NUMBER',
+            value: 3,
+            text: '3',
+          },
+          {
+            type: 'NUMBER',
+            value: 4,
+            text: '4',
+          },
+        ],
+      },
     }
 
     expect(result).toEqual(expected)
@@ -50,22 +59,25 @@ describe('parse vector', () => {
   test('contain unary operator numbers', () => {
     const result = parse('[-3, 4]')
     const expected = {
-      type: 'VECTOR',
-      items: [
-        {
-          type: 'MINUS_PREFIX_UNARY',
-          input: {
-            type: 'NUMBER',
-            value: 3,
-            text: '3',
+      status: 'SUCCESS',
+      data: {
+        type: 'VECTOR',
+        items: [
+          {
+            type: 'MINUS_PREFIX_UNARY',
+            input: {
+              type: 'NUMBER',
+              value: 3,
+              text: '3',
+            },
           },
-        },
-        {
-          type: 'NUMBER',
-          value: 4,
-          text: '4',
-        },
-      ],
+          {
+            type: 'NUMBER',
+            value: 4,
+            text: '4',
+          },
+        ],
+      },
     }
 
     expect(result).toEqual(expected)
