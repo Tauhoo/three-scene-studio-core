@@ -1,0 +1,1 @@
+variable -> [a-zA-Z_] [a-zA-Z0-9_]:* {% data => ({ type: "VARIABLE", name: data[0]+(data[1] ?? []).join("") }) %}

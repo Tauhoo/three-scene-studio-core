@@ -2,6 +2,29 @@
 // http://github.com/Hardmath123/nearley
 (function () {
 function id(x) { return x[0]; }
+ 
+    const extract_zig_multiply_expression = data => {
+        const terms = []
+        for(const pair of data[0]){
+            terms.push(...pair)
+        }
+      
+        if(data[1] !== null){
+            terms.push(data[1])
+        }
+
+        const result = {type: "MUL_BINARY", inputs: []}
+        let currentResult = result
+        for(let i = 0; i < terms.length - 2; i++){
+            currentResult.inputs.push(terms[i])
+            const newCurrentResult = {type: "MUL_BINARY", inputs: []}
+            currentResult.inputs.push(newCurrentResult)
+            currentResult = newCurrentResult
+        }
+        currentResult.inputs.push(terms[terms.length - 2])
+        currentResult.inputs.push(terms[terms.length - 1])
+        return result
+    }
 var grammar = {
     Lexer: undefined,
     ParserRules: [
@@ -23,124 +46,96 @@ var grammar = {
             return { type: "NUMBER", value: Number(text) }
         } 
         },
-    {"name": "vector_element_primary", "symbols": ["number"], "postprocess": d => d[0]},
-    {"name": "vector_element_primary", "symbols": [{"literal":"("}, "vector_element_expression", {"literal":")"}], "postprocess": d => ({ type: "PARENTHESES_EXPRESSION", expression: d[1] })},
-    {"name": "vector_element_unary", "symbols": ["vector_element_primary"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary$macrocall$2", "symbols": ["vector_element_primary"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary$macrocall$1$macrocall$2", "symbols": ["vector_element_unary$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary$macrocall$1$macrocall$1$macrocall$2", "symbols": ["vector_element_unary$macrocall$1$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary$macrocall$1$macrocall$1$macrocall$1", "symbols": [{"literal":"-"}, "vector_element_unary$macrocall$1$macrocall$1$macrocall$2"], "postprocess": 
-        d => {
-            return {
-                type: "MINUS_PREFIX_UNARY",
-                input: d[1]
-            }
-        }
-        },
-    {"name": "vector_element_unary$macrocall$1$macrocall$1", "symbols": ["vector_element_unary$macrocall$1$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary$macrocall$1", "symbols": ["vector_element_unary$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_element_unary", "symbols": ["vector_element_unary$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_element_term", "symbols": ["vector_element_unary"], "postprocess": d => d[0]},
-    {"name": "vector_element_term$macrocall$2", "symbols": ["vector_element_term"], "postprocess": d => d[0]},
-    {"name": "vector_element_term$macrocall$3", "symbols": ["vector_element_unary"], "postprocess": d => d[0]},
-    {"name": "vector_element_term$macrocall$1$macrocall$2", "symbols": ["vector_element_term$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_element_term$macrocall$1$macrocall$3", "symbols": [{"literal":"*"}]},
-    {"name": "vector_element_term$macrocall$1$macrocall$4", "symbols": ["vector_element_term$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "vector_element_term$macrocall$1$macrocall$1", "symbols": ["vector_element_term$macrocall$1$macrocall$2", "vector_element_term$macrocall$1$macrocall$3", "vector_element_term$macrocall$1$macrocall$4"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "vector_element_term$macrocall$1", "symbols": ["vector_element_term$macrocall$1$macrocall$1"], "postprocess": data => ({ type: "MUL_BINARY", inputs: data[0].inputs })},
-    {"name": "vector_element_term$macrocall$1$macrocall$6", "symbols": ["vector_element_term$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_element_term$macrocall$1$macrocall$7", "symbols": [{"literal":"/"}]},
-    {"name": "vector_element_term$macrocall$1$macrocall$8", "symbols": ["vector_element_term$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "vector_element_term$macrocall$1$macrocall$5", "symbols": ["vector_element_term$macrocall$1$macrocall$6", "vector_element_term$macrocall$1$macrocall$7", "vector_element_term$macrocall$1$macrocall$8"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "vector_element_term$macrocall$1", "symbols": ["vector_element_term$macrocall$1$macrocall$5"], "postprocess": data => ({ type: "DIV_BINARY", inputs: data[0].inputs })},
-    {"name": "vector_element_term$macrocall$1$macrocall$10", "symbols": ["vector_element_term$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_element_term$macrocall$1$macrocall$11", "symbols": [{"literal":"%"}]},
-    {"name": "vector_element_term$macrocall$1$macrocall$12", "symbols": ["vector_element_term$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "vector_element_term$macrocall$1$macrocall$9", "symbols": ["vector_element_term$macrocall$1$macrocall$10", "vector_element_term$macrocall$1$macrocall$11", "vector_element_term$macrocall$1$macrocall$12"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "vector_element_term$macrocall$1", "symbols": ["vector_element_term$macrocall$1$macrocall$9"], "postprocess": data => ({ type: "MOD_BINARY", inputs: data[0].inputs })},
-    {"name": "vector_element_term", "symbols": ["vector_element_term$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_element_expression", "symbols": ["vector_element_term"], "postprocess": d => d[0]},
-    {"name": "vector_element_expression$macrocall$2", "symbols": ["vector_element_expression"], "postprocess": d => d[0]},
-    {"name": "vector_element_expression$macrocall$3", "symbols": ["vector_element_term"], "postprocess": d => d[0]},
-    {"name": "vector_element_expression$macrocall$1$macrocall$2", "symbols": ["vector_element_expression$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_element_expression$macrocall$1$macrocall$3", "symbols": [{"literal":"+"}]},
-    {"name": "vector_element_expression$macrocall$1$macrocall$4", "symbols": ["vector_element_expression$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "vector_element_expression$macrocall$1$macrocall$1", "symbols": ["vector_element_expression$macrocall$1$macrocall$2", "vector_element_expression$macrocall$1$macrocall$3", "vector_element_expression$macrocall$1$macrocall$4"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "vector_element_expression$macrocall$1", "symbols": ["vector_element_expression$macrocall$1$macrocall$1"], "postprocess": data => ({ type: "ADD_BINARY", inputs: data[0].inputs })},
-    {"name": "vector_element_expression$macrocall$1$macrocall$6", "symbols": ["vector_element_expression$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_element_expression$macrocall$1$macrocall$7", "symbols": [{"literal":"-"}]},
-    {"name": "vector_element_expression$macrocall$1$macrocall$8", "symbols": ["vector_element_expression$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "vector_element_expression$macrocall$1$macrocall$5", "symbols": ["vector_element_expression$macrocall$1$macrocall$6", "vector_element_expression$macrocall$1$macrocall$7", "vector_element_expression$macrocall$1$macrocall$8"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "vector_element_expression$macrocall$1", "symbols": ["vector_element_expression$macrocall$1$macrocall$5"], "postprocess": data => ({ type: "SUB_BINARY", inputs: data[0].inputs })},
-    {"name": "vector_element_expression", "symbols": ["vector_element_expression$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_element_expression$macrocall$5", "symbols": ["vector_element_expression"], "postprocess": d => d[0]},
-    {"name": "vector_element_expression$macrocall$4$string$1", "symbols": [{"literal":"s"}, {"literal":"i"}, {"literal":"n"}, {"literal":"("}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "vector_element_expression$macrocall$4", "symbols": ["vector_element_expression$macrocall$4$string$1", "vector_element_expression$macrocall$5", {"literal":")"}], "postprocess": d => ({ type: "SIN_FUNCTION", input: d[1] })},
-    {"name": "vector_element_expression$macrocall$4$string$2", "symbols": [{"literal":"c"}, {"literal":"o"}, {"literal":"s"}, {"literal":"("}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "vector_element_expression$macrocall$4", "symbols": ["vector_element_expression$macrocall$4$string$2", "vector_element_expression$macrocall$5", {"literal":")"}], "postprocess": d => ({ type: "COS_FUNCTION", input: d[1] })},
-    {"name": "vector_element_expression$macrocall$4$string$3", "symbols": [{"literal":"t"}, {"literal":"a"}, {"literal":"n"}, {"literal":"("}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "vector_element_expression$macrocall$4", "symbols": ["vector_element_expression$macrocall$4$string$3", "vector_element_expression$macrocall$5", {"literal":")"}], "postprocess": d => ({ type: "TAN_FUNCTION", input: d[1] })},
-    {"name": "vector_element_expression$macrocall$4$string$4", "symbols": [{"literal":"a"}, {"literal":"t"}, {"literal":"a"}, {"literal":"n"}, {"literal":"("}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "vector_element_expression$macrocall$4", "symbols": ["vector_element_expression$macrocall$4$string$4", "vector_element_expression$macrocall$5", {"literal":")"}], "postprocess": d => ({ type: "ATAN_FUNCTION", input: d[1] })},
-    {"name": "vector_element_expression$macrocall$4$string$5", "symbols": [{"literal":"a"}, {"literal":"b"}, {"literal":"s"}, {"literal":"("}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "vector_element_expression$macrocall$4", "symbols": ["vector_element_expression$macrocall$4$string$5", "vector_element_expression$macrocall$5", {"literal":")"}], "postprocess": d => ({ type: "ABS_FUNCTION", input: d[1] })},
-    {"name": "vector_element_expression", "symbols": ["vector_element_expression$macrocall$4"], "postprocess": d => d[0]},
-    {"name": "vector_items$ebnf$1", "symbols": []},
-    {"name": "vector_items$ebnf$1$subexpression$1", "symbols": [{"literal":","}, "vector_element_expression"]},
-    {"name": "vector_items$ebnf$1", "symbols": ["vector_items$ebnf$1", "vector_items$ebnf$1$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "vector_items", "symbols": ["vector_element_expression", "vector_items$ebnf$1"], "postprocess":  d => {
+    {"name": "variable$ebnf$1", "symbols": []},
+    {"name": "variable$ebnf$1", "symbols": ["variable$ebnf$1", /[a-zA-Z0-9_]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "variable", "symbols": [/[a-zA-Z_]/, "variable$ebnf$1"], "postprocess": data => ({ type: "VARIABLE", name: data[0]+(data[1] ?? []).join("") })},
+    {"name": "expression", "symbols": ["unary_term"], "postprocess": d => d[0]},
+    {"name": "expression$macrocall$2", "symbols": ["expression"], "postprocess": d => d[0]},
+    {"name": "expression$macrocall$3", "symbols": ["unary_term"], "postprocess": d => d[0]},
+    {"name": "expression$macrocall$1$macrocall$2", "symbols": ["expression$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "expression$macrocall$1$macrocall$3", "symbols": [{"literal":"+"}]},
+    {"name": "expression$macrocall$1$macrocall$4", "symbols": ["expression$macrocall$3"], "postprocess": d => d[0]},
+    {"name": "expression$macrocall$1$macrocall$1", "symbols": ["expression$macrocall$1$macrocall$2", "expression$macrocall$1$macrocall$3", "expression$macrocall$1$macrocall$4"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
+    {"name": "expression$macrocall$1", "symbols": ["expression$macrocall$1$macrocall$1"], "postprocess": data => ({ type: "ADD_BINARY", inputs: data[0].inputs })},
+    {"name": "expression$macrocall$1$macrocall$6", "symbols": ["expression$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "expression$macrocall$1$macrocall$7", "symbols": [{"literal":"-"}]},
+    {"name": "expression$macrocall$1$macrocall$8", "symbols": ["expression$macrocall$3"], "postprocess": d => d[0]},
+    {"name": "expression$macrocall$1$macrocall$5", "symbols": ["expression$macrocall$1$macrocall$6", "expression$macrocall$1$macrocall$7", "expression$macrocall$1$macrocall$8"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
+    {"name": "expression$macrocall$1", "symbols": ["expression$macrocall$1$macrocall$5"], "postprocess": data => ({ type: "SUB_BINARY", inputs: data[0].inputs })},
+    {"name": "expression", "symbols": ["expression$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "full_factor$macrocall$2", "symbols": ["expression"], "postprocess": d => d[0]},
+    {"name": "full_factor$macrocall$1", "symbols": [{"literal":"("}, "full_factor$macrocall$2", {"literal":")"}], "postprocess": data => ({ type: "PARENTHESES_EXPRESSION", expression: data[1] })},
+    {"name": "full_factor", "symbols": ["full_factor$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "full_factor$macrocall$4", "symbols": ["expression"], "postprocess": d => d[0]},
+    {"name": "full_factor$macrocall$3$ebnf$1$macrocall$2", "symbols": ["full_factor$macrocall$4"], "postprocess": d => d[0]},
+    {"name": "full_factor$macrocall$3$ebnf$1$macrocall$1$ebnf$1", "symbols": []},
+    {"name": "full_factor$macrocall$3$ebnf$1$macrocall$1$ebnf$1$subexpression$1", "symbols": [{"literal":","}, "full_factor$macrocall$3$ebnf$1$macrocall$2"]},
+    {"name": "full_factor$macrocall$3$ebnf$1$macrocall$1$ebnf$1", "symbols": ["full_factor$macrocall$3$ebnf$1$macrocall$1$ebnf$1", "full_factor$macrocall$3$ebnf$1$macrocall$1$ebnf$1$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "full_factor$macrocall$3$ebnf$1$macrocall$1", "symbols": ["full_factor$macrocall$3$ebnf$1$macrocall$2", "full_factor$macrocall$3$ebnf$1$macrocall$1$ebnf$1"], "postprocess":  d => {
             const items = [d[0], ...d[1].map(([_, expr]) => expr)]
             return items
         } },
-    {"name": "vector$ebnf$1", "symbols": ["vector_items"], "postprocess": id},
-    {"name": "vector$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "vector", "symbols": [{"literal":"["}, "vector$ebnf$1", {"literal":"]"}], "postprocess":  d => {
-            const items = d[1] || []
+    {"name": "full_factor$macrocall$3$ebnf$1", "symbols": ["full_factor$macrocall$3$ebnf$1$macrocall$1"], "postprocess": id},
+    {"name": "full_factor$macrocall$3$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "full_factor$macrocall$3", "symbols": [{"literal":"["}, "full_factor$macrocall$3$ebnf$1", {"literal":"]"}], "postprocess":  d => {
+            const items = d[1] ?? []
             return { type: "VECTOR", items }
         } },
-    {"name": "expression", "symbols": ["vector_expression"], "postprocess": d => ({ type: "VECTOR_EXPRESSION", expression: d[0]})},
-    {"name": "expression", "symbols": ["number_expression"], "postprocess": d => ({ type: "NUMBER_EXPRESSION", expression: d[0]})},
-    {"name": "vector_factor$macrocall$2", "symbols": ["vector_expression"], "postprocess": d => d[0]},
-    {"name": "vector_factor$macrocall$1", "symbols": [{"literal":"("}, "vector_factor$macrocall$2", {"literal":")"}], "postprocess": data => ({ type: "PARENTHESES_EXPRESSION", expression: data[1] })},
-    {"name": "vector_factor", "symbols": ["vector_factor$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_factor$macrocall$4", "symbols": ["vector_expression"], "postprocess": d => d[0]},
-    {"name": "vector_factor$macrocall$3$string$1", "symbols": [{"literal":"d"}, {"literal":"o"}, {"literal":"t"}, {"literal":"("}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "vector_factor$macrocall$3", "symbols": ["vector_factor$macrocall$3$string$1", "vector_factor$macrocall$4", {"literal":","}, "vector_factor$macrocall$4", {"literal":")"}], "postprocess": d => ({ type: "DOT_FUNCTION", inputs: [d[1], d[3]] })},
-    {"name": "vector_factor$macrocall$3$string$2", "symbols": [{"literal":"c"}, {"literal":"r"}, {"literal":"o"}, {"literal":"s"}, {"literal":"s"}, {"literal":"("}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "vector_factor$macrocall$3", "symbols": ["vector_factor$macrocall$3$string$2", "vector_factor$macrocall$4", {"literal":","}, "vector_factor$macrocall$4", {"literal":")"}], "postprocess": d => ({ type: "CROSS_FUNCTION", inputs: [d[1], d[3]] })},
-    {"name": "vector_factor$macrocall$3$string$3", "symbols": [{"literal":"n"}, {"literal":"o"}, {"literal":"r"}, {"literal":"m"}, {"literal":"a"}, {"literal":"l"}, {"literal":"i"}, {"literal":"z"}, {"literal":"e"}, {"literal":"("}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "vector_factor$macrocall$3", "symbols": ["vector_factor$macrocall$3$string$3", "vector_factor$macrocall$4", {"literal":")"}], "postprocess": d => ({ type: "NORMALIZE_FUNCTION", input: d[1] })},
-    {"name": "vector_factor", "symbols": ["vector_factor$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "vector_short_multiply", "symbols": ["vector"], "postprocess": d => d[0]},
-    {"name": "vector_short_multiply", "symbols": ["vector_factor"], "postprocess": d => d[0]},
-    {"name": "vector_short_multiply", "symbols": ["vector_short_multiply", "vector_factor"], "postprocess": data => ({ type: "MUL_BINARY", inputs: data})},
-    {"name": "vector_short_multiply", "symbols": ["vector_factor", "vector_short_multiply"], "postprocess": data => ({ type: "MUL_BINARY", inputs: data})},
-    {"name": "vector_short_multiply", "symbols": ["number_short_multiply", "vector_short_multiply"], "postprocess": data => ({ type: "MUL_BINARY", inputs: data})},
-    {"name": "vector_short_multiply", "symbols": ["vector_short_multiply", "number_short_multiply"], "postprocess": data => ({ type: "MUL_BINARY", inputs: data})},
-    {"name": "vector_term", "symbols": ["vector_short_multiply"], "postprocess": d => d[0]},
-    {"name": "vector_term$macrocall$2", "symbols": ["vector_term"], "postprocess": d => d[0]},
-    {"name": "vector_term$macrocall$3", "symbols": ["vector_short_multiply"], "postprocess": d => d[0]},
-    {"name": "vector_term$macrocall$1$macrocall$2", "symbols": ["vector_term$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_term$macrocall$1$macrocall$3", "symbols": [{"literal":"*"}]},
-    {"name": "vector_term$macrocall$1$macrocall$4", "symbols": ["vector_term$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "vector_term$macrocall$1$macrocall$1", "symbols": ["vector_term$macrocall$1$macrocall$2", "vector_term$macrocall$1$macrocall$3", "vector_term$macrocall$1$macrocall$4"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "vector_term$macrocall$1", "symbols": ["vector_term$macrocall$1$macrocall$1"], "postprocess": data => ({ type: "MUL_BINARY", inputs: data[0].inputs })},
-    {"name": "vector_term$macrocall$1$macrocall$6", "symbols": ["vector_term$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_term$macrocall$1$macrocall$7", "symbols": [{"literal":"/"}]},
-    {"name": "vector_term$macrocall$1$macrocall$8", "symbols": ["vector_term$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "vector_term$macrocall$1$macrocall$5", "symbols": ["vector_term$macrocall$1$macrocall$6", "vector_term$macrocall$1$macrocall$7", "vector_term$macrocall$1$macrocall$8"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "vector_term$macrocall$1", "symbols": ["vector_term$macrocall$1$macrocall$5"], "postprocess": data => ({ type: "DIV_BINARY", inputs: data[0].inputs })},
-    {"name": "vector_term$macrocall$1$macrocall$10", "symbols": ["vector_term$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_term$macrocall$1$macrocall$11", "symbols": [{"literal":"%"}]},
-    {"name": "vector_term$macrocall$1$macrocall$12", "symbols": ["vector_term$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "vector_term$macrocall$1$macrocall$9", "symbols": ["vector_term$macrocall$1$macrocall$10", "vector_term$macrocall$1$macrocall$11", "vector_term$macrocall$1$macrocall$12"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "vector_term$macrocall$1", "symbols": ["vector_term$macrocall$1$macrocall$9"], "postprocess": data => ({ type: "MOD_BINARY", inputs: data[0].inputs })},
-    {"name": "vector_term", "symbols": ["vector_term$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_expression", "symbols": ["vector_term"], "postprocess": d => d[0]},
-    {"name": "vector_expression$macrocall$2", "symbols": ["vector_term"], "postprocess": d => d[0]},
-    {"name": "vector_expression$macrocall$1$macrocall$2", "symbols": ["vector_expression$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_expression$macrocall$1$macrocall$1$macrocall$2", "symbols": ["vector_expression$macrocall$1$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "vector_expression$macrocall$1$macrocall$1$macrocall$1", "symbols": [{"literal":"-"}, "vector_expression$macrocall$1$macrocall$1$macrocall$2"], "postprocess": 
+    {"name": "full_factor", "symbols": ["full_factor$macrocall$3"], "postprocess": d => d[0]},
+    {"name": "full_short_multiply$macrocall$2", "symbols": ["full_factor"], "postprocess": d => d[0]},
+    {"name": "full_short_multiply$macrocall$1$ebnf$1", "symbols": ["full_short_multiply$macrocall$2"]},
+    {"name": "full_short_multiply$macrocall$1$ebnf$1", "symbols": ["full_short_multiply$macrocall$1$ebnf$1", "full_short_multiply$macrocall$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "full_short_multiply$macrocall$1", "symbols": ["full_short_multiply$macrocall$1$ebnf$1"], "postprocess":  data => {
+            if(data[0].length === 1) return data[0][0]
+            return {type: "MUL_BINARY", inputs: data[0]}
+        }},
+    {"name": "full_short_multiply", "symbols": ["full_short_multiply$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "zig_short_multiply", "symbols": ["number"], "postprocess": d => d[0]},
+    {"name": "zig_short_multiply", "symbols": ["variable"], "postprocess": d => d[0]},
+    {"name": "zig_short_multiply", "symbols": ["number", "variable"], "postprocess": data => ({type: "MUL_BINARY", inputs: data})},
+    {"name": "short_multiply$macrocall$2", "symbols": ["full_short_multiply"], "postprocess": d => d[0]},
+    {"name": "short_multiply$macrocall$3", "symbols": ["zig_short_multiply"], "postprocess": d => d[0]},
+    {"name": "short_multiply$macrocall$1", "symbols": ["short_multiply$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "short_multiply$macrocall$1", "symbols": ["short_multiply$macrocall$3"], "postprocess": d => d[0]},
+    {"name": "short_multiply$macrocall$1$ebnf$1$subexpression$1", "symbols": ["short_multiply$macrocall$2", "short_multiply$macrocall$3"]},
+    {"name": "short_multiply$macrocall$1$ebnf$1", "symbols": ["short_multiply$macrocall$1$ebnf$1$subexpression$1"]},
+    {"name": "short_multiply$macrocall$1$ebnf$1$subexpression$2", "symbols": ["short_multiply$macrocall$2", "short_multiply$macrocall$3"]},
+    {"name": "short_multiply$macrocall$1$ebnf$1", "symbols": ["short_multiply$macrocall$1$ebnf$1", "short_multiply$macrocall$1$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "short_multiply$macrocall$1$ebnf$2", "symbols": ["short_multiply$macrocall$2"], "postprocess": id},
+    {"name": "short_multiply$macrocall$1$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "short_multiply$macrocall$1", "symbols": ["short_multiply$macrocall$1$ebnf$1", "short_multiply$macrocall$1$ebnf$2"], "postprocess": extract_zig_multiply_expression},
+    {"name": "short_multiply$macrocall$1$ebnf$3$subexpression$1", "symbols": ["short_multiply$macrocall$3", "short_multiply$macrocall$2"]},
+    {"name": "short_multiply$macrocall$1$ebnf$3", "symbols": ["short_multiply$macrocall$1$ebnf$3$subexpression$1"]},
+    {"name": "short_multiply$macrocall$1$ebnf$3$subexpression$2", "symbols": ["short_multiply$macrocall$3", "short_multiply$macrocall$2"]},
+    {"name": "short_multiply$macrocall$1$ebnf$3", "symbols": ["short_multiply$macrocall$1$ebnf$3", "short_multiply$macrocall$1$ebnf$3$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "short_multiply$macrocall$1$ebnf$4", "symbols": ["short_multiply$macrocall$3"], "postprocess": id},
+    {"name": "short_multiply$macrocall$1$ebnf$4", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "short_multiply$macrocall$1", "symbols": ["short_multiply$macrocall$1$ebnf$3", "short_multiply$macrocall$1$ebnf$4"], "postprocess": extract_zig_multiply_expression},
+    {"name": "short_multiply", "symbols": ["short_multiply$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "term", "symbols": ["short_multiply"], "postprocess": d => d[0]},
+    {"name": "term$macrocall$2", "symbols": ["term"], "postprocess": d => d[0]},
+    {"name": "term$macrocall$3", "symbols": ["short_multiply"], "postprocess": d => d[0]},
+    {"name": "term$macrocall$1$macrocall$2", "symbols": ["term$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "term$macrocall$1$macrocall$3", "symbols": [{"literal":"*"}]},
+    {"name": "term$macrocall$1$macrocall$4", "symbols": ["term$macrocall$3"], "postprocess": d => d[0]},
+    {"name": "term$macrocall$1$macrocall$1", "symbols": ["term$macrocall$1$macrocall$2", "term$macrocall$1$macrocall$3", "term$macrocall$1$macrocall$4"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
+    {"name": "term$macrocall$1", "symbols": ["term$macrocall$1$macrocall$1"], "postprocess": data => ({ type: "MUL_BINARY", inputs: data[0].inputs })},
+    {"name": "term$macrocall$1$macrocall$6", "symbols": ["term$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "term$macrocall$1$macrocall$7", "symbols": [{"literal":"/"}]},
+    {"name": "term$macrocall$1$macrocall$8", "symbols": ["term$macrocall$3"], "postprocess": d => d[0]},
+    {"name": "term$macrocall$1$macrocall$5", "symbols": ["term$macrocall$1$macrocall$6", "term$macrocall$1$macrocall$7", "term$macrocall$1$macrocall$8"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
+    {"name": "term$macrocall$1", "symbols": ["term$macrocall$1$macrocall$5"], "postprocess": data => ({ type: "DIV_BINARY", inputs: data[0].inputs })},
+    {"name": "term$macrocall$1$macrocall$10", "symbols": ["term$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "term$macrocall$1$macrocall$11", "symbols": [{"literal":"%"}]},
+    {"name": "term$macrocall$1$macrocall$12", "symbols": ["term$macrocall$3"], "postprocess": d => d[0]},
+    {"name": "term$macrocall$1$macrocall$9", "symbols": ["term$macrocall$1$macrocall$10", "term$macrocall$1$macrocall$11", "term$macrocall$1$macrocall$12"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
+    {"name": "term$macrocall$1", "symbols": ["term$macrocall$1$macrocall$9"], "postprocess": data => ({ type: "MOD_BINARY", inputs: data[0].inputs })},
+    {"name": "term", "symbols": ["term$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "unary_term", "symbols": ["term"], "postprocess": d => d[0]},
+    {"name": "unary_term$macrocall$2", "symbols": ["term"], "postprocess": d => d[0]},
+    {"name": "unary_term$macrocall$1$macrocall$2", "symbols": ["unary_term$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "unary_term$macrocall$1$macrocall$1$macrocall$2", "symbols": ["unary_term$macrocall$1$macrocall$2"], "postprocess": d => d[0]},
+    {"name": "unary_term$macrocall$1$macrocall$1$macrocall$1", "symbols": [{"literal":"-"}, "unary_term$macrocall$1$macrocall$1$macrocall$2"], "postprocess": 
         d => {
             return {
                 type: "MINUS_PREFIX_UNARY",
@@ -148,88 +143,9 @@ var grammar = {
             }
         }
         },
-    {"name": "vector_expression$macrocall$1$macrocall$1", "symbols": ["vector_expression$macrocall$1$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_expression$macrocall$1", "symbols": ["vector_expression$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_expression", "symbols": ["vector_expression$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "vector_expression$macrocall$4", "symbols": ["vector_expression"], "postprocess": d => d[0]},
-    {"name": "vector_expression$macrocall$5", "symbols": ["vector_term"], "postprocess": d => d[0]},
-    {"name": "vector_expression$macrocall$3$macrocall$2", "symbols": ["vector_expression$macrocall$4"], "postprocess": d => d[0]},
-    {"name": "vector_expression$macrocall$3$macrocall$3", "symbols": [{"literal":"+"}]},
-    {"name": "vector_expression$macrocall$3$macrocall$4", "symbols": ["vector_expression$macrocall$5"], "postprocess": d => d[0]},
-    {"name": "vector_expression$macrocall$3$macrocall$1", "symbols": ["vector_expression$macrocall$3$macrocall$2", "vector_expression$macrocall$3$macrocall$3", "vector_expression$macrocall$3$macrocall$4"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "vector_expression$macrocall$3", "symbols": ["vector_expression$macrocall$3$macrocall$1"], "postprocess": data => ({ type: "ADD_BINARY", inputs: data[0].inputs })},
-    {"name": "vector_expression$macrocall$3$macrocall$6", "symbols": ["vector_expression$macrocall$4"], "postprocess": d => d[0]},
-    {"name": "vector_expression$macrocall$3$macrocall$7", "symbols": [{"literal":"-"}]},
-    {"name": "vector_expression$macrocall$3$macrocall$8", "symbols": ["vector_expression$macrocall$5"], "postprocess": d => d[0]},
-    {"name": "vector_expression$macrocall$3$macrocall$5", "symbols": ["vector_expression$macrocall$3$macrocall$6", "vector_expression$macrocall$3$macrocall$7", "vector_expression$macrocall$3$macrocall$8"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "vector_expression$macrocall$3", "symbols": ["vector_expression$macrocall$3$macrocall$5"], "postprocess": data => ({ type: "SUB_BINARY", inputs: data[0].inputs })},
-    {"name": "vector_expression", "symbols": ["vector_expression$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "number_factor$macrocall$2", "symbols": ["number_expression"], "postprocess": d => d[0]},
-    {"name": "number_factor$macrocall$1", "symbols": [{"literal":"("}, "number_factor$macrocall$2", {"literal":")"}], "postprocess": data => ({ type: "PARENTHESES_EXPRESSION", expression: data[1] })},
-    {"name": "number_factor", "symbols": ["number_factor$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "number_factor$macrocall$4", "symbols": ["number_expression"], "postprocess": d => d[0]},
-    {"name": "number_factor$macrocall$3$string$1", "symbols": [{"literal":"s"}, {"literal":"i"}, {"literal":"n"}, {"literal":"("}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "number_factor$macrocall$3", "symbols": ["number_factor$macrocall$3$string$1", "number_factor$macrocall$4", {"literal":")"}], "postprocess": d => ({ type: "SIN_FUNCTION", input: d[1] })},
-    {"name": "number_factor$macrocall$3$string$2", "symbols": [{"literal":"c"}, {"literal":"o"}, {"literal":"s"}, {"literal":"("}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "number_factor$macrocall$3", "symbols": ["number_factor$macrocall$3$string$2", "number_factor$macrocall$4", {"literal":")"}], "postprocess": d => ({ type: "COS_FUNCTION", input: d[1] })},
-    {"name": "number_factor$macrocall$3$string$3", "symbols": [{"literal":"t"}, {"literal":"a"}, {"literal":"n"}, {"literal":"("}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "number_factor$macrocall$3", "symbols": ["number_factor$macrocall$3$string$3", "number_factor$macrocall$4", {"literal":")"}], "postprocess": d => ({ type: "TAN_FUNCTION", input: d[1] })},
-    {"name": "number_factor$macrocall$3$string$4", "symbols": [{"literal":"a"}, {"literal":"t"}, {"literal":"a"}, {"literal":"n"}, {"literal":"("}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "number_factor$macrocall$3", "symbols": ["number_factor$macrocall$3$string$4", "number_factor$macrocall$4", {"literal":")"}], "postprocess": d => ({ type: "ATAN_FUNCTION", input: d[1] })},
-    {"name": "number_factor$macrocall$3$string$5", "symbols": [{"literal":"a"}, {"literal":"b"}, {"literal":"s"}, {"literal":"("}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "number_factor$macrocall$3", "symbols": ["number_factor$macrocall$3$string$5", "number_factor$macrocall$4", {"literal":")"}], "postprocess": d => ({ type: "ABS_FUNCTION", input: d[1] })},
-    {"name": "number_factor", "symbols": ["number_factor$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "number_short_multiply", "symbols": ["number"], "postprocess": d => d[0]},
-    {"name": "number_short_multiply", "symbols": ["number_factor"], "postprocess": d => d[0]},
-    {"name": "number_short_multiply", "symbols": ["number_short_multiply", "number_factor"], "postprocess": data => ({ type: "MUL_BINARY", inputs: data})},
-    {"name": "number_short_multiply", "symbols": ["number_factor", "number_short_multiply"], "postprocess": data => ({ type: "MUL_BINARY", inputs: data})},
-    {"name": "number_term", "symbols": ["number_short_multiply"], "postprocess": d => d[0]},
-    {"name": "number_term$macrocall$2", "symbols": ["number_term"], "postprocess": d => d[0]},
-    {"name": "number_term$macrocall$3", "symbols": ["number_short_multiply"], "postprocess": d => d[0]},
-    {"name": "number_term$macrocall$1$macrocall$2", "symbols": ["number_term$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "number_term$macrocall$1$macrocall$3", "symbols": [{"literal":"*"}]},
-    {"name": "number_term$macrocall$1$macrocall$4", "symbols": ["number_term$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "number_term$macrocall$1$macrocall$1", "symbols": ["number_term$macrocall$1$macrocall$2", "number_term$macrocall$1$macrocall$3", "number_term$macrocall$1$macrocall$4"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "number_term$macrocall$1", "symbols": ["number_term$macrocall$1$macrocall$1"], "postprocess": data => ({ type: "MUL_BINARY", inputs: data[0].inputs })},
-    {"name": "number_term$macrocall$1$macrocall$6", "symbols": ["number_term$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "number_term$macrocall$1$macrocall$7", "symbols": [{"literal":"/"}]},
-    {"name": "number_term$macrocall$1$macrocall$8", "symbols": ["number_term$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "number_term$macrocall$1$macrocall$5", "symbols": ["number_term$macrocall$1$macrocall$6", "number_term$macrocall$1$macrocall$7", "number_term$macrocall$1$macrocall$8"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "number_term$macrocall$1", "symbols": ["number_term$macrocall$1$macrocall$5"], "postprocess": data => ({ type: "DIV_BINARY", inputs: data[0].inputs })},
-    {"name": "number_term$macrocall$1$macrocall$10", "symbols": ["number_term$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "number_term$macrocall$1$macrocall$11", "symbols": [{"literal":"%"}]},
-    {"name": "number_term$macrocall$1$macrocall$12", "symbols": ["number_term$macrocall$3"], "postprocess": d => d[0]},
-    {"name": "number_term$macrocall$1$macrocall$9", "symbols": ["number_term$macrocall$1$macrocall$10", "number_term$macrocall$1$macrocall$11", "number_term$macrocall$1$macrocall$12"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "number_term$macrocall$1", "symbols": ["number_term$macrocall$1$macrocall$9"], "postprocess": data => ({ type: "MOD_BINARY", inputs: data[0].inputs })},
-    {"name": "number_term", "symbols": ["number_term$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "number_expression", "symbols": ["number_term"], "postprocess": d => d[0]},
-    {"name": "number_expression$macrocall$2", "symbols": ["number_term"], "postprocess": d => d[0]},
-    {"name": "number_expression$macrocall$1$macrocall$2", "symbols": ["number_expression$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "number_expression$macrocall$1$macrocall$1$macrocall$2", "symbols": ["number_expression$macrocall$1$macrocall$2"], "postprocess": d => d[0]},
-    {"name": "number_expression$macrocall$1$macrocall$1$macrocall$1", "symbols": [{"literal":"-"}, "number_expression$macrocall$1$macrocall$1$macrocall$2"], "postprocess": 
-        d => {
-            return {
-                type: "MINUS_PREFIX_UNARY",
-                input: d[1]
-            }
-        }
-        },
-    {"name": "number_expression$macrocall$1$macrocall$1", "symbols": ["number_expression$macrocall$1$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "number_expression$macrocall$1", "symbols": ["number_expression$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "number_expression", "symbols": ["number_expression$macrocall$1"], "postprocess": d => d[0]},
-    {"name": "number_expression$macrocall$4", "symbols": ["number_expression"], "postprocess": d => d[0]},
-    {"name": "number_expression$macrocall$5", "symbols": ["number_term"], "postprocess": d => d[0]},
-    {"name": "number_expression$macrocall$3$macrocall$2", "symbols": ["number_expression$macrocall$4"], "postprocess": d => d[0]},
-    {"name": "number_expression$macrocall$3$macrocall$3", "symbols": [{"literal":"+"}]},
-    {"name": "number_expression$macrocall$3$macrocall$4", "symbols": ["number_expression$macrocall$5"], "postprocess": d => d[0]},
-    {"name": "number_expression$macrocall$3$macrocall$1", "symbols": ["number_expression$macrocall$3$macrocall$2", "number_expression$macrocall$3$macrocall$3", "number_expression$macrocall$3$macrocall$4"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "number_expression$macrocall$3", "symbols": ["number_expression$macrocall$3$macrocall$1"], "postprocess": data => ({ type: "ADD_BINARY", inputs: data[0].inputs })},
-    {"name": "number_expression$macrocall$3$macrocall$6", "symbols": ["number_expression$macrocall$4"], "postprocess": d => d[0]},
-    {"name": "number_expression$macrocall$3$macrocall$7", "symbols": [{"literal":"-"}]},
-    {"name": "number_expression$macrocall$3$macrocall$8", "symbols": ["number_expression$macrocall$5"], "postprocess": d => d[0]},
-    {"name": "number_expression$macrocall$3$macrocall$5", "symbols": ["number_expression$macrocall$3$macrocall$6", "number_expression$macrocall$3$macrocall$7", "number_expression$macrocall$3$macrocall$8"], "postprocess": data => ({ inputs: [data[0], data[2]] })},
-    {"name": "number_expression$macrocall$3", "symbols": ["number_expression$macrocall$3$macrocall$5"], "postprocess": data => ({ type: "SUB_BINARY", inputs: data[0].inputs })},
-    {"name": "number_expression", "symbols": ["number_expression$macrocall$3"], "postprocess": d => d[0]}
+    {"name": "unary_term$macrocall$1$macrocall$1", "symbols": ["unary_term$macrocall$1$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "unary_term$macrocall$1", "symbols": ["unary_term$macrocall$1$macrocall$1"], "postprocess": d => d[0]},
+    {"name": "unary_term", "symbols": ["unary_term$macrocall$1"], "postprocess": d => d[0]}
 ]
   , ParserStart: "expression"
 }

@@ -10,6 +10,6 @@ minus_prefix_unary_operator[E] -> "-" $E {%
     }
 %}
 
-prefix_unary_operator[E] -> minus_prefix_unary_operator[$E {% d => d[0] %} ] {% d => d[0] %}
+prefix_unary_operator[E] -> minus_prefix_unary_operator[$E {% d => d[0] %}] {% d => d[0] %}
 
 unary_operator[E] -> prefix_unary_operator[$E {% d => d[0] %} ] {% d => d[0] %}

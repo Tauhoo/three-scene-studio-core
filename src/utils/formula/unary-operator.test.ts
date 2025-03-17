@@ -3,13 +3,10 @@ describe('parse unary operator', () => {
   test('minus number', () => {
     const result = parse('-3.3')
     const expected = {
-      type: 'NUMBER_EXPRESSION',
-      expression: {
-        type: 'MINUS_PREFIX_UNARY',
-        input: {
-          type: 'NUMBER',
-          value: 3.3,
-        },
+      type: 'MINUS_PREFIX_UNARY',
+      input: {
+        type: 'NUMBER',
+        value: 3.3,
       },
     }
     expect(result).toEqual(expected)
@@ -18,19 +15,16 @@ describe('parse unary operator', () => {
   test('minus vector', () => {
     const result = parse('-[-3.3, 4.5]')
     const expected = {
-      type: 'VECTOR_EXPRESSION',
-      expression: {
-        type: 'MINUS_PREFIX_UNARY',
-        input: {
-          type: 'VECTOR',
-          items: [
-            {
-              type: 'MINUS_PREFIX_UNARY',
-              input: { type: 'NUMBER', value: 3.3 },
-            },
-            { type: 'NUMBER', value: 4.5 },
-          ],
-        },
+      type: 'MINUS_PREFIX_UNARY',
+      input: {
+        type: 'VECTOR',
+        items: [
+          {
+            type: 'MINUS_PREFIX_UNARY',
+            input: { type: 'NUMBER', value: 3.3 },
+          },
+          { type: 'NUMBER', value: 4.5 },
+        ],
       },
     }
     expect(result).toEqual(expected)

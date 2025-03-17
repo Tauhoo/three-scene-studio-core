@@ -3,11 +3,8 @@ describe('parse vector', () => {
   test('empty vector', () => {
     const result = parse('[]')
     const expected = {
-      type: 'VECTOR_EXPRESSION',
-      expression: {
-        type: 'VECTOR',
-        items: [],
-      },
+      type: 'VECTOR',
+      items: [],
     }
 
     expect(result).toEqual(expected)
@@ -16,16 +13,13 @@ describe('parse vector', () => {
   test('one number', () => {
     const result = parse('[3]')
     const expected = {
-      type: 'VECTOR_EXPRESSION',
-      expression: {
-        type: 'VECTOR',
-        items: [
-          {
-            type: 'NUMBER',
-            value: 3,
-          },
-        ],
-      },
+      type: 'VECTOR',
+      items: [
+        {
+          type: 'NUMBER',
+          value: 3,
+        },
+      ],
     }
 
     expect(result).toEqual(expected)
@@ -34,20 +28,17 @@ describe('parse vector', () => {
   test('two numbers', () => {
     const result = parse('[3, 4]')
     const expected = {
-      type: 'VECTOR_EXPRESSION',
-      expression: {
-        type: 'VECTOR',
-        items: [
-          {
-            type: 'NUMBER',
-            value: 3,
-          },
-          {
-            type: 'NUMBER',
-            value: 4,
-          },
-        ],
-      },
+      type: 'VECTOR',
+      items: [
+        {
+          type: 'NUMBER',
+          value: 3,
+        },
+        {
+          type: 'NUMBER',
+          value: 4,
+        },
+      ],
     }
 
     expect(result).toEqual(expected)
@@ -56,23 +47,20 @@ describe('parse vector', () => {
   test('contain unary operator numbers', () => {
     const result = parse('[-3, 4]')
     const expected = {
-      type: 'VECTOR_EXPRESSION',
-      expression: {
-        type: 'VECTOR',
-        items: [
-          {
-            type: 'MINUS_PREFIX_UNARY',
-            input: {
-              type: 'NUMBER',
-              value: 3,
-            },
-          },
-          {
+      type: 'VECTOR',
+      items: [
+        {
+          type: 'MINUS_PREFIX_UNARY',
+          input: {
             type: 'NUMBER',
-            value: 4,
+            value: 3,
           },
-        ],
-      },
+        },
+        {
+          type: 'NUMBER',
+          value: 4,
+        },
+      ],
     }
 
     expect(result).toEqual(expected)
