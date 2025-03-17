@@ -6,7 +6,7 @@
 
 expression -> 
     unary_term {% id %}
-    | expression_binary_operator[expression {% id %}, unary_term {% id %}] {% id %}
+    | expression_binary_operator_expression[unary_term {% id %}] {% id %}
 
 parentheses_expression[E] -> "(" $E ")" {% data => ({ type: "PARENTHESES_EXPRESSION", expression: data[1] }) %}
 
@@ -20,7 +20,7 @@ parentheses_expression[E] -> "(" $E ")" {% data => ({ type: "PARENTHESES_EXPRESS
         }else{
             result.push(data)
         }
-        return result
+        return result.filter(item => item !== null)
     }
 %}
 
@@ -44,14 +44,12 @@ zig_short_multiply ->
     | number variable
 
 short_multiply -> zig_short_multiply_expression[full_short_multiply {% id %}, zig_short_multiply {% id %}] {% data =>{
-    const result = flatten(data).filter(item => item !== null)
+    const result = flatten(data)
     if(result.length === 1) return result[0]
     return {type: "IMP_MUL", inputs: result}
 }%}
 
-term -> 
-    short_multiply {% id %}
-    | term_binary_operator[term {% id %}, short_multiply {% id %}] {% id %}
+term -> term_binary_operator_expression[short_multiply {% id %}]  {% id %}
 
 unary_term ->
     term {% id %}

@@ -53,14 +53,14 @@ describe('Expression Parser', () => {
         type: 'VECTOR',
         items: [
           {
-            type: 'ADD_BINARY',
+            type: 'ADD',
             inputs: [
               { type: 'NUMBER', value: 1, text: '1' },
               { type: 'NUMBER', value: 2, text: '2' },
             ],
           },
           {
-            type: 'MUL_BINARY',
+            type: 'MUL',
             inputs: [
               { type: 'NUMBER', value: 3, text: '3' },
               { type: 'NUMBER', value: 4, text: '4' },
@@ -77,7 +77,7 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         type: 'PARENTHESES_EXPRESSION',
         expression: {
-          type: 'ADD_BINARY',
+          type: 'ADD',
           inputs: [
             { type: 'NUMBER', value: 1, text: '1' },
             { type: 'NUMBER', value: 2, text: '2' },
@@ -91,12 +91,12 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         type: 'PARENTHESES_EXPRESSION',
         expression: {
-          type: 'MUL_BINARY',
+          type: 'MUL',
           inputs: [
             {
               type: 'PARENTHESES_EXPRESSION',
               expression: {
-                type: 'ADD_BINARY',
+                type: 'ADD',
                 inputs: [
                   { type: 'NUMBER', value: 1, text: '1' },
                   { type: 'NUMBER', value: 2, text: '2' },
@@ -112,12 +112,12 @@ describe('Expression Parser', () => {
     it('should parse parentheses affecting precedence', () => {
       const result = parse('(1 + 2) * 3')
       expect(result).toEqual({
-        type: 'MUL_BINARY',
+        type: 'MUL',
         inputs: [
           {
             type: 'PARENTHESES_EXPRESSION',
             expression: {
-              type: 'ADD_BINARY',
+              type: 'ADD',
               inputs: [
                 { type: 'NUMBER', value: 1, text: '1' },
                 { type: 'NUMBER', value: 2, text: '2' },
@@ -137,11 +137,11 @@ describe('Expression Parser', () => {
         type: 'VECTOR',
         items: [
           {
-            type: 'ADD_BINARY',
+            type: 'ADD',
             inputs: [
               { type: 'NUMBER', value: 1, text: '1' },
               {
-                type: 'MUL_BINARY',
+                type: 'MUL',
                 inputs: [
                   { type: 'NUMBER', value: 2, text: '2' },
                   { type: 'NUMBER', value: 3, text: '3' },
@@ -150,12 +150,12 @@ describe('Expression Parser', () => {
             ],
           },
           {
-            type: 'MUL_BINARY',
+            type: 'MUL',
             inputs: [
               {
                 type: 'PARENTHESES_EXPRESSION',
                 expression: {
-                  type: 'ADD_BINARY',
+                  type: 'ADD',
                   inputs: [
                     { type: 'NUMBER', value: 4, text: '4' },
                     { type: 'NUMBER', value: 5, text: '5' },
@@ -297,7 +297,7 @@ describe('Expression Parser', () => {
           {
             type: 'PARENTHESES_EXPRESSION',
             expression: {
-              type: 'ADD_BINARY',
+              type: 'ADD',
               inputs: [
                 {
                   type: 'NUMBER',
@@ -315,7 +315,7 @@ describe('Expression Parser', () => {
           {
             type: 'PARENTHESES_EXPRESSION',
             expression: {
-              type: 'ADD_BINARY',
+              type: 'ADD',
               inputs: [
                 {
                   type: 'NUMBER',
@@ -349,7 +349,7 @@ describe('Expression Parser', () => {
             {
               type: 'PARENTHESES_EXPRESSION',
               expression: {
-                type: 'ADD_BINARY',
+                type: 'ADD',
                 inputs: [
                   {
                     type: 'NUMBER',
@@ -367,7 +367,7 @@ describe('Expression Parser', () => {
             {
               type: 'PARENTHESES_EXPRESSION',
               expression: {
-                type: 'ADD_BINARY',
+                type: 'ADD',
                 inputs: [
                   {
                     type: 'NUMBER',
