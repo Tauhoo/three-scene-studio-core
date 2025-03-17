@@ -7,6 +7,7 @@ describe('parse unary operator', () => {
       input: {
         type: 'NUMBER',
         value: 3,
+        text: '3',
       },
     }
     expect(result).toEqual(expected)
@@ -19,6 +20,7 @@ describe('parse unary operator', () => {
       input: {
         type: 'NUMBER',
         value: 3.3,
+        text: '3.3',
       },
     }
     expect(result).toEqual(expected)
@@ -33,9 +35,17 @@ describe('parse unary operator', () => {
         items: [
           {
             type: 'MINUS_PREFIX_UNARY',
-            input: { type: 'NUMBER', value: 3.3 },
+            input: {
+              type: 'NUMBER',
+              value: 3.3,
+              text: '3.3',
+            },
           },
-          { type: 'NUMBER', value: 4.5 },
+          {
+            type: 'NUMBER',
+            value: 4.5,
+            text: '4.5',
+          },
         ],
       },
     }

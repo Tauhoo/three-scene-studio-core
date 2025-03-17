@@ -18,6 +18,7 @@ describe('parse vector', () => {
         {
           type: 'NUMBER',
           value: 3,
+          text: '3',
         },
       ],
     }
@@ -33,10 +34,12 @@ describe('parse vector', () => {
         {
           type: 'NUMBER',
           value: 3,
+          text: '3',
         },
         {
           type: 'NUMBER',
           value: 4,
+          text: '4',
         },
       ],
     }
@@ -54,11 +57,13 @@ describe('parse vector', () => {
           input: {
             type: 'NUMBER',
             value: 3,
+            text: '3',
           },
         },
         {
           type: 'NUMBER',
           value: 4,
+          text: '4',
         },
       ],
     }

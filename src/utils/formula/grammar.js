@@ -32,7 +32,7 @@ var grammar = {
                 text += "." + d[1][1].join("")
             }
             
-            return { type: "NUMBER", value: Number(text) }
+            return { type: "NUMBER", value: Number(text), text }
         } 
         },
     {"name": "variable$ebnf$1", "symbols": []},
@@ -100,7 +100,7 @@ var grammar = {
     {"name": "short_multiply", "symbols": ["short_multiply$macrocall$1"], "postprocess":  data =>{
             const result = flatten(data).filter(item => item !== null)
             if(result.length === 1) return result[0]
-            return {type: "MUL_BINARY", inputs: result}
+            return {type: "IMP_MUL", inputs: result}
         }},
     {"name": "term", "symbols": ["short_multiply"], "postprocess": id},
     {"name": "term$macrocall$2", "symbols": ["term"], "postprocess": id},

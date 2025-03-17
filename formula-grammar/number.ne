@@ -6,6 +6,6 @@ number -> [0-9]:+ ("." [0-9]:+):? {%
             text += "." + d[1][1].join("")
         }
         
-        return { type: "NUMBER", value: Number(text) }
+        return { type: "NUMBER", value: Number(text), text }
     } 
 %}

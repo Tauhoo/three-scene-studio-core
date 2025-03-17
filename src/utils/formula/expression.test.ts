@@ -4,19 +4,19 @@ describe('Expression Parser', () => {
   describe('Number Expressions', () => {
     it('should parse simple numbers', () => {
       const result = parse('42')
-      expect(result).toEqual({ type: 'NUMBER', value: 42 })
+      expect(result).toEqual({ type: 'NUMBER', value: 42, text: '42' })
     })
 
     it('should parse decimal numbers', () => {
       const result = parse('3.14')
-      expect(result).toEqual({ type: 'NUMBER', value: 3.14 })
+      expect(result).toEqual({ type: 'NUMBER', value: 3.14, text: '3.14' })
     })
 
     it('should parse negative numbers', () => {
       const result = parse('-5')
       expect(result).toEqual({
         type: 'MINUS_PREFIX_UNARY',
-        input: { type: 'NUMBER', value: 5 },
+        input: { type: 'NUMBER', value: 5, text: '5' },
       })
     })
   })
@@ -31,7 +31,7 @@ describe('Expression Parser', () => {
       const result = parse('[1]')
       expect(result).toEqual({
         type: 'VECTOR',
-        items: [{ type: 'NUMBER', value: 1 }],
+        items: [{ type: 'NUMBER', value: 1, text: '1' }],
       })
     })
 
@@ -40,9 +40,9 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         type: 'VECTOR',
         items: [
-          { type: 'NUMBER', value: 1 },
-          { type: 'NUMBER', value: 2 },
-          { type: 'NUMBER', value: 3 },
+          { type: 'NUMBER', value: 1, text: '1' },
+          { type: 'NUMBER', value: 2, text: '2' },
+          { type: 'NUMBER', value: 3, text: '3' },
         ],
       })
     })
@@ -55,15 +55,15 @@ describe('Expression Parser', () => {
           {
             type: 'ADD_BINARY',
             inputs: [
-              { type: 'NUMBER', value: 1 },
-              { type: 'NUMBER', value: 2 },
+              { type: 'NUMBER', value: 1, text: '1' },
+              { type: 'NUMBER', value: 2, text: '2' },
             ],
           },
           {
             type: 'MUL_BINARY',
             inputs: [
-              { type: 'NUMBER', value: 3 },
-              { type: 'NUMBER', value: 4 },
+              { type: 'NUMBER', value: 3, text: '3' },
+              { type: 'NUMBER', value: 4, text: '4' },
             ],
           },
         ],
@@ -79,8 +79,8 @@ describe('Expression Parser', () => {
         expression: {
           type: 'ADD_BINARY',
           inputs: [
-            { type: 'NUMBER', value: 1 },
-            { type: 'NUMBER', value: 2 },
+            { type: 'NUMBER', value: 1, text: '1' },
+            { type: 'NUMBER', value: 2, text: '2' },
           ],
         },
       })
@@ -98,12 +98,12 @@ describe('Expression Parser', () => {
               expression: {
                 type: 'ADD_BINARY',
                 inputs: [
-                  { type: 'NUMBER', value: 1 },
-                  { type: 'NUMBER', value: 2 },
+                  { type: 'NUMBER', value: 1, text: '1' },
+                  { type: 'NUMBER', value: 2, text: '2' },
                 ],
               },
             },
-            { type: 'NUMBER', value: 3 },
+            { type: 'NUMBER', value: 3, text: '3' },
           ],
         },
       })
@@ -119,12 +119,12 @@ describe('Expression Parser', () => {
             expression: {
               type: 'ADD_BINARY',
               inputs: [
-                { type: 'NUMBER', value: 1 },
-                { type: 'NUMBER', value: 2 },
+                { type: 'NUMBER', value: 1, text: '1' },
+                { type: 'NUMBER', value: 2, text: '2' },
               ],
             },
           },
-          { type: 'NUMBER', value: 3 },
+          { type: 'NUMBER', value: 3, text: '3' },
         ],
       })
     })
@@ -139,12 +139,12 @@ describe('Expression Parser', () => {
           {
             type: 'ADD_BINARY',
             inputs: [
-              { type: 'NUMBER', value: 1 },
+              { type: 'NUMBER', value: 1, text: '1' },
               {
                 type: 'MUL_BINARY',
                 inputs: [
-                  { type: 'NUMBER', value: 2 },
-                  { type: 'NUMBER', value: 3 },
+                  { type: 'NUMBER', value: 2, text: '2' },
+                  { type: 'NUMBER', value: 3, text: '3' },
                 ],
               },
             ],
@@ -157,12 +157,12 @@ describe('Expression Parser', () => {
                 expression: {
                   type: 'ADD_BINARY',
                   inputs: [
-                    { type: 'NUMBER', value: 4 },
-                    { type: 'NUMBER', value: 5 },
+                    { type: 'NUMBER', value: 4, text: '4' },
+                    { type: 'NUMBER', value: 5, text: '5' },
                   ],
                 },
               },
-              { type: 'NUMBER', value: 6 },
+              { type: 'NUMBER', value: 6, text: '6' },
             ],
           },
         ],
@@ -174,16 +174,16 @@ describe('Expression Parser', () => {
     it('should parse number multiplied with function', () => {
       const result = parse('2sin(2)')
       expect(result).toEqual({
-        type: 'MUL_BINARY',
+        type: 'IMP_MUL',
         inputs: [
-          { type: 'NUMBER', value: 2 },
+          { type: 'NUMBER', value: 2, text: '2' },
           {
             type: 'VARIABLE',
             name: 'sin',
           },
           {
             type: 'PARENTHESES_EXPRESSION',
-            expression: { type: 'NUMBER', value: 2 },
+            expression: { type: 'NUMBER', value: 2, text: '2' },
           },
         ],
       })
@@ -192,17 +192,17 @@ describe('Expression Parser', () => {
     it('should parse number multiplied with vector and number', () => {
       const result = parse('4[1,2]3')
       expect(result).toEqual({
-        type: 'MUL_BINARY',
+        type: 'IMP_MUL',
         inputs: [
-          { type: 'NUMBER', value: 4 },
+          { type: 'NUMBER', value: 4, text: '4' },
           {
             type: 'VECTOR',
             items: [
-              { type: 'NUMBER', value: 1 },
-              { type: 'NUMBER', value: 2 },
+              { type: 'NUMBER', value: 1, text: '1' },
+              { type: 'NUMBER', value: 2, text: '2' },
             ],
           },
-          { type: 'NUMBER', value: 3 },
+          { type: 'NUMBER', value: 3, text: '3' },
         ],
       })
     })
@@ -210,7 +210,7 @@ describe('Expression Parser', () => {
     it('should parse vector multiplied with function and number', () => {
       const result = parse('sin(12)[1,2]3')
       expect(result).toEqual({
-        type: 'MUL_BINARY',
+        type: 'IMP_MUL',
         inputs: [
           {
             type: 'VARIABLE',
@@ -218,17 +218,16 @@ describe('Expression Parser', () => {
           },
           {
             type: 'PARENTHESES_EXPRESSION',
-            expression: { type: 'NUMBER', value: 12 },
+            expression: { type: 'NUMBER', value: 12, text: '12' },
           },
           {
             type: 'VECTOR',
             items: [
-              { type: 'NUMBER', value: 1 },
-              { type: 'NUMBER', value: 2 },
+              { type: 'NUMBER', value: 1, text: '1' },
+              { type: 'NUMBER', value: 2, text: '2' },
             ],
           },
-
-          { type: 'NUMBER', value: 3 },
+          { type: 'NUMBER', value: 3, text: '3' },
         ],
       })
     })
@@ -236,16 +235,16 @@ describe('Expression Parser', () => {
     it('should parse chained shorthand multiplication', () => {
       const result = parse('2sin(30)cos(60)')
       expect(result).toEqual({
-        type: 'MUL_BINARY',
+        type: 'IMP_MUL',
         inputs: [
-          { type: 'NUMBER', value: 2 },
+          { type: 'NUMBER', value: 2, text: '2' },
           {
             type: 'VARIABLE',
             name: 'sin',
           },
           {
             type: 'PARENTHESES_EXPRESSION',
-            expression: { type: 'NUMBER', value: 30 },
+            expression: { type: 'NUMBER', value: 30, text: '30' },
           },
           {
             type: 'VARIABLE',
@@ -253,7 +252,7 @@ describe('Expression Parser', () => {
           },
           {
             type: 'PARENTHESES_EXPRESSION',
-            expression: { type: 'NUMBER', value: 60 },
+            expression: { type: 'NUMBER', value: 60, text: '60' },
           },
         ],
       })
@@ -264,16 +263,16 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         type: 'MINUS_PREFIX_UNARY',
         input: {
-          type: 'MUL_BINARY',
+          type: 'IMP_MUL',
           inputs: [
-            { type: 'NUMBER', value: 2 },
+            { type: 'NUMBER', value: 2, text: '2' },
             {
               type: 'VARIABLE',
               name: 'sin',
             },
             {
               type: 'PARENTHESES_EXPRESSION',
-              expression: { type: 'NUMBER', value: 30 },
+              expression: { type: 'NUMBER', value: 30, text: '30' },
             },
             {
               type: 'VARIABLE',
@@ -281,7 +280,7 @@ describe('Expression Parser', () => {
             },
             {
               type: 'PARENTHESES_EXPRESSION',
-              expression: { type: 'NUMBER', value: 60 },
+              expression: { type: 'NUMBER', value: 60, text: '60' },
             },
           ],
         },
@@ -293,7 +292,7 @@ describe('Expression Parser', () => {
       console.log('DEBUG:', JSON.stringify(result, null, 2))
 
       expect(result).toEqual({
-        type: 'MUL_BINARY',
+        type: 'IMP_MUL',
         inputs: [
           {
             type: 'PARENTHESES_EXPRESSION',
@@ -303,10 +302,12 @@ describe('Expression Parser', () => {
                 {
                   type: 'NUMBER',
                   value: 3,
+                  text: '3',
                 },
                 {
                   type: 'NUMBER',
                   value: 4,
+                  text: '4',
                 },
               ],
             },
@@ -319,10 +320,12 @@ describe('Expression Parser', () => {
                 {
                   type: 'NUMBER',
                   value: 5,
+                  text: '5',
                 },
                 {
                   type: 'NUMBER',
                   value: 6,
+                  text: '6',
                 },
               ],
             },
@@ -330,6 +333,7 @@ describe('Expression Parser', () => {
           {
             type: 'NUMBER',
             value: 3.3,
+            text: '3.3',
           },
         ],
       })
@@ -337,12 +341,10 @@ describe('Expression Parser', () => {
 
     it('should parse shorthand multiplication with parentheses and unary operator', () => {
       const result = parse('-(3+4)(5+6)3.3')
-      console.log('DEBUG:', JSON.stringify(result, null, 2))
-
       expect(result).toEqual({
         type: 'MINUS_PREFIX_UNARY',
         input: {
-          type: 'MUL_BINARY',
+          type: 'IMP_MUL',
           inputs: [
             {
               type: 'PARENTHESES_EXPRESSION',
@@ -352,10 +354,12 @@ describe('Expression Parser', () => {
                   {
                     type: 'NUMBER',
                     value: 3,
+                    text: '3',
                   },
                   {
                     type: 'NUMBER',
                     value: 4,
+                    text: '4',
                   },
                 ],
               },
@@ -368,18 +372,20 @@ describe('Expression Parser', () => {
                   {
                     type: 'NUMBER',
                     value: 5,
+                    text: '5',
                   },
                   {
                     type: 'NUMBER',
                     value: 6,
+                    text: '6',
                   },
                 ],
               },
             },
-
             {
               type: 'NUMBER',
               value: 3.3,
+              text: '3.3',
             },
           ],
         },

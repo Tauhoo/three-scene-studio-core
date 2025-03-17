@@ -7,8 +7,8 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         type: 'ADD_BINARY',
         inputs: [
-          { type: 'NUMBER', value: 1 },
-          { type: 'NUMBER', value: 2 },
+          { type: 'NUMBER', value: 1, text: '1' },
+          { type: 'NUMBER', value: 2, text: '2' },
         ],
       })
     })
@@ -21,11 +21,11 @@ describe('Binary Operator Parser', () => {
           {
             type: 'ADD_BINARY',
             inputs: [
-              { type: 'NUMBER', value: 1 },
-              { type: 'NUMBER', value: 2 },
+              { type: 'NUMBER', value: 1, text: '1' },
+              { type: 'NUMBER', value: 2, text: '2' },
             ],
           },
-          { type: 'NUMBER', value: 3 },
+          { type: 'NUMBER', value: 3, text: '3' },
         ],
       })
     })
@@ -37,8 +37,8 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         type: 'SUB_BINARY',
         inputs: [
-          { type: 'NUMBER', value: 5 },
-          { type: 'NUMBER', value: 3 },
+          { type: 'NUMBER', value: 5, text: '5' },
+          { type: 'NUMBER', value: 3, text: '3' },
         ],
       })
     })
@@ -51,11 +51,11 @@ describe('Binary Operator Parser', () => {
           {
             type: 'SUB_BINARY',
             inputs: [
-              { type: 'NUMBER', value: 10 },
-              { type: 'NUMBER', value: 4 },
+              { type: 'NUMBER', value: 10, text: '10' },
+              { type: 'NUMBER', value: 4, text: '4' },
             ],
           },
-          { type: 'NUMBER', value: 2 },
+          { type: 'NUMBER', value: 2, text: '2' },
         ],
       })
     })
@@ -67,8 +67,8 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         type: 'MUL_BINARY',
         inputs: [
-          { type: 'NUMBER', value: 2 },
-          { type: 'NUMBER', value: 3 },
+          { type: 'NUMBER', value: 2, text: '2' },
+          { type: 'NUMBER', value: 3, text: '3' },
         ],
       })
     })
@@ -81,11 +81,11 @@ describe('Binary Operator Parser', () => {
           {
             type: 'MUL_BINARY',
             inputs: [
-              { type: 'NUMBER', value: 2 },
-              { type: 'NUMBER', value: 3 },
+              { type: 'NUMBER', value: 2, text: '2' },
+              { type: 'NUMBER', value: 3, text: '3' },
             ],
           },
-          { type: 'NUMBER', value: 4 },
+          { type: 'NUMBER', value: 4, text: '4' },
         ],
       })
     })
@@ -97,8 +97,8 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         type: 'DIV_BINARY',
         inputs: [
-          { type: 'NUMBER', value: 6 },
-          { type: 'NUMBER', value: 2 },
+          { type: 'NUMBER', value: 6, text: '6' },
+          { type: 'NUMBER', value: 2, text: '2' },
         ],
       })
     })
@@ -111,11 +111,11 @@ describe('Binary Operator Parser', () => {
           {
             type: 'DIV_BINARY',
             inputs: [
-              { type: 'NUMBER', value: 12 },
-              { type: 'NUMBER', value: 3 },
+              { type: 'NUMBER', value: 12, text: '12' },
+              { type: 'NUMBER', value: 3, text: '3' },
             ],
           },
-          { type: 'NUMBER', value: 2 },
+          { type: 'NUMBER', value: 2, text: '2' },
         ],
       })
     })
@@ -127,8 +127,8 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         type: 'MOD_BINARY',
         inputs: [
-          { type: 'NUMBER', value: 7 },
-          { type: 'NUMBER', value: 4 },
+          { type: 'NUMBER', value: 7, text: '7' },
+          { type: 'NUMBER', value: 4, text: '4' },
         ],
       })
     })
@@ -140,12 +140,12 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         type: 'ADD_BINARY',
         inputs: [
-          { type: 'NUMBER', value: 1 },
+          { type: 'NUMBER', value: 1, text: '1' },
           {
             type: 'MUL_BINARY',
             inputs: [
-              { type: 'NUMBER', value: 2 },
-              { type: 'NUMBER', value: 3 },
+              { type: 'NUMBER', value: 2, text: '2' },
+              { type: 'NUMBER', value: 3, text: '3' },
             ],
           },
         ],
@@ -157,12 +157,12 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         type: 'ADD_BINARY',
         inputs: [
-          { type: 'NUMBER', value: 1 },
+          { type: 'NUMBER', value: 1, text: '1' },
           {
             type: 'DIV_BINARY',
             inputs: [
-              { type: 'NUMBER', value: 6 },
-              { type: 'NUMBER', value: 2 },
+              { type: 'NUMBER', value: 6, text: '6' },
+              { type: 'NUMBER', value: 2, text: '2' },
             ],
           },
         ],

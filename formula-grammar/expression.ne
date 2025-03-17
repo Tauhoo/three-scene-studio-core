@@ -46,7 +46,7 @@ zig_short_multiply ->
 short_multiply -> zig_short_multiply_expression[full_short_multiply {% id %}, zig_short_multiply {% id %}] {% data =>{
     const result = flatten(data).filter(item => item !== null)
     if(result.length === 1) return result[0]
-    return {type: "MUL_BINARY", inputs: result}
+    return {type: "IMP_MUL", inputs: result}
 }%}
 
 term -> 
