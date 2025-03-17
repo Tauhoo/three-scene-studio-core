@@ -11,69 +11,49 @@ export const parse = (input: string) => {
   )
   parser.feed(cleanedInput)
   const result = parser.finish()
-  return result[0] as Expression
+  return result[0] as FormulaNode
 }
-
-type Expression = {
-  type: 'VECTOR_EXPRESSION' | 'NUMBER_EXPRESSION'
-  expression: ExpressionNode
-}
-
-type ExpressionNode =
-  | NumberNode
-  | VectorNode
-  | UnaryOperatorNode
-  | BinaryOperatorNode
-  | ParenthesesNode
-
-type NumberNode = {
+export interface NumberNode {
   type: 'NUMBER'
   value: number
+  text: string
 }
 
-type VectorNode = {
+export interface VariableNode {
+  type: 'VARIABLE'
+  name: string
+}
+
+export interface VectorNode {
   type: 'VECTOR'
-  items: ExpressionNode[]
+  items: FormulaNode[]
 }
 
-type ParenthesesNode = {
-  type: 'PARENTHESES_EXPRESSION'
-  expression: ExpressionNode
+export interface BinaryOperationNode {
+  type: 'ADD' | 'SUB' | 'MUL' | 'DIV' | 'MOD'
+  inputs: FormulaNode[]
 }
 
-type UnaryOperatorNode = {
+export interface ImplicitMultiplicationNode {
+  type: 'IMP_MUL'
+  inputs: FormulaNode[]
+}
+
+export interface MinusPrefixUnaryNode {
   type: 'MINUS_PREFIX_UNARY'
-  input: ExpressionNode
+  input: FormulaNode
 }
 
-type BinaryOperatorNode =
-  | AddBinaryNode
-  | SubBinaryNode
-  | MulBinaryNode
-  | DivBinaryNode
-  | ModBinaryNode
-
-type AddBinaryNode = {
-  type: 'ADD_BINARY'
-  inputs: [ExpressionNode, ExpressionNode]
+export interface ParenthesesExpressionNode {
+  type: 'PARENTHESES_EXPRESSION'
+  expression: FormulaNode
 }
 
-type SubBinaryNode = {
-  type: 'SUB_BINARY'
-  inputs: [ExpressionNode, ExpressionNode]
-}
-
-type MulBinaryNode = {
-  type: 'MUL_BINARY'
-  inputs: [ExpressionNode, ExpressionNode]
-}
-
-type DivBinaryNode = {
-  type: 'DIV_BINARY'
-  inputs: [ExpressionNode, ExpressionNode]
-}
-
-type ModBinaryNode = {
-  type: 'MOD_BINARY'
-  inputs: [ExpressionNode, ExpressionNode]
-}
+export type FormulaNode =
+  | NumberNode
+  | VariableNode
+  | VectorNode
+  | BinaryOperationNode
+  | ImplicitMultiplicationNode
+  | MinusPrefixUnaryNode
+  | ParenthesesExpressionNode
