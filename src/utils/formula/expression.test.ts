@@ -176,15 +176,10 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         type: 'MUL_BINARY',
         inputs: [
+          { type: 'NUMBER', value: 2 },
           {
-            type: 'MUL_BINARY',
-            inputs: [
-              { type: 'NUMBER', value: 2 },
-              {
-                type: 'VARIABLE',
-                name: 'sin',
-              },
-            ],
+            type: 'VARIABLE',
+            name: 'sin',
           },
           {
             type: 'PARENTHESES_EXPRESSION',
@@ -199,17 +194,12 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         type: 'MUL_BINARY',
         inputs: [
+          { type: 'NUMBER', value: 4 },
           {
-            type: 'MUL_BINARY',
-            inputs: [
-              { type: 'NUMBER', value: 4 },
-              {
-                type: 'VECTOR',
-                items: [
-                  { type: 'NUMBER', value: 1 },
-                  { type: 'NUMBER', value: 2 },
-                ],
-              },
+            type: 'VECTOR',
+            items: [
+              { type: 'NUMBER', value: 1 },
+              { type: 'NUMBER', value: 2 },
             ],
           },
           { type: 'NUMBER', value: 3 },
@@ -223,21 +213,21 @@ describe('Expression Parser', () => {
         type: 'MUL_BINARY',
         inputs: [
           {
-            type: 'MUL_BINARY',
-            inputs: [
-              {
-                type: 'SIN_FUNCTION',
-                input: { type: 'NUMBER', value: 12 },
-              },
-              {
-                type: 'VECTOR',
-                items: [
-                  { type: 'NUMBER', value: 1 },
-                  { type: 'NUMBER', value: 2 },
-                ],
-              },
+            type: 'VARIABLE',
+            name: 'sin',
+          },
+          {
+            type: 'PARENTHESES_EXPRESSION',
+            expression: { type: 'NUMBER', value: 12 },
+          },
+          {
+            type: 'VECTOR',
+            items: [
+              { type: 'NUMBER', value: 1 },
+              { type: 'NUMBER', value: 2 },
             ],
           },
+
           { type: 'NUMBER', value: 3 },
         ],
       })
@@ -248,19 +238,22 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         type: 'MUL_BINARY',
         inputs: [
+          { type: 'NUMBER', value: 2 },
           {
-            type: 'MUL_BINARY',
-            inputs: [
-              { type: 'NUMBER', value: 2 },
-              {
-                type: 'SIN_FUNCTION',
-                input: { type: 'NUMBER', value: 30 },
-              },
-            ],
+            type: 'VARIABLE',
+            name: 'sin',
           },
           {
-            type: 'COS_FUNCTION',
-            input: { type: 'NUMBER', value: 60 },
+            type: 'PARENTHESES_EXPRESSION',
+            expression: { type: 'NUMBER', value: 30 },
+          },
+          {
+            type: 'VARIABLE',
+            name: 'cos',
+          },
+          {
+            type: 'PARENTHESES_EXPRESSION',
+            expression: { type: 'NUMBER', value: 60 },
           },
         ],
       })
@@ -273,19 +266,22 @@ describe('Expression Parser', () => {
         input: {
           type: 'MUL_BINARY',
           inputs: [
+            { type: 'NUMBER', value: 2 },
             {
-              type: 'MUL_BINARY',
-              inputs: [
-                { type: 'NUMBER', value: 2 },
-                {
-                  type: 'SIN_FUNCTION',
-                  input: { type: 'NUMBER', value: 30 },
-                },
-              ],
+              type: 'VARIABLE',
+              name: 'sin',
             },
             {
-              type: 'COS_FUNCTION',
-              input: { type: 'NUMBER', value: 60 },
+              type: 'PARENTHESES_EXPRESSION',
+              expression: { type: 'NUMBER', value: 30 },
+            },
+            {
+              type: 'VARIABLE',
+              name: 'cos',
+            },
+            {
+              type: 'PARENTHESES_EXPRESSION',
+              expression: { type: 'NUMBER', value: 60 },
             },
           ],
         },
@@ -316,29 +312,24 @@ describe('Expression Parser', () => {
             },
           },
           {
-            type: 'MUL_BINARY',
-            inputs: [
-              {
-                type: 'PARENTHESES_EXPRESSION',
-                expression: {
-                  type: 'ADD_BINARY',
-                  inputs: [
-                    {
-                      type: 'NUMBER',
-                      value: 5,
-                    },
-                    {
-                      type: 'NUMBER',
-                      value: 6,
-                    },
-                  ],
+            type: 'PARENTHESES_EXPRESSION',
+            expression: {
+              type: 'ADD_BINARY',
+              inputs: [
+                {
+                  type: 'NUMBER',
+                  value: 5,
                 },
-              },
-              {
-                type: 'NUMBER',
-                value: 3.3,
-              },
-            ],
+                {
+                  type: 'NUMBER',
+                  value: 6,
+                },
+              ],
+            },
+          },
+          {
+            type: 'NUMBER',
+            value: 3.3,
           },
         ],
       })
@@ -370,29 +361,25 @@ describe('Expression Parser', () => {
               },
             },
             {
-              type: 'MUL_BINARY',
-              inputs: [
-                {
-                  type: 'PARENTHESES_EXPRESSION',
-                  expression: {
-                    type: 'ADD_BINARY',
-                    inputs: [
-                      {
-                        type: 'NUMBER',
-                        value: 5,
-                      },
-                      {
-                        type: 'NUMBER',
-                        value: 6,
-                      },
-                    ],
+              type: 'PARENTHESES_EXPRESSION',
+              expression: {
+                type: 'ADD_BINARY',
+                inputs: [
+                  {
+                    type: 'NUMBER',
+                    value: 5,
                   },
-                },
-                {
-                  type: 'NUMBER',
-                  value: 3.3,
-                },
-              ],
+                  {
+                    type: 'NUMBER',
+                    value: 6,
+                  },
+                ],
+              },
+            },
+
+            {
+              type: 'NUMBER',
+              value: 3.3,
             },
           ],
         },
