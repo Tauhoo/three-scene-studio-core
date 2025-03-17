@@ -5,8 +5,8 @@
 @include "./variable.ne"
 
 expression -> 
-    unary_term {% d => d[0] %}
-    | expression_binary_operator[expression {% d => d[0] %}, unary_term {% d => d[0] %}] {% d => d[0] %}
+    unary_term {% id %}
+    | expression_binary_operator[expression {% id %}, unary_term {% id %}] {% id %}
 
 parentheses_expression[E] -> "(" $E ")" {% data => ({ type: "PARENTHESES_EXPRESSION", expression: data[1] }) %}
 
@@ -36,8 +36,8 @@ parentheses_expression[E] -> "(" $E ")" {% data => ({ type: "PARENTHESES_EXPRESS
 %}
 
 zig_short_multiply_expression[A, B] -> 
-    $A {% d => d[0] %}
-    | $B {% d => d[0] %}
+    $A {% id %}
+    | $B {% id %}
     | ($A $B):+ $A:? {% extract_zig_multiply_expression %}
     | ($B $A):+ $B:? {% extract_zig_multiply_expression %}
 
@@ -47,22 +47,22 @@ short_multiply_expression[E] -> $E:+ {% data => {
 }%}
 
 full_factor ->
-    parentheses_expression[expression {% d => d[0] %}] {% d => d[0] %}
-    | vector[expression {% d => d[0] %}] {% d => d[0] %}
+    parentheses_expression[expression {% id %}] {% id %}
+    | vector[expression {% id %}] {% id %}
 
-full_short_multiply -> short_multiply_expression[full_factor {% d => d[0] %}] {% d => d[0] %}
+full_short_multiply -> short_multiply_expression[full_factor {% id %}] {% id %}
 
 zig_short_multiply -> 
-    number {% d => d[0] %}
-    | variable {% d => d[0] %}
+    number {% id %}
+    | variable {% id %}
     | number variable {% data => ({type: "MUL_BINARY", inputs: data}) %}
 
-short_multiply -> zig_short_multiply_expression[full_short_multiply {% d => d[0] %}, zig_short_multiply {% d => d[0] %}] {% d => d[0] %}
+short_multiply -> zig_short_multiply_expression[full_short_multiply {% id %}, zig_short_multiply {% id %}] {% id %}
 
 term -> 
-    short_multiply {% d => d[0] %}
-    | term_binary_operator[term {% d => d[0] %}, short_multiply {% d => d[0] %}] {% d => d[0] %}
+    short_multiply {% id %}
+    | term_binary_operator[term {% id %}, short_multiply {% id %}] {% id %}
 
 unary_term ->
-    term {% d => d[0] %}
-    | unary_operator[term {% d => d[0] %}] {% d => d[0] %}
+    term {% id %}
+    | unary_operator[term {% id %}] {% id %}
