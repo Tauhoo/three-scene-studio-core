@@ -8,7 +8,13 @@ expression ->
     unary_term {% id %}
     | expression_binary_operator_expression[unary_term {% id %}] {% id %}
 
-parentheses_expression[E] -> "(" $E ")" {% data => ({ type: "PARENTHESES_EXPRESSION", expression: data[1] }) %}
+parentheses_expression[E] -> "(" ($E ("," $E):*):? ")" {% data => {
+    if(data[1] === null) return { type: "PARENTHESES_EXPRESSION", expressions: [] }
+    const result = []
+    result.push(data[1][0])
+    result.push(...data[1][1].map(item => item[0]))
+    return { type: "PARENTHESES_EXPRESSION", expressions: result }
+} %}
 
 @{% 
     const flatten = data => {

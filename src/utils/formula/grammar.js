@@ -59,7 +59,19 @@ var grammar = {
     {"name": "expression$macrocall$1", "symbols": ["expression$macrocall$1$macrocall$4"], "postprocess": data => ({ type: "SUB", inputs: flatten(data) })},
     {"name": "expression", "symbols": ["expression$macrocall$1"], "postprocess": id},
     {"name": "full_factor$macrocall$2", "symbols": ["expression"], "postprocess": id},
-    {"name": "full_factor$macrocall$1", "symbols": [{"literal":"("}, "full_factor$macrocall$2", {"literal":")"}], "postprocess": data => ({ type: "PARENTHESES_EXPRESSION", expression: data[1] })},
+    {"name": "full_factor$macrocall$1$ebnf$1$subexpression$1$ebnf$1", "symbols": []},
+    {"name": "full_factor$macrocall$1$ebnf$1$subexpression$1$ebnf$1$subexpression$1", "symbols": [{"literal":","}, "full_factor$macrocall$2"]},
+    {"name": "full_factor$macrocall$1$ebnf$1$subexpression$1$ebnf$1", "symbols": ["full_factor$macrocall$1$ebnf$1$subexpression$1$ebnf$1", "full_factor$macrocall$1$ebnf$1$subexpression$1$ebnf$1$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "full_factor$macrocall$1$ebnf$1$subexpression$1", "symbols": ["full_factor$macrocall$2", "full_factor$macrocall$1$ebnf$1$subexpression$1$ebnf$1"]},
+    {"name": "full_factor$macrocall$1$ebnf$1", "symbols": ["full_factor$macrocall$1$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "full_factor$macrocall$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "full_factor$macrocall$1", "symbols": [{"literal":"("}, "full_factor$macrocall$1$ebnf$1", {"literal":")"}], "postprocess":  data => {
+            if(data[1] === null) return { type: "PARENTHESES_EXPRESSION", expressions: [] }
+            const result = []
+            result.push(data[1][0])
+            result.push(...data[1][1].map(item => item[0]))
+            return { type: "PARENTHESES_EXPRESSION", expressions: result }
+        } },
     {"name": "full_factor", "symbols": ["full_factor$macrocall$1"]},
     {"name": "full_factor$macrocall$4", "symbols": ["expression"], "postprocess": id},
     {"name": "full_factor$macrocall$3$ebnf$1$macrocall$2", "symbols": ["full_factor$macrocall$4"], "postprocess": id},

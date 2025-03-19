@@ -1,6 +1,8 @@
 import nearley from 'nearley'
 import { default as grammar } from './grammar'
 import { errorResponse, successResponse } from '../response'
+import { FormulaNode } from './types'
+import { generateFunctionNode } from './function'
 
 const grammarAny = grammar as any
 
@@ -12,54 +14,14 @@ export const parse = (input: string) => {
       {}
     )
     parser.feed(cleanedInput)
-    const result = parser.finish()
-    return successResponse<FormulaNode>(result[0])
+    const parsedResult = parser.finish()
+    const result = parsedResult[0]
+    const generateResult = generateFunctionNode(result)
+    if (generateResult.status === 'ERROR') {
+      return generateResult
+    }
+    return successResponse<FormulaNode>(result)
   } catch (error) {
     return errorResponse('INVALID_FORMULA', `${error}`)
   }
 }
-
-export interface NumberNode {
-  type: 'NUMBER'
-  value: number
-  text: string
-}
-
-export interface VariableNode {
-  type: 'VARIABLE'
-  name: string
-}
-
-export interface VectorNode {
-  type: 'VECTOR'
-  items: FormulaNode[]
-}
-
-export interface BinaryOperationNode {
-  type: 'ADD' | 'SUB' | 'MUL' | 'DIV' | 'MOD'
-  inputs: FormulaNode[]
-}
-
-export interface ImplicitMultiplicationNode {
-  type: 'IMP_MUL'
-  inputs: FormulaNode[]
-}
-
-export interface MinusPrefixUnaryNode {
-  type: 'MINUS_PREFIX_UNARY'
-  input: FormulaNode
-}
-
-export interface ParenthesesExpressionNode {
-  type: 'PARENTHESES_EXPRESSION'
-  expression: FormulaNode
-}
-
-export type FormulaNode =
-  | NumberNode
-  | VariableNode
-  | VectorNode
-  | BinaryOperationNode
-  | ImplicitMultiplicationNode
-  | MinusPrefixUnaryNode
-  | ParenthesesExpressionNode
