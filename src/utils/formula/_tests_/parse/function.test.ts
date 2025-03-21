@@ -1,4 +1,4 @@
-import { parse } from './index'
+import { parse } from '../../parse'
 
 describe('function test', () => {
   it('start with function', () => {
@@ -145,6 +145,31 @@ describe('function test', () => {
       code: 'INVALID_FORMULA',
       error:
         'Multiple expressions in parentheses can be used for function invocation only',
+    })
+  })
+
+  it('function with nested expressions', () => {
+    const result = parse('cos(1 + 2 + sin(30))')
+    expect(result).toEqual({
+      status: 'SUCCESS',
+      data: {
+        type: 'FUNCTION',
+        func: 'cos',
+        inputs: [
+          {
+            type: 'ADD',
+            inputs: [
+              { type: 'NUMBER', text: '1', value: 1 },
+              { type: 'NUMBER', text: '2', value: 2 },
+              {
+                type: 'FUNCTION',
+                func: 'sin',
+                inputs: [{ type: 'NUMBER', text: '30', value: 30 }],
+              },
+            ],
+          },
+        ],
+      },
     })
   })
 })

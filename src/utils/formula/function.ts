@@ -114,10 +114,11 @@ export const functionMap = new Map(
 
 export const generateFunctionNode = (
   node: FormulaNode
-): SuccessResponse<null> | ErrorResponse<'INVALID_FORMULA'> => {
+): SuccessResponse<FormulaNode> | ErrorResponse<'INVALID_FORMULA'> => {
   if (node.type === 'NUMBER') {
-    return successResponse(null)
+    return successResponse(node)
   }
+
   if (node.type === 'VARIABLE') {
     const functionInfo = functionMap.get(node.name)
     if (functionInfo !== undefined) {
@@ -126,17 +127,22 @@ export const generateFunctionNode = (
         `Can not use ${node.name} function without arguments`
       )
     }
-    return successResponse(null)
+    return successResponse(node)
   }
+
   if (node.type === 'VECTOR') {
+    const mutatedItems: FormulaNode[] = []
     for (const item of node.items) {
       const result = generateFunctionNode(item)
       if (result.status === 'ERROR') {
         return result
       }
+      mutatedItems.push(result.data)
     }
-    return successResponse(null)
+    node.items = mutatedItems
+    return successResponse(node)
   }
+
   if (
     node.type === 'ADD' ||
     node.type === 'SUB' ||
@@ -144,13 +150,16 @@ export const generateFunctionNode = (
     node.type === 'DIV' ||
     node.type === 'MOD'
   ) {
+    const mutatedInputs: FormulaNode[] = []
     for (const item of node.inputs) {
       const result = generateFunctionNode(item)
       if (result.status === 'ERROR') {
         return result
       }
+      mutatedInputs.push(result.data)
     }
-    return successResponse(null)
+    node.inputs = mutatedInputs as [FormulaNode, FormulaNode]
+    return successResponse(node)
   }
 
   if (node.type === 'IMP_MUL') {
@@ -190,21 +199,33 @@ export const generateFunctionNode = (
         func: functionInfo.keyword,
         inputs: item.expressions,
       })
-      node.inputs = mutatedInputs
       continue
     }
+    node.inputs = mutatedInputs
 
+    const mutatedFunctionNodes: FormulaNode[] = []
     for (const item of node.inputs) {
       const result = generateFunctionNode(item)
       if (result.status === 'ERROR') {
         return result
       }
+      mutatedFunctionNodes.push(result.data)
     }
-    return successResponse(null)
+    node.inputs = mutatedFunctionNodes
+
+    if (node.inputs.length === 1) {
+      return successResponse(node.inputs[0])
+    }
+    return successResponse(node)
   }
 
   if (node.type === 'MINUS_PREFIX_UNARY') {
-    return generateFunctionNode(node.input)
+    const result = generateFunctionNode(node.input)
+    if (result.status === 'ERROR') {
+      return result
+    }
+    node.input = result.data
+    return successResponse(node)
   }
 
   if (node.type === 'PARENTHESES_EXPRESSION') {
@@ -216,7 +237,12 @@ export const generateFunctionNode = (
     }
 
     if (node.expressions.length === 1) {
-      return generateFunctionNode(node.expressions[0])
+      const result = generateFunctionNode(node.expressions[0])
+      if (result.status === 'ERROR') {
+        return result
+      }
+      node.expressions = [result.data]
+      return successResponse(node)
     }
 
     return errorResponse(
@@ -226,13 +252,16 @@ export const generateFunctionNode = (
   }
 
   if (node.type === 'FUNCTION') {
+    const mutatedInputs: FormulaNode[] = []
     for (const item of node.inputs) {
       const result = generateFunctionNode(item)
       if (result.status === 'ERROR') {
         return result
       }
+      mutatedInputs.push(result.data)
     }
-    return successResponse(null)
+    node.inputs = mutatedInputs
+    return successResponse(node)
   }
 
   return errorResponse('INVALID_FORMULA', 'Invalid node type')

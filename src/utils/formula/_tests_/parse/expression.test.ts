@@ -1,4 +1,4 @@
-import { parse } from './index'
+import { parse } from '../../parse'
 
 describe('Expression Parser', () => {
   describe('Number Expressions', () => {

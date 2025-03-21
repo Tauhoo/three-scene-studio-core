@@ -1,4 +1,4 @@
-import { parse } from './index'
+import { parse } from '../../parse'
 describe('parse vector', () => {
   test('empty vector', () => {
     const result = parse('[]')

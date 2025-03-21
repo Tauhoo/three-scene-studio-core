@@ -1,4 +1,4 @@
-import { parse } from './index'
+import { parse } from '../../parse'
 
 describe('Binary Operator Parser', () => {
   describe('Addition', () => {

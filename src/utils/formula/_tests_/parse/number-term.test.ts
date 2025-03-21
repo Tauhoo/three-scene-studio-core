@@ -1,4 +1,4 @@
-import { parse } from './index'
+import { parse } from '../../parse'
 
 describe('parse number term', () => {
   test('multiple 2 number', () => {

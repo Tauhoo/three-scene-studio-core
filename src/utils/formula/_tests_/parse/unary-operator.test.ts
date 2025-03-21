@@ -1,4 +1,4 @@
-import { parse } from './index'
+import { parse } from '../../parse'
 describe('parse unary operator', () => {
   test('minus number', () => {
     const result = parse('-3')
