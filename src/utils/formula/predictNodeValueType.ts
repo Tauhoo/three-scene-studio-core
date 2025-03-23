@@ -126,7 +126,7 @@ export const predictNodeValueType = (
 
     return {
       status: 'FAIL',
-      error: 'Invalid function invocation',
+      error: `Invalid ${node.func} function invocation`,
       problemNode: node,
     }
   }
@@ -161,7 +161,17 @@ export const predictNodeValueType = (
   }
 
   if (node.type === 'MINUS_PREFIX_UNARY') {
-    return predictNodeValueType(node.input, variableChecker)
+    const validationResult = predictNodeValueType(node.input, variableChecker)
+    if (validationResult.status === 'FAIL') {
+      return validationResult
+    }
+    return {
+      status: 'SUCCESS',
+      info: {
+        node: node,
+        value: validationResult.info.value,
+      },
+    }
   }
 
   if (node.type === 'PARENTHESES_EXPRESSION') {
@@ -174,7 +184,20 @@ export const predictNodeValueType = (
     }
 
     if (node.expressions.length === 1) {
-      return predictNodeValueType(node.expressions[0], variableChecker)
+      const validationResult = predictNodeValueType(
+        node.expressions[0],
+        variableChecker
+      )
+      if (validationResult.status === 'FAIL') {
+        return validationResult
+      }
+      return {
+        status: 'SUCCESS',
+        info: {
+          node: node,
+          value: validationResult.info.value,
+        },
+      }
     }
 
     return {
