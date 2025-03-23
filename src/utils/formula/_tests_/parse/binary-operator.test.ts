@@ -202,4 +202,78 @@ describe('Binary Operator Parser', () => {
       })
     })
   })
+
+  describe('Mix Same Level Operators', () => {
+    it('should parse addition and subtraction at the same level', () => {
+      const result = parse('1 + 2 - 3')
+      expect(result).toEqual({
+        status: 'SUCCESS',
+        data: {
+          type: 'SUB',
+          inputs: [
+            {
+              type: 'ADD',
+              inputs: [
+                { type: 'NUMBER', value: 1, text: '1' },
+                { type: 'NUMBER', value: 2, text: '2' },
+              ],
+            },
+            { type: 'NUMBER', value: 3, text: '3' },
+          ],
+        },
+      })
+    })
+
+    it('should parse multiplication and division at the same level', () => {
+      const result = parse('6 * 2 / 3')
+      expect(result).toEqual({
+        status: 'SUCCESS',
+        data: {
+          type: 'DIV',
+          inputs: [
+            {
+              type: 'MUL',
+              inputs: [
+                { type: 'NUMBER', value: 6, text: '6' },
+                { type: 'NUMBER', value: 2, text: '2' },
+              ],
+            },
+            { type: 'NUMBER', value: 3, text: '3' },
+          ],
+        },
+      })
+    })
+
+    it('should parse addition, subtraction, multiplication, and division at the same level', () => {
+      const result = parse('1 + 2 - 3 * 4 / 5')
+      expect(result).toEqual({
+        status: 'SUCCESS',
+        data: {
+          type: 'SUB',
+          inputs: [
+            {
+              type: 'ADD',
+              inputs: [
+                { type: 'NUMBER', value: 1, text: '1' },
+                { type: 'NUMBER', value: 2, text: '2' },
+              ],
+            },
+            {
+              type: 'DIV',
+              inputs: [
+                {
+                  type: 'MUL',
+                  inputs: [
+                    { type: 'NUMBER', value: 3, text: '3' },
+                    { type: 'NUMBER', value: 4, text: '4' },
+                  ],
+                },
+                { type: 'NUMBER', value: 5, text: '5' },
+              ],
+            },
+          ],
+        },
+      })
+    })
+  })
 })

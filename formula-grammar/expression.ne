@@ -4,9 +4,7 @@
 @include "./binary-operator.ne"
 @include "./variable.ne"
 
-expression -> 
-    unary_term {% id %}
-    | expression_binary_operator_expression[unary_term {% id %}] {% id %}
+expression -> expression_binary_operator_expression {% id %}
 
 parentheses_expression[E] -> "(" ($E ("," $E):*):? ")" {% data => {
     if(data[1] === null) return { type: "PARENTHESES_EXPRESSION", expressions: [] }
@@ -55,7 +53,7 @@ short_multiply -> zig_short_multiply_expression[full_short_multiply {% id %}, zi
     return {type: "IMP_MUL", inputs: result}
 }%}
 
-term -> term_binary_operator_expression[short_multiply {% id %}]  {% id %}
+term -> term_binary_operator_expression {% id %}
 
 unary_term ->
     term {% id %}

@@ -150,6 +150,8 @@ describe('function test', () => {
 
   it('function with nested expressions', () => {
     const result = parse('cos(1 + 2 + sin(30))')
+    console.log('DEBUG: result', JSON.stringify(result, null, 2))
+
     expect(result).toEqual({
       status: 'SUCCESS',
       data: {

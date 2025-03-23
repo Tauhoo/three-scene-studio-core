@@ -1,4 +1,3 @@
-import { i } from 'mathjs'
 import {
   ErrorResponse,
   errorResponse,
@@ -9,80 +8,74 @@ import { FormulaNode } from './types'
 
 type FunctionInfo = {
   keyword: string
-  input: ('number' | 'vector' | 'all')[]
-  output: 'number' | 'vector' | 'all'
+  inputLength: number
   func: (...args: any[]) => any
 }
 
-const functionInfos: FunctionInfo[] = [
+export const functionInfos: FunctionInfo[] = [
   // function for both vector and number
   {
     keyword: 'sin',
-    input: ['all'],
-    output: 'all',
-    func: Math.sin,
+    inputLength: 1,
+    func: (a: number | number[]) =>
+      typeof a === 'number' ? Math.sin(a) : a.map(Math.sin),
   },
   {
     keyword: 'cos',
-    input: ['all'],
-    output: 'all',
-    func: Math.cos,
+    inputLength: 1,
+    func: (a: number | number[]) =>
+      typeof a === 'number' ? Math.cos(a) : a.map(Math.cos),
   },
   {
     keyword: 'tan',
-    input: ['all'],
-    output: 'all',
-    func: Math.tan,
+    inputLength: 1,
+    func: (a: number | number[]) =>
+      typeof a === 'number' ? Math.tan(a) : a.map(Math.tan),
   },
   {
     keyword: 'abs',
-    input: ['all'],
-    output: 'all',
-    func: Math.abs,
+    inputLength: 1,
+    func: (a: number | number[]) =>
+      typeof a === 'number' ? Math.abs(a) : a.map(Math.abs),
   },
   {
     keyword: 'mod',
-    input: ['all', 'all'],
-    output: 'all',
-    func: (a, b) => a % b,
+    inputLength: 2,
+    func: (a, b) => a % b, // TODO: handle vector
   },
   {
     keyword: 'atan',
-    input: ['all'],
-    output: 'all',
-    func: Math.atan,
+    inputLength: 2,
+    func: (a, b) => Math.atan(a, b), // TODO: handle vector
   },
   {
     keyword: 'floor',
-    input: ['all'],
-    output: 'all',
-    func: Math.floor,
+    inputLength: 1,
+    func: (a: number | number[]) =>
+      typeof a === 'number' ? Math.floor(a) : a.map(Math.floor),
   },
   {
     keyword: 'ceil',
-    input: ['all'],
-    output: 'all',
-    func: Math.ceil,
+    inputLength: 1,
+    func: (a: number | number[]) =>
+      typeof a === 'number' ? Math.ceil(a) : a.map(Math.ceil),
   },
   {
     keyword: 'pow',
-    input: ['all', 'all'],
-    output: 'all',
-    func: Math.pow,
+    inputLength: 2,
+    func: Math.pow, // handle vector
   },
 
   // function for vector
   {
     keyword: 'dot',
-    input: ['vector', 'vector'],
-    output: 'number',
+    inputLength: 2,
     func: (a: number[], b: number[]) =>
       a.reduce((acc, curr, index) => acc + curr * b[index], 0),
   },
   {
     keyword: 'cross',
-    input: ['vector', 'vector'],
-    output: 'vector',
+    inputLength: 2,
     func: (a: number[], b: number[]) => [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
@@ -91,8 +84,7 @@ const functionInfos: FunctionInfo[] = [
   },
   {
     keyword: 'norm',
-    input: ['vector'],
-    output: 'vector',
+    inputLength: 1,
     func: (a: number[]) => {
       const sum = a.reduce((acc, curr) => acc + curr * curr, 0)
       return a.map(v => v / Math.sqrt(sum))
@@ -102,8 +94,7 @@ const functionInfos: FunctionInfo[] = [
   // utility functions
   {
     keyword: 'rand',
-    input: [],
-    output: 'number',
+    inputLength: 0,
     func: () => Math.random(),
   },
 ]

@@ -169,6 +169,94 @@ describe('Expression Parser', () => {
   })
 
   describe('Complex Expressions', () => {
+    it('should parse complex vector expressions with multiple consecutive number term operations', () => {
+      const result = parse('1 % 4 * [3, 2] - [2, 1]')
+      expect(result).toEqual({
+        status: 'SUCCESS',
+        data: {
+          type: 'SUB',
+          inputs: [
+            {
+              type: 'MUL',
+              inputs: [
+                {
+                  type: 'MOD',
+                  inputs: [
+                    { type: 'NUMBER', value: 1, text: '1' },
+                    { type: 'NUMBER', value: 4, text: '4' },
+                  ],
+                },
+                {
+                  type: 'VECTOR',
+                  items: [
+                    { type: 'NUMBER', value: 3, text: '3' },
+                    { type: 'NUMBER', value: 2, text: '2' },
+                  ],
+                },
+              ],
+            },
+            {
+              type: 'VECTOR',
+              items: [
+                { type: 'NUMBER', value: 2, text: '2' },
+                { type: 'NUMBER', value: 1, text: '1' },
+              ],
+            },
+          ],
+        },
+      })
+    })
+
+    it('should parse complex vector expressions with multiple consecutive vector term operations', () => {
+      const result = parse('[5, 6] % [2, 3] * [3, 2] - [2, 1]')
+      expect(result).toEqual({
+        status: 'SUCCESS',
+        data: {
+          type: 'SUB',
+          inputs: [
+            {
+              type: 'MUL',
+              inputs: [
+                {
+                  type: 'MOD',
+                  inputs: [
+                    {
+                      type: 'VECTOR',
+                      items: [
+                        { type: 'NUMBER', value: 5, text: '5' },
+                        { type: 'NUMBER', value: 6, text: '6' },
+                      ],
+                    },
+                    {
+                      type: 'VECTOR',
+                      items: [
+                        { type: 'NUMBER', value: 2, text: '2' },
+                        { type: 'NUMBER', value: 3, text: '3' },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: 'VECTOR',
+                  items: [
+                    { type: 'NUMBER', value: 3, text: '3' },
+                    { type: 'NUMBER', value: 2, text: '2' },
+                  ],
+                },
+              ],
+            },
+            {
+              type: 'VECTOR',
+              items: [
+                { type: 'NUMBER', value: 2, text: '2' },
+                { type: 'NUMBER', value: 1, text: '1' },
+              ],
+            },
+          ],
+        },
+      })
+    })
+
     it('should parse vector with complex expressions', () => {
       const result = parse('[1 + 2 * 3, (4 + 5) * 6]')
       expect(result).toEqual({
