@@ -1,17 +1,20 @@
 import { errorResponse, successResponse } from '../response'
 import { FormulaNode } from './types'
-
+import { v4 as uuidv4 } from 'uuid'
 export type ExpressionBlock = {
+  id: string
   type: 'EXPRESSION'
   text: string
 }
 
 export type VariableBlock = {
+  id: string
   type: 'VARIABLE'
   name: string
 }
 
 export type FunctionBlock = {
+  id: string
   type: 'FUNCTION'
   func: string
 }
@@ -40,7 +43,7 @@ export const getBlocks = (formularText: string, node: FormulaNode) => {
     }
     if (index !== foundIndex) {
       const spaceText = formularText.slice(index, foundIndex)
-      result.push({ type: 'EXPRESSION', text: spaceText })
+      result.push({ type: 'EXPRESSION', text: spaceText, id: uuidv4() })
     }
     result.push(block)
     index = foundIndex + text.length
@@ -55,6 +58,7 @@ export const getBlocks = (formularText: string, node: FormulaNode) => {
         groupedResult.push({
           type: 'EXPRESSION',
           text: last.text + block.text,
+          id: uuidv4(),
         })
       } else {
         if (last !== undefined) {
@@ -75,7 +79,7 @@ export const getBlocksFromNode = (node: FormulaNode): Block[] => {
     for (let i = 0; i < node.inputs.length; i++) {
       const input = node.inputs[i]
       if (i !== 0) {
-        result.push({ type: 'EXPRESSION', text: '+' })
+        result.push({ type: 'EXPRESSION', text: '+', id: uuidv4() })
       }
       result.push(...getBlocksFromNode(input))
     }
@@ -87,7 +91,7 @@ export const getBlocksFromNode = (node: FormulaNode): Block[] => {
     for (let i = 0; i < node.inputs.length; i++) {
       const input = node.inputs[i]
       if (i !== 0) {
-        result.push({ type: 'EXPRESSION', text: '-' })
+        result.push({ type: 'EXPRESSION', text: '-', id: uuidv4() })
       }
       result.push(...getBlocksFromNode(input))
     }
@@ -99,7 +103,7 @@ export const getBlocksFromNode = (node: FormulaNode): Block[] => {
     for (let i = 0; i < node.inputs.length; i++) {
       const input = node.inputs[i]
       if (i !== 0) {
-        result.push({ type: 'EXPRESSION', text: '/' })
+        result.push({ type: 'EXPRESSION', text: '/', id: uuidv4() })
       }
       result.push(...getBlocksFromNode(input))
     }
@@ -111,7 +115,7 @@ export const getBlocksFromNode = (node: FormulaNode): Block[] => {
     for (let i = 0; i < node.inputs.length; i++) {
       const input = node.inputs[i]
       if (i !== 0) {
-        result.push({ type: 'EXPRESSION', text: '*' })
+        result.push({ type: 'EXPRESSION', text: '*', id: uuidv4() })
       }
       result.push(...getBlocksFromNode(input))
     }
@@ -123,7 +127,7 @@ export const getBlocksFromNode = (node: FormulaNode): Block[] => {
     for (let i = 0; i < node.inputs.length; i++) {
       const input = node.inputs[i]
       if (i !== 0) {
-        result.push({ type: 'EXPRESSION', text: '%' })
+        result.push({ type: 'EXPRESSION', text: '%', id: uuidv4() })
       }
       result.push(...getBlocksFromNode(input))
     }
@@ -131,54 +135,57 @@ export const getBlocksFromNode = (node: FormulaNode): Block[] => {
   }
 
   if (node.type === 'NUMBER') {
-    return [{ type: 'EXPRESSION', text: node.text }]
+    return [{ type: 'EXPRESSION', text: node.text, id: node.id }]
   }
 
   if (node.type === 'VARIABLE') {
-    return [{ type: 'VARIABLE', name: node.name }]
+    return [{ type: 'VARIABLE', name: node.name, id: node.id }]
   }
 
   if (node.type === 'FUNCTION') {
     const result: Block[] = [
-      { type: 'FUNCTION', func: node.func },
-      { type: 'EXPRESSION', text: '(' },
+      { type: 'FUNCTION', func: node.func, id: node.id },
+      { type: 'EXPRESSION', text: '(', id: uuidv4() },
     ]
     for (let i = 0; i < node.inputs.length; i++) {
       if (i !== 0) {
-        result.push({ type: 'EXPRESSION', text: ',' })
+        result.push({ type: 'EXPRESSION', text: ',', id: uuidv4() })
       }
       result.push(...getBlocksFromNode(node.inputs[i]))
     }
-    result.push({ type: 'EXPRESSION', text: ')' })
+    result.push({ type: 'EXPRESSION', text: ')', id: uuidv4() })
     return result
   }
 
   if (node.type === 'VECTOR') {
-    const result: Block[] = [{ type: 'EXPRESSION', text: '[' }]
+    const result: Block[] = [{ type: 'EXPRESSION', text: '[', id: node.id }]
     for (let i = 0; i < node.items.length; i++) {
       if (i !== 0) {
-        result.push({ type: 'EXPRESSION', text: ',' })
+        result.push({ type: 'EXPRESSION', text: ',', id: uuidv4() })
       }
       result.push(...getBlocksFromNode(node.items[i]))
     }
-    result.push({ type: 'EXPRESSION', text: ']' })
+    result.push({ type: 'EXPRESSION', text: ']', id: uuidv4() })
     return result
   }
 
   if (node.type === 'PARENTHESES_EXPRESSION') {
-    const result: Block[] = [{ type: 'EXPRESSION', text: '(' }]
+    const result: Block[] = [{ type: 'EXPRESSION', text: '(', id: node.id }]
     for (let i = 0; i < node.expressions.length; i++) {
       if (i !== 0) {
-        result.push({ type: 'EXPRESSION', text: ',' })
+        result.push({ type: 'EXPRESSION', text: ',', id: uuidv4() })
       }
       result.push(...getBlocksFromNode(node.expressions[i]))
     }
-    result.push({ type: 'EXPRESSION', text: ')' })
+    result.push({ type: 'EXPRESSION', text: ')', id: uuidv4() })
     return result
   }
 
   if (node.type === 'MINUS_PREFIX_UNARY') {
-    return [{ type: 'EXPRESSION', text: '-' }, ...getBlocksFromNode(node.input)]
+    return [
+      { type: 'EXPRESSION', text: '-', id: node.id },
+      ...getBlocksFromNode(node.input),
+    ]
   }
 
   if (node.type === 'IMP_MUL') {

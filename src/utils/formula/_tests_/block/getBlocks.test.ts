@@ -11,7 +11,7 @@ describe('getBlocks', () => {
     const result = getBlocks(formulaText, parseResult.data)
     expect(result).toEqual({
       status: 'SUCCESS',
-      data: [{ type: 'EXPRESSION', text: '1 + 2' }],
+      data: [{ id: expect.any(String), type: 'EXPRESSION', text: '1 + 2' }],
     })
   })
 
@@ -25,10 +25,10 @@ describe('getBlocks', () => {
     expect(result).toEqual({
       status: 'SUCCESS',
       data: [
-        { type: 'VARIABLE', name: 'x' },
-        { type: 'EXPRESSION', text: ' + ' },
-        { type: 'FUNCTION', func: 'cos' },
-        { type: 'EXPRESSION', text: '(1)' },
+        { id: expect.any(String), type: 'VARIABLE', name: 'x' },
+        { id: expect.any(String), type: 'EXPRESSION', text: ' + ' },
+        { id: expect.any(String), type: 'FUNCTION', func: 'cos' },
+        { id: expect.any(String), type: 'EXPRESSION', text: '(1)' },
       ],
     })
   })
@@ -42,7 +42,9 @@ describe('getBlocks', () => {
     const result = getBlocks(formulaText, parseResult.data)
     expect(result).toEqual({
       status: 'SUCCESS',
-      data: [{ type: 'EXPRESSION', text: '2 + [1, 2, 3]' }],
+      data: [
+        { id: expect.any(String), type: 'EXPRESSION', text: '2 + [1, 2, 3]' },
+      ],
     })
   })
 
@@ -56,9 +58,9 @@ describe('getBlocks', () => {
     expect(result).toEqual({
       status: 'SUCCESS',
       data: [
-        { type: 'EXPRESSION', text: '[1, 2, ' },
-        { type: 'FUNCTION', func: 'cos' },
-        { type: 'EXPRESSION', text: '(10)]' },
+        { id: expect.any(String), type: 'EXPRESSION', text: '[1, 2, ' },
+        { id: expect.any(String), type: 'FUNCTION', func: 'cos' },
+        { id: expect.any(String), type: 'EXPRESSION', text: '(10)]' },
       ],
     })
   })
@@ -73,10 +75,10 @@ describe('getBlocks', () => {
     expect(result).toEqual({
       status: 'SUCCESS',
       data: [
-        { type: 'FUNCTION', func: 'cos' },
-        { type: 'EXPRESSION', text: '(1 + 2 + ' },
-        { type: 'FUNCTION', func: 'sin' },
-        { type: 'EXPRESSION', text: '(30))' },
+        { id: expect.any(String), type: 'FUNCTION', func: 'cos' },
+        { id: expect.any(String), type: 'EXPRESSION', text: '(1 + 2 + ' },
+        { id: expect.any(String), type: 'FUNCTION', func: 'sin' },
+        { id: expect.any(String), type: 'EXPRESSION', text: '(30))' },
       ],
     })
   })

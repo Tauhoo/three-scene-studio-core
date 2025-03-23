@@ -10,9 +10,9 @@ describe('getBlocks', () => {
     }
     const result = getBlocksFromNode(parseResult.data)
     expect(result).toEqual([
-      { type: 'EXPRESSION', text: '1' },
-      { type: 'EXPRESSION', text: '+' },
-      { type: 'EXPRESSION', text: '2' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '1' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '+' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '2' },
     ])
   })
 
@@ -24,12 +24,12 @@ describe('getBlocks', () => {
     }
     const result = getBlocksFromNode(parseResult.data)
     expect(result).toEqual([
-      { type: 'VARIABLE', name: 'x' },
-      { type: 'EXPRESSION', text: '+' },
-      { type: 'FUNCTION', func: 'cos' },
-      { type: 'EXPRESSION', text: '(' },
-      { type: 'EXPRESSION', text: '1' },
-      { type: 'EXPRESSION', text: ')' },
+      { id: expect.any(String), type: 'VARIABLE', name: 'x' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '+' },
+      { id: expect.any(String), type: 'FUNCTION', func: 'cos' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '(' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '1' },
+      { id: expect.any(String), type: 'EXPRESSION', text: ')' },
     ])
   })
 
@@ -41,15 +41,15 @@ describe('getBlocks', () => {
     }
     const result = getBlocksFromNode(parseResult.data)
     expect(result).toEqual([
-      { type: 'EXPRESSION', text: '2' },
-      { type: 'EXPRESSION', text: '+' },
-      { type: 'EXPRESSION', text: '[' },
-      { type: 'EXPRESSION', text: '1' },
-      { type: 'EXPRESSION', text: ',' },
-      { type: 'EXPRESSION', text: '2' },
-      { type: 'EXPRESSION', text: ',' },
-      { type: 'EXPRESSION', text: '3' },
-      { type: 'EXPRESSION', text: ']' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '2' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '+' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '[' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '1' },
+      { id: expect.any(String), type: 'EXPRESSION', text: ',' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '2' },
+      { id: expect.any(String), type: 'EXPRESSION', text: ',' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '3' },
+      { id: expect.any(String), type: 'EXPRESSION', text: ']' },
     ])
   })
 
@@ -61,16 +61,16 @@ describe('getBlocks', () => {
     }
     const result = getBlocksFromNode(parseResult.data)
     expect(result).toEqual([
-      { type: 'EXPRESSION', text: '[' },
-      { type: 'EXPRESSION', text: '1' },
-      { type: 'EXPRESSION', text: ',' },
-      { type: 'EXPRESSION', text: '2' },
-      { type: 'EXPRESSION', text: ',' },
-      { type: 'FUNCTION', func: 'cos' },
-      { type: 'EXPRESSION', text: '(' },
-      { type: 'EXPRESSION', text: '10' },
-      { type: 'EXPRESSION', text: ')' },
-      { type: 'EXPRESSION', text: ']' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '[' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '1' },
+      { id: expect.any(String), type: 'EXPRESSION', text: ',' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '2' },
+      { id: expect.any(String), type: 'EXPRESSION', text: ',' },
+      { id: expect.any(String), type: 'FUNCTION', func: 'cos' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '(' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '10' },
+      { id: expect.any(String), type: 'EXPRESSION', text: ')' },
+      { id: expect.any(String), type: 'EXPRESSION', text: ']' },
     ])
   })
 
@@ -83,17 +83,17 @@ describe('getBlocks', () => {
     const result = getBlocksFromNode(parseResult.data)
 
     expect(result).toEqual([
-      { type: 'FUNCTION', func: 'cos' },
-      { type: 'EXPRESSION', text: '(' },
-      { type: 'EXPRESSION', text: '1' },
-      { type: 'EXPRESSION', text: '+' },
-      { type: 'EXPRESSION', text: '2' },
-      { type: 'EXPRESSION', text: '+' },
-      { type: 'FUNCTION', func: 'sin' },
-      { type: 'EXPRESSION', text: '(' },
-      { type: 'EXPRESSION', text: '30' },
-      { type: 'EXPRESSION', text: ')' },
-      { type: 'EXPRESSION', text: ')' },
+      { id: expect.any(String), type: 'FUNCTION', func: 'cos' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '(' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '1' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '+' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '2' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '+' },
+      { id: expect.any(String), type: 'FUNCTION', func: 'sin' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '(' },
+      { id: expect.any(String), type: 'EXPRESSION', text: '30' },
+      { id: expect.any(String), type: 'EXPRESSION', text: ')' },
+      { id: expect.any(String), type: 'EXPRESSION', text: ')' },
     ])
   })
 })
