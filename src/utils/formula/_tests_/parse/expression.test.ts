@@ -6,7 +6,7 @@ describe('Expression Parser', () => {
       const result = parse('42')
       expect(result).toEqual({
         status: 'SUCCESS',
-        data: { type: 'NUMBER', value: 42, text: '42' },
+        data: { id: expect.any(String), type: 'NUMBER', value: 42, text: '42' },
       })
     })
 
@@ -14,7 +14,12 @@ describe('Expression Parser', () => {
       const result = parse('3.14')
       expect(result).toEqual({
         status: 'SUCCESS',
-        data: { type: 'NUMBER', value: 3.14, text: '3.14' },
+        data: {
+          id: expect.any(String),
+          type: 'NUMBER',
+          value: 3.14,
+          text: '3.14',
+        },
       })
     })
 
@@ -23,8 +28,14 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'MINUS_PREFIX_UNARY',
-          input: { type: 'NUMBER', value: 5, text: '5' },
+          input: {
+            id: expect.any(String),
+            type: 'NUMBER',
+            value: 5,
+            text: '5',
+          },
         },
       })
     })
@@ -35,7 +46,7 @@ describe('Expression Parser', () => {
       const result = parse('[]')
       expect(result).toEqual({
         status: 'SUCCESS',
-        data: { type: 'VECTOR', items: [] },
+        data: { id: expect.any(String), type: 'VECTOR', items: [] },
       })
     })
 
@@ -44,8 +55,11 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'VECTOR',
-          items: [{ type: 'NUMBER', value: 1, text: '1' }],
+          items: [
+            { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
+          ],
         },
       })
     })
@@ -55,11 +69,12 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'VECTOR',
           items: [
-            { type: 'NUMBER', value: 1, text: '1' },
-            { type: 'NUMBER', value: 2, text: '2' },
-            { type: 'NUMBER', value: 3, text: '3' },
+            { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
+            { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
+            { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
           ],
         },
       })
@@ -70,20 +85,23 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'VECTOR',
           items: [
             {
+              id: expect.any(String),
               type: 'ADD',
               inputs: [
-                { type: 'NUMBER', value: 1, text: '1' },
-                { type: 'NUMBER', value: 2, text: '2' },
+                { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
+                { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
               ],
             },
             {
+              id: expect.any(String),
               type: 'MUL',
               inputs: [
-                { type: 'NUMBER', value: 3, text: '3' },
-                { type: 'NUMBER', value: 4, text: '4' },
+                { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
+                { id: expect.any(String), type: 'NUMBER', value: 4, text: '4' },
               ],
             },
           ],
@@ -98,13 +116,15 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'PARENTHESES_EXPRESSION',
           expressions: [
             {
+              id: expect.any(String),
               type: 'ADD',
               inputs: [
-                { type: 'NUMBER', value: 1, text: '1' },
-                { type: 'NUMBER', value: 2, text: '2' },
+                { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
+                { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
               ],
             },
           ],
@@ -117,24 +137,38 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'PARENTHESES_EXPRESSION',
           expressions: [
             {
+              id: expect.any(String),
               type: 'MUL',
               inputs: [
                 {
+                  id: expect.any(String),
                   type: 'PARENTHESES_EXPRESSION',
                   expressions: [
                     {
+                      id: expect.any(String),
                       type: 'ADD',
                       inputs: [
-                        { type: 'NUMBER', value: 1, text: '1' },
-                        { type: 'NUMBER', value: 2, text: '2' },
+                        {
+                          id: expect.any(String),
+                          type: 'NUMBER',
+                          value: 1,
+                          text: '1',
+                        },
+                        {
+                          id: expect.any(String),
+                          type: 'NUMBER',
+                          value: 2,
+                          text: '2',
+                        },
                       ],
                     },
                   ],
                 },
-                { type: 'NUMBER', value: 3, text: '3' },
+                { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
               ],
             },
           ],
@@ -147,21 +181,34 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'MUL',
           inputs: [
             {
+              id: expect.any(String),
               type: 'PARENTHESES_EXPRESSION',
               expressions: [
                 {
+                  id: expect.any(String),
                   type: 'ADD',
                   inputs: [
-                    { type: 'NUMBER', value: 1, text: '1' },
-                    { type: 'NUMBER', value: 2, text: '2' },
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 1,
+                      text: '1',
+                    },
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 2,
+                      text: '2',
+                    },
                   ],
                 },
               ],
             },
-            { type: 'NUMBER', value: 3, text: '3' },
+            { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
           ],
         },
       })
@@ -174,32 +221,57 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'SUB',
           inputs: [
             {
+              id: expect.any(String),
               type: 'MUL',
               inputs: [
                 {
+                  id: expect.any(String),
                   type: 'MOD',
                   inputs: [
-                    { type: 'NUMBER', value: 1, text: '1' },
-                    { type: 'NUMBER', value: 4, text: '4' },
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 1,
+                      text: '1',
+                    },
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 4,
+                      text: '4',
+                    },
                   ],
                 },
                 {
+                  id: expect.any(String),
                   type: 'VECTOR',
                   items: [
-                    { type: 'NUMBER', value: 3, text: '3' },
-                    { type: 'NUMBER', value: 2, text: '2' },
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 3,
+                      text: '3',
+                    },
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 2,
+                      text: '2',
+                    },
                   ],
                 },
               ],
             },
             {
+              id: expect.any(String),
               type: 'VECTOR',
               items: [
-                { type: 'NUMBER', value: 2, text: '2' },
-                { type: 'NUMBER', value: 1, text: '1' },
+                { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
+                { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
               ],
             },
           ],
@@ -212,44 +284,81 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'SUB',
           inputs: [
             {
+              id: expect.any(String),
               type: 'MUL',
               inputs: [
                 {
+                  id: expect.any(String),
                   type: 'MOD',
                   inputs: [
                     {
+                      id: expect.any(String),
                       type: 'VECTOR',
                       items: [
-                        { type: 'NUMBER', value: 5, text: '5' },
-                        { type: 'NUMBER', value: 6, text: '6' },
+                        {
+                          id: expect.any(String),
+                          type: 'NUMBER',
+                          value: 5,
+                          text: '5',
+                        },
+                        {
+                          id: expect.any(String),
+                          type: 'NUMBER',
+                          value: 6,
+                          text: '6',
+                        },
                       ],
                     },
                     {
+                      id: expect.any(String),
                       type: 'VECTOR',
                       items: [
-                        { type: 'NUMBER', value: 2, text: '2' },
-                        { type: 'NUMBER', value: 3, text: '3' },
+                        {
+                          id: expect.any(String),
+                          type: 'NUMBER',
+                          value: 2,
+                          text: '2',
+                        },
+                        {
+                          id: expect.any(String),
+                          type: 'NUMBER',
+                          value: 3,
+                          text: '3',
+                        },
                       ],
                     },
                   ],
                 },
                 {
+                  id: expect.any(String),
                   type: 'VECTOR',
                   items: [
-                    { type: 'NUMBER', value: 3, text: '3' },
-                    { type: 'NUMBER', value: 2, text: '2' },
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 3,
+                      text: '3',
+                    },
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 2,
+                      text: '2',
+                    },
                   ],
                 },
               ],
             },
             {
+              id: expect.any(String),
               type: 'VECTOR',
               items: [
-                { type: 'NUMBER', value: 2, text: '2' },
-                { type: 'NUMBER', value: 1, text: '1' },
+                { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
+                { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
               ],
             },
           ],
@@ -262,37 +371,63 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'VECTOR',
           items: [
             {
+              id: expect.any(String),
               type: 'ADD',
               inputs: [
-                { type: 'NUMBER', value: 1, text: '1' },
+                { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
                 {
+                  id: expect.any(String),
                   type: 'MUL',
                   inputs: [
-                    { type: 'NUMBER', value: 2, text: '2' },
-                    { type: 'NUMBER', value: 3, text: '3' },
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 2,
+                      text: '2',
+                    },
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 3,
+                      text: '3',
+                    },
                   ],
                 },
               ],
             },
             {
+              id: expect.any(String),
               type: 'MUL',
               inputs: [
                 {
+                  id: expect.any(String),
                   type: 'PARENTHESES_EXPRESSION',
                   expressions: [
                     {
+                      id: expect.any(String),
                       type: 'ADD',
                       inputs: [
-                        { type: 'NUMBER', value: 4, text: '4' },
-                        { type: 'NUMBER', value: 5, text: '5' },
+                        {
+                          id: expect.any(String),
+                          type: 'NUMBER',
+                          value: 4,
+                          text: '4',
+                        },
+                        {
+                          id: expect.any(String),
+                          type: 'NUMBER',
+                          value: 5,
+                          text: '5',
+                        },
                       ],
                     },
                   ],
                 },
-                { type: 'NUMBER', value: 6, text: '6' },
+                { id: expect.any(String), type: 'NUMBER', value: 6, text: '6' },
               ],
             },
           ],
@@ -307,17 +442,19 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'IMP_MUL',
           inputs: [
-            { type: 'NUMBER', value: 4, text: '4' },
+            { id: expect.any(String), type: 'NUMBER', value: 4, text: '4' },
             {
+              id: expect.any(String),
               type: 'VECTOR',
               items: [
-                { type: 'NUMBER', value: 1, text: '1' },
-                { type: 'NUMBER', value: 2, text: '2' },
+                { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
+                { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
               ],
             },
-            { type: 'NUMBER', value: 3, text: '3' },
+            { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
           ],
         },
       })
@@ -329,20 +466,25 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'IMP_MUL',
           inputs: [
             {
+              id: expect.any(String),
               type: 'PARENTHESES_EXPRESSION',
               expressions: [
                 {
+                  id: expect.any(String),
                   type: 'ADD',
                   inputs: [
                     {
+                      id: expect.any(String),
                       type: 'NUMBER',
                       value: 3,
                       text: '3',
                     },
                     {
+                      id: expect.any(String),
                       type: 'NUMBER',
                       value: 4,
                       text: '4',
@@ -352,17 +494,21 @@ describe('Expression Parser', () => {
               ],
             },
             {
+              id: expect.any(String),
               type: 'PARENTHESES_EXPRESSION',
               expressions: [
                 {
+                  id: expect.any(String),
                   type: 'ADD',
                   inputs: [
                     {
+                      id: expect.any(String),
                       type: 'NUMBER',
                       value: 5,
                       text: '5',
                     },
                     {
+                      id: expect.any(String),
                       type: 'NUMBER',
                       value: 6,
                       text: '6',
@@ -372,6 +518,7 @@ describe('Expression Parser', () => {
               ],
             },
             {
+              id: expect.any(String),
               type: 'NUMBER',
               value: 3.3,
               text: '3.3',
@@ -386,22 +533,28 @@ describe('Expression Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'MINUS_PREFIX_UNARY',
           input: {
+            id: expect.any(String),
             type: 'IMP_MUL',
             inputs: [
               {
+                id: expect.any(String),
                 type: 'PARENTHESES_EXPRESSION',
                 expressions: [
                   {
+                    id: expect.any(String),
                     type: 'ADD',
                     inputs: [
                       {
+                        id: expect.any(String),
                         type: 'NUMBER',
                         value: 3,
                         text: '3',
                       },
                       {
+                        id: expect.any(String),
                         type: 'NUMBER',
                         value: 4,
                         text: '4',
@@ -411,17 +564,21 @@ describe('Expression Parser', () => {
                 ],
               },
               {
+                id: expect.any(String),
                 type: 'PARENTHESES_EXPRESSION',
                 expressions: [
                   {
+                    id: expect.any(String),
                     type: 'ADD',
                     inputs: [
                       {
+                        id: expect.any(String),
                         type: 'NUMBER',
                         value: 5,
                         text: '5',
                       },
                       {
+                        id: expect.any(String),
                         type: 'NUMBER',
                         value: 6,
                         text: '6',
@@ -431,6 +588,7 @@ describe('Expression Parser', () => {
                 ],
               },
               {
+                id: expect.any(String),
                 type: 'NUMBER',
                 value: 3.3,
                 text: '3.3',

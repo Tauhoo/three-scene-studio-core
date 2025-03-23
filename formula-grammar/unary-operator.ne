@@ -5,7 +5,8 @@ minus_prefix_unary_operator[E] -> "-" $E {%
     d => {
         return {
             type: "MINUS_PREFIX_UNARY",
-            input: d[1]
+            input: d[1],
+            id: uuidV4()
         }
     }
 %}

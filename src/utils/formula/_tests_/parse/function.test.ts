@@ -6,21 +6,26 @@ describe('function test', () => {
     expect(result).toEqual({
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'IMP_MUL',
         inputs: [
           {
+            id: expect.any(String),
             type: 'FUNCTION',
             func: 'sin',
-            inputs: [{ type: 'NUMBER', value: 12, text: '12' }],
-          },
-          {
-            type: 'VECTOR',
-            items: [
-              { type: 'NUMBER', value: 1, text: '1' },
-              { type: 'NUMBER', value: 2, text: '2' },
+            inputs: [
+              { id: expect.any(String), type: 'NUMBER', value: 12, text: '12' },
             ],
           },
-          { type: 'NUMBER', value: 3, text: '3' },
+          {
+            id: expect.any(String),
+            type: 'VECTOR',
+            items: [
+              { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
+              { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
+            ],
+          },
+          { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
         ],
       },
     })
@@ -31,18 +36,25 @@ describe('function test', () => {
     expect(result).toEqual({
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'IMP_MUL',
         inputs: [
-          { type: 'NUMBER', value: 2, text: '2' },
+          { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
           {
+            id: expect.any(String),
             type: 'FUNCTION',
             func: 'sin',
-            inputs: [{ type: 'NUMBER', value: 30, text: '30' }],
+            inputs: [
+              { id: expect.any(String), type: 'NUMBER', value: 30, text: '30' },
+            ],
           },
           {
+            id: expect.any(String),
             type: 'FUNCTION',
             func: 'cos',
-            inputs: [{ type: 'NUMBER', value: 60, text: '60' }],
+            inputs: [
+              { id: expect.any(String), type: 'NUMBER', value: 60, text: '60' },
+            ],
           },
         ],
       },
@@ -54,20 +66,38 @@ describe('function test', () => {
     expect(result).toEqual({
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'MINUS_PREFIX_UNARY',
         input: {
+          id: expect.any(String),
           type: 'IMP_MUL',
           inputs: [
-            { type: 'NUMBER', value: 2, text: '2' },
+            { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
             {
+              id: expect.any(String),
               type: 'FUNCTION',
               func: 'sin',
-              inputs: [{ type: 'NUMBER', value: 30, text: '30' }],
+              inputs: [
+                {
+                  id: expect.any(String),
+                  type: 'NUMBER',
+                  value: 30,
+                  text: '30',
+                },
+              ],
             },
             {
+              id: expect.any(String),
               type: 'FUNCTION',
               func: 'cos',
-              inputs: [{ type: 'NUMBER', value: 60, text: '60' }],
+              inputs: [
+                {
+                  id: expect.any(String),
+                  type: 'NUMBER',
+                  value: 60,
+                  text: '60',
+                },
+              ],
             },
           ],
         },
@@ -80,13 +110,17 @@ describe('function test', () => {
     expect(result).toEqual({
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'IMP_MUL',
         inputs: [
-          { type: 'NUMBER', value: 2, text: '2' },
+          { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
           {
+            id: expect.any(String),
             type: 'FUNCTION',
             func: 'sin',
-            inputs: [{ type: 'NUMBER', value: 2, text: '2' }],
+            inputs: [
+              { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
+            ],
           },
         ],
       },
@@ -134,15 +168,17 @@ describe('function test', () => {
     expect(result).toEqual({
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'IMP_MUL',
         inputs: [
-          { type: 'NUMBER', value: 2, text: '2' },
+          { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
           {
+            id: expect.any(String),
             type: 'FUNCTION',
             func: 'sin',
             inputs: [
-              { type: 'NUMBER', value: 1, text: '1' },
-              { type: 'NUMBER', value: 2, text: '2' },
+              { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
+              { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
             ],
           },
         ],
@@ -162,23 +198,31 @@ describe('function test', () => {
 
   it('function with nested expressions', () => {
     const result = parse('cos(1 + 2 + sin(30))')
-    console.log('DEBUG: result', JSON.stringify(result, null, 2))
-
     expect(result).toEqual({
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'FUNCTION',
         func: 'cos',
         inputs: [
           {
+            id: expect.any(String),
             type: 'ADD',
             inputs: [
-              { type: 'NUMBER', text: '1', value: 1 },
-              { type: 'NUMBER', text: '2', value: 2 },
+              { id: expect.any(String), type: 'NUMBER', text: '1', value: 1 },
+              { id: expect.any(String), type: 'NUMBER', text: '2', value: 2 },
               {
+                id: expect.any(String),
                 type: 'FUNCTION',
                 func: 'sin',
-                inputs: [{ type: 'NUMBER', text: '30', value: 30 }],
+                inputs: [
+                  {
+                    id: expect.any(String),
+                    type: 'NUMBER',
+                    text: '30',
+                    value: 30,
+                  },
+                ],
               },
             ],
           },

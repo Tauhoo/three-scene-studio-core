@@ -7,10 +7,11 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'ADD',
           inputs: [
-            { type: 'NUMBER', value: 1, text: '1' },
-            { type: 'NUMBER', value: 2, text: '2' },
+            { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
+            { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
           ],
         },
       })
@@ -21,11 +22,12 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'ADD',
           inputs: [
-            { type: 'NUMBER', value: 1, text: '1' },
-            { type: 'NUMBER', value: 2, text: '2' },
-            { type: 'NUMBER', value: 3, text: '3' },
+            { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
+            { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
+            { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
           ],
         },
       })
@@ -38,10 +40,11 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'SUB',
           inputs: [
-            { type: 'NUMBER', value: 5, text: '5' },
-            { type: 'NUMBER', value: 3, text: '3' },
+            { id: expect.any(String), type: 'NUMBER', value: 5, text: '5' },
+            { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
           ],
         },
       })
@@ -52,11 +55,12 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'SUB',
           inputs: [
-            { type: 'NUMBER', value: 10, text: '10' },
-            { type: 'NUMBER', value: 4, text: '4' },
-            { type: 'NUMBER', value: 2, text: '2' },
+            { id: expect.any(String), type: 'NUMBER', value: 10, text: '10' },
+            { id: expect.any(String), type: 'NUMBER', value: 4, text: '4' },
+            { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
           ],
         },
       })
@@ -69,10 +73,11 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'MUL',
           inputs: [
-            { type: 'NUMBER', value: 2, text: '2' },
-            { type: 'NUMBER', value: 3, text: '3' },
+            { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
+            { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
           ],
         },
       })
@@ -83,11 +88,12 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'MUL',
           inputs: [
-            { type: 'NUMBER', value: 2, text: '2' },
-            { type: 'NUMBER', value: 3, text: '3' },
-            { type: 'NUMBER', value: 4, text: '4' },
+            { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
+            { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
+            { id: expect.any(String), type: 'NUMBER', value: 4, text: '4' },
           ],
         },
       })
@@ -100,10 +106,11 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'DIV',
           inputs: [
-            { type: 'NUMBER', value: 6, text: '6' },
-            { type: 'NUMBER', value: 2, text: '2' },
+            { id: expect.any(String), type: 'NUMBER', value: 6, text: '6' },
+            { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
           ],
         },
       })
@@ -114,11 +121,12 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'DIV',
           inputs: [
-            { type: 'NUMBER', value: 12, text: '12' },
-            { type: 'NUMBER', value: 3, text: '3' },
-            { type: 'NUMBER', value: 2, text: '2' },
+            { id: expect.any(String), type: 'NUMBER', value: 12, text: '12' },
+            { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
+            { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
           ],
         },
       })
@@ -131,10 +139,11 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'MOD',
           inputs: [
-            { type: 'NUMBER', value: 7, text: '7' },
-            { type: 'NUMBER', value: 4, text: '4' },
+            { id: expect.any(String), type: 'NUMBER', value: 7, text: '7' },
+            { id: expect.any(String), type: 'NUMBER', value: 4, text: '4' },
           ],
         },
       })
@@ -147,14 +156,16 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'ADD',
           inputs: [
-            { type: 'NUMBER', value: 1, text: '1' },
+            { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
             {
+              id: expect.any(String),
               type: 'MUL',
               inputs: [
-                { type: 'NUMBER', value: 2, text: '2' },
-                { type: 'NUMBER', value: 3, text: '3' },
+                { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
+                { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
               ],
             },
           ],
@@ -167,16 +178,18 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'ADD',
           inputs: [
             {
+              id: expect.any(String),
               type: 'MUL',
               inputs: [
-                { type: 'NUMBER', value: 2, text: '2' },
-                { type: 'NUMBER', value: 3, text: '3' },
+                { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
+                { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
               ],
             },
-            { type: 'NUMBER', value: 1, text: '1' },
+            { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
           ],
         },
       })
@@ -187,14 +200,16 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'ADD',
           inputs: [
-            { type: 'NUMBER', value: 1, text: '1' },
+            { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
             {
+              id: expect.any(String),
               type: 'DIV',
               inputs: [
-                { type: 'NUMBER', value: 6, text: '6' },
-                { type: 'NUMBER', value: 2, text: '2' },
+                { id: expect.any(String), type: 'NUMBER', value: 6, text: '6' },
+                { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
               ],
             },
           ],
@@ -209,16 +224,18 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'SUB',
           inputs: [
             {
+              id: expect.any(String),
               type: 'ADD',
               inputs: [
-                { type: 'NUMBER', value: 1, text: '1' },
-                { type: 'NUMBER', value: 2, text: '2' },
+                { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
+                { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
               ],
             },
-            { type: 'NUMBER', value: 3, text: '3' },
+            { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
           ],
         },
       })
@@ -229,16 +246,18 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'DIV',
           inputs: [
             {
+              id: expect.any(String),
               type: 'MUL',
               inputs: [
-                { type: 'NUMBER', value: 6, text: '6' },
-                { type: 'NUMBER', value: 2, text: '2' },
+                { id: expect.any(String), type: 'NUMBER', value: 6, text: '6' },
+                { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
               ],
             },
-            { type: 'NUMBER', value: 3, text: '3' },
+            { id: expect.any(String), type: 'NUMBER', value: 3, text: '3' },
           ],
         },
       })
@@ -249,26 +268,40 @@ describe('Binary Operator Parser', () => {
       expect(result).toEqual({
         status: 'SUCCESS',
         data: {
+          id: expect.any(String),
           type: 'SUB',
           inputs: [
             {
+              id: expect.any(String),
               type: 'ADD',
               inputs: [
-                { type: 'NUMBER', value: 1, text: '1' },
-                { type: 'NUMBER', value: 2, text: '2' },
+                { id: expect.any(String), type: 'NUMBER', value: 1, text: '1' },
+                { id: expect.any(String), type: 'NUMBER', value: 2, text: '2' },
               ],
             },
             {
+              id: expect.any(String),
               type: 'DIV',
               inputs: [
                 {
+                  id: expect.any(String),
                   type: 'MUL',
                   inputs: [
-                    { type: 'NUMBER', value: 3, text: '3' },
-                    { type: 'NUMBER', value: 4, text: '4' },
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 3,
+                      text: '3',
+                    },
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 4,
+                      text: '4',
+                    },
                   ],
                 },
-                { type: 'NUMBER', value: 5, text: '5' },
+                { id: expect.any(String), type: 'NUMBER', value: 5, text: '5' },
               ],
             },
           ],

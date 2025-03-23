@@ -5,6 +5,7 @@ describe('parse vector', () => {
     const expected = {
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'VECTOR',
         items: [],
       },
@@ -18,9 +19,11 @@ describe('parse vector', () => {
     const expected = {
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'VECTOR',
         items: [
           {
+            id: expect.any(String),
             type: 'NUMBER',
             value: 3,
             text: '3',
@@ -37,14 +40,17 @@ describe('parse vector', () => {
     const expected = {
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'VECTOR',
         items: [
           {
+            id: expect.any(String),
             type: 'NUMBER',
             value: 3,
             text: '3',
           },
           {
+            id: expect.any(String),
             type: 'NUMBER',
             value: 4,
             text: '4',
@@ -61,17 +67,21 @@ describe('parse vector', () => {
     const expected = {
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'VECTOR',
         items: [
           {
+            id: expect.any(String),
             type: 'MINUS_PREFIX_UNARY',
             input: {
+              id: expect.any(String),
               type: 'NUMBER',
               value: 3,
               text: '3',
             },
           },
           {
+            id: expect.any(String),
             type: 'NUMBER',
             value: 4,
             text: '4',

@@ -7,14 +7,15 @@
 expression -> expression_binary_operator_expression {% id %}
 
 parentheses_expression[E] -> "(" ($E ("," $E):*):? ")" {% data => {
-    if(data[1] === null) return { type: "PARENTHESES_EXPRESSION", expressions: [] }
+    if(data[1] === null) return { type: "PARENTHESES_EXPRESSION", expressions: [], id: uuidV4() }
     const result = []
     result.push(data[1][0])
     result.push(...data[1][1].map(item => item[1]))
-    return { type: "PARENTHESES_EXPRESSION", expressions: result }
+    return { type: "PARENTHESES_EXPRESSION", expressions: result, id: uuidV4() }
 } %}
 
 @{% 
+    const uuidV4 = require('uuid').v4
     const flatten = data => {
         const result = []
         if(Array.isArray(data)){
@@ -50,7 +51,7 @@ zig_short_multiply ->
 short_multiply -> zig_short_multiply_expression[full_short_multiply {% id %}, zig_short_multiply {% id %}] {% data =>{
     const result = flatten(data)
     if(result.length === 1) return result[0]
-    return {type: "IMP_MUL", inputs: result}
+    return {type: "IMP_MUL", inputs: result, id: uuidV4()}
 }%}
 
 term -> term_binary_operator_expression {% id %}

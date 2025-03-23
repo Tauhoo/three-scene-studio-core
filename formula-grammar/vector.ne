@@ -5,5 +5,5 @@ vector_items[E] -> $E ("," $E):* {% d => {
 
 vector[E] -> "[" vector_items[$E {% id %}]:? "]" {% d => {
     const items = d[1] ?? []
-    return { type: "VECTOR", items }
+    return { type: "VECTOR", items, id: uuidV4() }
 } %}

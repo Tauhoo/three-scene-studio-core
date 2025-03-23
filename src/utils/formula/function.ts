@@ -5,6 +5,7 @@ import {
   successResponse,
 } from '../response'
 import { FormulaNode, NodeValueType } from './types'
+import { v4 as uuidv4 } from 'uuid'
 
 type IOSchema = {
   input: NodeValueType[]
@@ -273,6 +274,7 @@ export const generateFunctionNode = (
         type: 'FUNCTION',
         func: functionInfo.keyword,
         inputs: item.expressions,
+        id: uuidv4(),
       })
       continue
     }

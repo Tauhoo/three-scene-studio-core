@@ -1,14 +1,16 @@
 import nearley from 'nearley'
 import { default as grammar } from './grammar'
-import { errorResponse, successResponse } from '../response'
+import { errorResponse } from '../response'
 import { FormulaNode } from './types'
 import { generateFunctionNode } from './function'
-
 const grammarAny = grammar as any
 
 export const parse = (input: string) => {
   try {
+    // Remove all whitespace characters
     const cleanedInput = input.replace(/\s+/g, '')
+
+    // Parse the cleaned input
     const parser = new nearley.Parser(
       nearley.Grammar.fromCompiled(grammarAny),
       {}
@@ -16,12 +18,17 @@ export const parse = (input: string) => {
     parser.feed(cleanedInput)
     const parsedResult = parser.finish()
     const result = parsedResult[0]
-    console.log('DEBUG: result', JSON.stringify(result, null, 2))
+
+    // Generate function node
     const resultWithFunctionNode = generateFunctionNode(result)
     if (resultWithFunctionNode.status === 'ERROR') {
       return resultWithFunctionNode
     }
+
+    // Group binary operator input
     groupBinaryOperatorInput(resultWithFunctionNode.data)
+
+    // Return the result
     return resultWithFunctionNode
   } catch (error) {
     return errorResponse('INVALID_FORMULA', `${error}`)

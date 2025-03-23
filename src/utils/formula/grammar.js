@@ -3,6 +3,7 @@
 (function () {
 function id(x) { return x[0]; }
  
+    const uuidV4 = require('uuid').v4
     const flatten = data => {
         const result = []
         if(Array.isArray(data)){
@@ -32,19 +33,19 @@ var grammar = {
                 text += "." + d[1][1].join("")
             }
             
-            return { type: "NUMBER", value: Number(text), text }
+            return { type: "NUMBER", value: Number(text), text, id: uuidV4() }
         } 
         },
     {"name": "expression_binary_operator_expression", "symbols": ["unary_term"], "postprocess": id},
-    {"name": "expression_binary_operator_expression", "symbols": ["expression_binary_operator_expression", {"literal":"+"}, "unary_term"], "postprocess": data => ({ type: "ADD", inputs: [data[0], data[2]] })},
-    {"name": "expression_binary_operator_expression", "symbols": ["expression_binary_operator_expression", {"literal":"-"}, "unary_term"], "postprocess": data => ({ type: "SUB", inputs: [data[0], data[2]] })},
+    {"name": "expression_binary_operator_expression", "symbols": ["expression_binary_operator_expression", {"literal":"+"}, "unary_term"], "postprocess": data => ({ type: "ADD", inputs: [data[0], data[2]], id: uuidV4()  })},
+    {"name": "expression_binary_operator_expression", "symbols": ["expression_binary_operator_expression", {"literal":"-"}, "unary_term"], "postprocess": data => ({ type: "SUB", inputs: [data[0], data[2]], id: uuidV4() })},
     {"name": "term_binary_operator_expression", "symbols": ["short_multiply"], "postprocess": id},
-    {"name": "term_binary_operator_expression", "symbols": ["term_binary_operator_expression", {"literal":"*"}, "short_multiply"], "postprocess": data => ({ type: "MUL", inputs: [data[0], data[2]] })},
-    {"name": "term_binary_operator_expression", "symbols": ["term_binary_operator_expression", {"literal":"/"}, "short_multiply"], "postprocess": data => ({ type: "DIV", inputs: [data[0], data[2]] })},
-    {"name": "term_binary_operator_expression", "symbols": ["term_binary_operator_expression", {"literal":"%"}, "short_multiply"], "postprocess": data => ({ type: "MOD", inputs: [data[0], data[2]] })},
+    {"name": "term_binary_operator_expression", "symbols": ["term_binary_operator_expression", {"literal":"*"}, "short_multiply"], "postprocess": data => ({ type: "MUL", inputs: [data[0], data[2]], id: uuidV4() })},
+    {"name": "term_binary_operator_expression", "symbols": ["term_binary_operator_expression", {"literal":"/"}, "short_multiply"], "postprocess": data => ({ type: "DIV", inputs: [data[0], data[2]], id: uuidV4() })},
+    {"name": "term_binary_operator_expression", "symbols": ["term_binary_operator_expression", {"literal":"%"}, "short_multiply"], "postprocess": data => ({ type: "MOD", inputs: [data[0], data[2]], id: uuidV4() })},
     {"name": "variable$ebnf$1", "symbols": []},
     {"name": "variable$ebnf$1", "symbols": ["variable$ebnf$1", /[a-zA-Z0-9_]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "variable", "symbols": [/[a-zA-Z_]/, "variable$ebnf$1"], "postprocess": data => ({ type: "VARIABLE", name: data[0]+(data[1] ?? []).join("") })},
+    {"name": "variable", "symbols": [/[a-zA-Z_]/, "variable$ebnf$1"], "postprocess": data => ({ type: "VARIABLE", name: data[0]+(data[1] ?? []).join(""), id: uuidV4() })},
     {"name": "expression", "symbols": ["expression_binary_operator_expression"], "postprocess": id},
     {"name": "full_factor$macrocall$2", "symbols": ["expression"], "postprocess": id},
     {"name": "full_factor$macrocall$1$ebnf$1$subexpression$1$ebnf$1", "symbols": []},
@@ -54,11 +55,11 @@ var grammar = {
     {"name": "full_factor$macrocall$1$ebnf$1", "symbols": ["full_factor$macrocall$1$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "full_factor$macrocall$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "full_factor$macrocall$1", "symbols": [{"literal":"("}, "full_factor$macrocall$1$ebnf$1", {"literal":")"}], "postprocess":  data => {
-            if(data[1] === null) return { type: "PARENTHESES_EXPRESSION", expressions: [] }
+            if(data[1] === null) return { type: "PARENTHESES_EXPRESSION", expressions: [], id: uuidV4() }
             const result = []
             result.push(data[1][0])
             result.push(...data[1][1].map(item => item[1]))
-            return { type: "PARENTHESES_EXPRESSION", expressions: result }
+            return { type: "PARENTHESES_EXPRESSION", expressions: result, id: uuidV4() }
         } },
     {"name": "full_factor", "symbols": ["full_factor$macrocall$1"]},
     {"name": "full_factor$macrocall$4", "symbols": ["expression"], "postprocess": id},
@@ -74,7 +75,7 @@ var grammar = {
     {"name": "full_factor$macrocall$3$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "full_factor$macrocall$3", "symbols": [{"literal":"["}, "full_factor$macrocall$3$ebnf$1", {"literal":"]"}], "postprocess":  d => {
             const items = d[1] ?? []
-            return { type: "VECTOR", items }
+            return { type: "VECTOR", items, id: uuidV4() }
         } },
     {"name": "full_factor", "symbols": ["full_factor$macrocall$3"]},
     {"name": "full_short_multiply$macrocall$2", "symbols": ["full_factor"], "postprocess": id},
@@ -106,7 +107,7 @@ var grammar = {
     {"name": "short_multiply", "symbols": ["short_multiply$macrocall$1"], "postprocess":  data =>{
             const result = flatten(data)
             if(result.length === 1) return result[0]
-            return {type: "IMP_MUL", inputs: result}
+            return {type: "IMP_MUL", inputs: result, id: uuidV4()}
         }},
     {"name": "term", "symbols": ["term_binary_operator_expression"], "postprocess": id},
     {"name": "unary_term", "symbols": ["term"], "postprocess": id},
@@ -117,7 +118,8 @@ var grammar = {
         d => {
             return {
                 type: "MINUS_PREFIX_UNARY",
-                input: d[1]
+                input: d[1],
+                id: uuidV4()
             }
         }
         },

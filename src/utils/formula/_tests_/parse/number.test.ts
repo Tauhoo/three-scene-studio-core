@@ -5,6 +5,7 @@ describe('parse number', () => {
     const expected = {
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'NUMBER',
         value: 3,
         text: '3',
@@ -19,6 +20,7 @@ describe('parse number', () => {
     const expected = {
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'NUMBER',
         value: 12638,
         text: '12638',
@@ -32,6 +34,7 @@ describe('parse number', () => {
     const expected = {
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'NUMBER',
         value: 3.3,
         text: '3.3',
@@ -45,6 +48,7 @@ describe('parse number', () => {
     const expected = {
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'NUMBER',
         value: 123.14273,
         text: '123.142730',
@@ -58,6 +62,7 @@ describe('parse number', () => {
     const expected = {
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'NUMBER',
         value: 0.123,
         text: '0.123',
@@ -72,6 +77,7 @@ describe('parse number', () => {
     const expected = {
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'NUMBER',
         value: 23.123,
         text: '023.123',
@@ -85,6 +91,7 @@ describe('parse number', () => {
     const expected = {
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'NUMBER',
         value: 123,
         text: '123.00',
@@ -98,6 +105,7 @@ describe('parse number', () => {
     const expected = {
       status: 'SUCCESS',
       data: {
+        id: expect.any(String),
         type: 'NUMBER',
         value: 23.45,
         text: '23.4500',
