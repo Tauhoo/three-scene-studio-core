@@ -16,18 +16,19 @@ export const parse = (input: string) => {
     parser.feed(cleanedInput)
     const parsedResult = parser.finish()
     const result = parsedResult[0]
+    console.log('DEBUG: result', JSON.stringify(result, null, 2))
     const resultWithFunctionNode = generateFunctionNode(result)
     if (resultWithFunctionNode.status === 'ERROR') {
       return resultWithFunctionNode
     }
-    cleanParseResult(resultWithFunctionNode.data)
+    groupBinaryOperatorInput(resultWithFunctionNode.data)
     return resultWithFunctionNode
   } catch (error) {
     return errorResponse('INVALID_FORMULA', `${error}`)
   }
 }
 
-const cleanParseResult = (node: FormulaNode) => {
+const groupBinaryOperatorInput = (node: FormulaNode) => {
   if (
     node.type === 'ADD' ||
     node.type === 'SUB' ||
@@ -48,29 +49,29 @@ const cleanParseResult = (node: FormulaNode) => {
 
   if (node.type === 'VECTOR') {
     for (const item of node.items) {
-      cleanParseResult(item)
+      groupBinaryOperatorInput(item)
     }
   }
 
   if (node.type === 'FUNCTION') {
     for (const input of node.inputs) {
-      cleanParseResult(input)
+      groupBinaryOperatorInput(input)
     }
   }
 
   if (node.type === 'IMP_MUL') {
     for (const input of node.inputs) {
-      cleanParseResult(input)
+      groupBinaryOperatorInput(input)
     }
   }
 
   if (node.type === 'MINUS_PREFIX_UNARY') {
-    cleanParseResult(node.input)
+    groupBinaryOperatorInput(node.input)
   }
 
   if (node.type === 'PARENTHESES_EXPRESSION') {
     for (const input of node.expressions) {
-      cleanParseResult(input)
+      groupBinaryOperatorInput(input)
     }
   }
 }

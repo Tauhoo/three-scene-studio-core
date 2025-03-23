@@ -1,4 +1,4 @@
-import { calculate } from '../calculate'
+import { calculate, Parameters } from '../calculate'
 import { successResponse, errorResponse } from '../../response'
 import { parse } from '../parse' // Assuming there's a parse method in a parser module
 
@@ -20,7 +20,9 @@ describe('calculate', () => {
     if (node.status === 'ERROR') {
       throw new Error('Failed to parse expression error: ' + node.error)
     }
-    const variables = { x: 10 }
+    const variables: Parameters = {
+      x: { type: 'NUMBER', name: 'x', value: 10 },
+    }
     const result = calculate(node.data, variables)
     expect(result).toEqual(successResponse(10))
   })
@@ -231,7 +233,7 @@ describe('calculate', () => {
     }
     const variables = {}
     const result = calculate(node.data, variables)
-    expect(result).toEqual(successResponse([9, 21, 3]))
+    expect(result).toEqual(successResponse([8, 17, 3]))
   })
 
   it('should calculate a longer mixed binary expression between number and vector for addition', () => {
@@ -242,7 +244,7 @@ describe('calculate', () => {
     }
     const variables = {}
     const result = calculate(node.data, variables)
-    expect(result).toEqual(successResponse([10, 2, 3]))
+    expect(result).toEqual(successResponse([10, 11, 12]))
   })
 
   it('should calculate a longer mixed binary expression between number and vector for subtraction', () => {
@@ -253,7 +255,7 @@ describe('calculate', () => {
     }
     const variables = {}
     const result = calculate(node.data, variables)
-    expect(result).toEqual(successResponse([7, 2, 3]))
+    expect(result).toEqual(successResponse([7, 6, 5]))
   })
 
   it('should calculate a longer mixed binary expression between number and vector for multiplication', () => {
@@ -286,7 +288,7 @@ describe('calculate', () => {
     }
     const variables = {}
     const result = calculate(node.data, variables)
-    expect(result).toEqual(successResponse([1, 1, 2]))
+    expect(result).toEqual(successResponse([0, 1, 2]))
   })
 
   it('should calculate a minus prefix unary expression', () => {
@@ -319,6 +321,8 @@ describe('calculate', () => {
     }
     const variables = {}
     const result = calculate(node.data, variables)
-    expect(result).toEqual(successResponse(0))
+    expect(result).toEqual(
+      errorResponse('VARIABLE_NOT_FOUND', 'Variable unknown not found')
+    )
   })
 })

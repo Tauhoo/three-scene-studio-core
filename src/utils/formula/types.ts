@@ -48,3 +48,5 @@ export type FormulaNode =
   | ImplicitMultiplicationNode
   | MinusPrefixUnaryNode
   | ParenthesesExpressionNode
+
+export type NodeValueType = 'NUMBER' | 'VECTOR'

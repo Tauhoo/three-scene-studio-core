@@ -10,7 +10,7 @@ parentheses_expression[E] -> "(" ($E ("," $E):*):? ")" {% data => {
     if(data[1] === null) return { type: "PARENTHESES_EXPRESSION", expressions: [] }
     const result = []
     result.push(data[1][0])
-    result.push(...data[1][1].map(item => item[0]))
+    result.push(...data[1][1].map(item => item[1]))
     return { type: "PARENTHESES_EXPRESSION", expressions: result }
 } %}
 

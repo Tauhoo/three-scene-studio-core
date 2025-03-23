@@ -4,11 +4,16 @@ import {
   SuccessResponse,
   successResponse,
 } from '../response'
-import { FormulaNode } from './types'
+import { FormulaNode, NodeValueType } from './types'
+
+type IOSchema = {
+  input: NodeValueType[]
+  output: NodeValueType
+}
 
 type FunctionInfo = {
   keyword: string
-  inputLength: number
+  ioSchemas: IOSchema[]
   func: (...args: any[]) => any
 }
 
@@ -16,66 +21,145 @@ export const functionInfos: FunctionInfo[] = [
   // function for both vector and number
   {
     keyword: 'sin',
-    inputLength: 1,
+    ioSchemas: [
+      {
+        input: ['NUMBER'],
+        output: 'NUMBER',
+      },
+      {
+        input: ['VECTOR'],
+        output: 'VECTOR',
+      },
+    ],
     func: (a: number | number[]) =>
       typeof a === 'number' ? Math.sin(a) : a.map(Math.sin),
   },
   {
     keyword: 'cos',
-    inputLength: 1,
+    ioSchemas: [
+      {
+        input: ['NUMBER'],
+        output: 'NUMBER',
+      },
+      {
+        input: ['VECTOR'],
+        output: 'VECTOR',
+      },
+    ],
     func: (a: number | number[]) =>
       typeof a === 'number' ? Math.cos(a) : a.map(Math.cos),
   },
   {
     keyword: 'tan',
-    inputLength: 1,
+    ioSchemas: [
+      {
+        input: ['NUMBER'],
+        output: 'NUMBER',
+      },
+      {
+        input: ['VECTOR'],
+        output: 'VECTOR',
+      },
+    ],
     func: (a: number | number[]) =>
       typeof a === 'number' ? Math.tan(a) : a.map(Math.tan),
   },
   {
     keyword: 'abs',
-    inputLength: 1,
+    ioSchemas: [
+      {
+        input: ['NUMBER'],
+        output: 'NUMBER',
+      },
+      {
+        input: ['VECTOR'],
+        output: 'VECTOR',
+      },
+    ],
     func: (a: number | number[]) =>
       typeof a === 'number' ? Math.abs(a) : a.map(Math.abs),
   },
   {
-    keyword: 'mod',
-    inputLength: 2,
-    func: (a, b) => a % b, // TODO: handle vector
-  },
-  {
     keyword: 'atan',
-    inputLength: 2,
-    func: (a, b) => Math.atan(a, b), // TODO: handle vector
+    ioSchemas: [
+      {
+        input: ['NUMBER'],
+        output: 'NUMBER',
+      },
+      {
+        input: ['VECTOR'],
+        output: 'VECTOR',
+      },
+    ],
+    func: (a: number | number[]) =>
+      typeof a === 'number' ? Math.atan(a) : a.map(Math.atan), // TODO: handle vector
   },
   {
     keyword: 'floor',
-    inputLength: 1,
+    ioSchemas: [
+      {
+        input: ['NUMBER'],
+        output: 'NUMBER',
+      },
+      {
+        input: ['VECTOR'],
+        output: 'VECTOR',
+      },
+    ],
     func: (a: number | number[]) =>
       typeof a === 'number' ? Math.floor(a) : a.map(Math.floor),
   },
   {
     keyword: 'ceil',
-    inputLength: 1,
+    ioSchemas: [
+      {
+        input: ['NUMBER'],
+        output: 'NUMBER',
+      },
+      {
+        input: ['VECTOR'],
+        output: 'VECTOR',
+      },
+    ],
     func: (a: number | number[]) =>
       typeof a === 'number' ? Math.ceil(a) : a.map(Math.ceil),
   },
   {
     keyword: 'pow',
-    inputLength: 2,
-    func: Math.pow, // handle vector
+    ioSchemas: [
+      {
+        input: ['NUMBER', 'NUMBER'],
+        output: 'NUMBER',
+      },
+      {
+        input: ['NUMBER', 'NUMBER'],
+        output: 'VECTOR',
+      },
+    ],
+    func: (a: number | number[], b: number) =>
+      typeof a === 'number' ? Math.pow(a, b) : a.map(v => Math.pow(v, b)),
   },
 
   // function for vector
   {
     keyword: 'dot',
-    inputLength: 2,
+    ioSchemas: [
+      {
+        input: ['VECTOR', 'VECTOR'],
+        output: 'NUMBER',
+      },
+    ],
     func: (a: number[], b: number[]) =>
       a.reduce((acc, curr, index) => acc + curr * b[index], 0),
   },
   {
     keyword: 'cross',
-    inputLength: 2,
+    ioSchemas: [
+      {
+        input: ['VECTOR', 'VECTOR'],
+        output: 'VECTOR',
+      },
+    ],
     func: (a: number[], b: number[]) => [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
@@ -84,7 +168,12 @@ export const functionInfos: FunctionInfo[] = [
   },
   {
     keyword: 'norm',
-    inputLength: 1,
+    ioSchemas: [
+      {
+        input: ['VECTOR'],
+        output: 'VECTOR',
+      },
+    ],
     func: (a: number[]) => {
       const sum = a.reduce((acc, curr) => acc + curr * curr, 0)
       return a.map(v => v / Math.sqrt(sum))
@@ -94,7 +183,7 @@ export const functionInfos: FunctionInfo[] = [
   // utility functions
   {
     keyword: 'rand',
-    inputLength: 0,
+    ioSchemas: [],
     func: () => Math.random(),
   },
 ]
@@ -179,12 +268,7 @@ export const generateFunctionNode = (
         mutatedInputs.push(item)
         continue
       }
-      if (functionInfo.input.length !== item.expressions.length) {
-        return errorResponse(
-          'INVALID_FORMULA',
-          `Function ${last.name} requires ${functionInfo.input.length} arguments, but ${item.expressions.length} were provided`
-        )
-      }
+
       mutatedInputs.push({
         type: 'FUNCTION',
         func: functionInfo.keyword,

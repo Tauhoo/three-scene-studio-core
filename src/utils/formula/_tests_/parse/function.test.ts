@@ -132,9 +132,21 @@ describe('function test', () => {
   it('mismatch arguments', () => {
     const result = parse('2sin(1,2)')
     expect(result).toEqual({
-      status: 'ERROR',
-      code: 'INVALID_FORMULA',
-      error: 'Function sin requires 1 arguments, but 2 were provided',
+      status: 'SUCCESS',
+      data: {
+        type: 'IMP_MUL',
+        inputs: [
+          { type: 'NUMBER', value: 2, text: '2' },
+          {
+            type: 'FUNCTION',
+            func: 'sin',
+            inputs: [
+              { type: 'NUMBER', value: 1, text: '1' },
+              { type: 'NUMBER', value: 2, text: '2' },
+            ],
+          },
+        ],
+      },
     })
   })
 

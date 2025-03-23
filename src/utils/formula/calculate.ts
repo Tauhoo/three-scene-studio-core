@@ -5,32 +5,25 @@ import {
   successResponse,
 } from '../response'
 import { functionMap } from './function'
-import { FormulaNode } from './types'
+import { BinaryOperationNode, FormulaNode } from './types'
 
-export const toVector = (value: number | number[]): number[] => {
-  if (Array.isArray(value)) return value
-  return [value]
-}
+export type Parameter =
+  | {
+      type: 'NUMBER'
+      name: string
+      value: number
+    }
+  | {
+      type: 'VECTOR'
+      name: string
+      value: number[]
+    }
 
-export const toNumber = (value: number | number[]): number => {
-  if (Array.isArray(value)) return value[0] ?? 0
-  return value
-}
-
-const getVariableValue = (
-  name: string,
-  variables: Record<string, number | number[]>
-): number | number[] => {
-  const value = variables[name]
-  if (value === undefined) {
-    return 0
-  }
-  return value
-}
+export type Parameters = Record<string, Parameter>
 
 export function calculate(
   node: FormulaNode,
-  variables: Record<string, number | number[]>
+  variables: Parameters
 ): SuccessResponse<number | number[]> | ErrorResponse<string> {
   // Handle different node types
   if (node.type === 'NUMBER') {
@@ -38,7 +31,14 @@ export function calculate(
   }
 
   if (node.type === 'VARIABLE') {
-    return successResponse(getVariableValue(node.name, variables))
+    const variable = variables[node.name]
+    if (variable === undefined) {
+      return errorResponse(
+        'VARIABLE_NOT_FOUND',
+        `Variable ${node.name} not found`
+      )
+    }
+    return successResponse(variable.value)
   }
 
   if (node.type === 'VECTOR') {
@@ -48,20 +48,18 @@ export function calculate(
       if (subResult.status === 'ERROR') {
         return subResult
       }
-      result.push(toNumber(subResult.data))
+      if (Array.isArray(subResult.data)) {
+        return errorResponse(
+          'VECTOR_NOT_ALLOWED',
+          'Vector is not allowed in vector'
+        )
+      }
+      result.push(subResult.data)
     }
     return successResponse(result)
   }
 
   if (node.type === 'FUNCTION') {
-    const functionInfo = functionMap.get(node.func)
-    if (!functionInfo) {
-      return errorResponse(
-        'FUNCTION_NOT_FOUND',
-        `Function ${node.func} not found`
-      )
-    }
-
     const args: (number | number[])[] = []
     for (const input of node.inputs) {
       const result = calculate(input, variables)
@@ -71,17 +69,19 @@ export function calculate(
       args.push(result.data)
     }
 
-    // Convert types based on function input requirements
-    const convertedArgs = args.map((arg, index) => {
-      const expectedType = functionInfo.input[index]
-      if (expectedType === 'number') return toNumber(arg)
-      if (expectedType === 'vector') return toVector(arg)
-      return arg // 'all' type
-    })
+    const func = functionMap.get(node.func)
+    if (func === undefined) {
+      return errorResponse(
+        'INVALID_FORMULA',
+        `Function ${node.func} is invalid`
+      )
+    }
 
-    return successResponse<number | number[]>(
-      functionInfo.func(...convertedArgs)
-    )
+    try {
+      return successResponse<number | number[]>(func.func(...args))
+    } catch (error) {
+      return errorResponse('CALCULATE_ERROR', `${error}`)
+    }
   }
 
   if (
@@ -104,41 +104,7 @@ export function calculate(
         continue
       }
 
-      if (typeof result === 'number' && typeof subResult.data === 'number') {
-        if (node.type === 'ADD') {
-          result = result + subResult.data
-        } else if (node.type === 'SUB') {
-          result = result - subResult.data
-        } else if (node.type === 'MUL') {
-          result = result * subResult.data
-        } else if (node.type === 'DIV') {
-          result = result / subResult.data
-        } else if (node.type === 'MOD') {
-          result = result % subResult.data
-        }
-      } else {
-        const resultVec = toVector(result)
-        const dataVec = toVector(subResult.data)
-        const resultLength = Math.max(resultVec.length, dataVec.length)
-
-        const calResult: number[] = []
-        for (let index = 0; index < resultLength; index++) {
-          const elementA = resultVec[index] ?? 0
-          const elementB = dataVec[index] ?? 0
-          if (node.type === 'ADD') {
-            calResult.push(elementA + elementB)
-          } else if (node.type === 'SUB') {
-            calResult.push(elementA - elementB)
-          } else if (node.type === 'MUL') {
-            calResult.push(elementA * elementB)
-          } else if (node.type === 'DIV') {
-            calResult.push(elementA / elementB)
-          } else if (node.type === 'MOD') {
-            calResult.push(elementA % elementB)
-          }
-        }
-        result = calResult
-      }
+      result = calculateBinaryOperator(result, node.type, subResult.data)
     }
 
     return successResponse(result ?? 0)
@@ -167,20 +133,7 @@ export function calculate(
         continue
       }
 
-      if (typeof result === 'number' && typeof subResult.data === 'number') {
-        result = result * subResult.data
-      } else {
-        const resultVec = toVector(result)
-        const dataVec = toVector(subResult.data)
-        const resultLength = Math.max(resultVec.length, dataVec.length)
-        const calResult: number[] = []
-        for (let index = 0; index < resultLength; index++) {
-          const elementA = resultVec[index] ?? 0
-          const elementB = dataVec[index] ?? 0
-          calResult.push(elementA * elementB)
-        }
-        result = calResult
-      }
+      result = calculateBinaryOperator(result, 'MUL', subResult.data)
     }
     return successResponse(result ?? 0)
   }
@@ -196,4 +149,52 @@ export function calculate(
   }
 
   return errorResponse('UNKNOWN_NODE_TYPE', `Unknown node type: ${node.type}`)
+}
+
+const calculateBinaryOperatorForNumber = (
+  a: number,
+  operator: BinaryOperationNode['type'],
+  b: number
+) => {
+  if (operator === 'ADD') {
+    return a + b
+  } else if (operator === 'SUB') {
+    return a - b
+  } else if (operator === 'MUL') {
+    return a * b
+  } else if (operator === 'DIV') {
+    return a / b
+  } else if (operator === 'MOD') {
+    return a % b
+  }
+}
+
+const calculateBinaryOperator = (
+  a: number | number[],
+  operator: BinaryOperationNode['type'],
+  b: number | number[]
+): number | number[] => {
+  if (typeof a === 'number' && typeof b === 'number') {
+    return calculateBinaryOperatorForNumber(a, operator, b) as number
+  }
+
+  if (typeof a === 'number' && Array.isArray(b)) {
+    return b.map(v =>
+      calculateBinaryOperatorForNumber(a, operator, v)
+    ) as number[]
+  }
+
+  if (Array.isArray(a) && typeof b === 'number') {
+    return a.map(v =>
+      calculateBinaryOperatorForNumber(v, operator, b)
+    ) as number[]
+  }
+
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.map((v, index) =>
+      calculateBinaryOperator(v, operator, b[index] ?? 0)
+    ) as number[]
+  }
+
+  return 0
 }
