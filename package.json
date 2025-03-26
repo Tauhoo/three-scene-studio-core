@@ -22,7 +22,8 @@
     "test": "jest",
     "test-grammar": "nearley-test -i '-3' -s 'expression' ./src/utils/formula/grammar.js",
     "generate-formula-grammar": "nearleyc ./formula-grammar/expression.ne -o ./src/utils/formula/grammar.js",
-    "build": "rm -rf dist && tsc --module commonjs --outDir dist/cjs && tsc --noEmit false --module ES2022 --outDir dist/esm && tsc --declaration --emitDeclarationOnly --declarationDir dist/types"
+    "build": "rm -rf dist && tsc --module commonjs --outDir dist/cjs && tsc --module ES2022 --outDir dist/esm && tsc --declaration --emitDeclarationOnly --declarationDir dist/types",
+    "build-a": "tsc --module commonjs --outDir dist/cjs"
   },
   "repository": {
     "type": "git",

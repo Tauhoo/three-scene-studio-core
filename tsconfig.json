@@ -9,7 +9,7 @@
     "sourceMap": true,
     "moduleResolution": "Node",
     "allowJs": true,
-    "noEmit": true
+    "noEmit": false
   },
   "exclude": ["node_modules", "dist", "src/**/*.test.ts"],
   "include": ["src/**/*"]
