@@ -1,16 +1,17 @@
 import EventDispatcher from '../utils/EventDispatcher'
+import { NodeValueInfo, NodeValueType } from '../utils'
 import {
   ReferrableVariable,
   ReferrableVariableEventPacket,
 } from './ReferrableVariable'
-import { Variable, VariableEventPacket } from './Variable'
+import { NumberValue, VariableEventPacket, VectorValue } from './Variable'
 import * as z from 'zod'
 
 export const externalVariableConfigSchema = z.object({
   type: z.literal('EXTERNAL'),
   id: z.string(),
   name: z.string(),
-  value: z.number(),
+  value: z.union([z.number(), z.array(z.number())]),
   ref: z.string(),
 })
 
@@ -24,8 +25,15 @@ export class ExternalVariable extends ReferrableVariable {
   dispatcher = new EventDispatcher<
     ReferrableVariableEventPacket | VariableEventPacket
   >()
-  constructor(name: string, value: number, ref: string, id?: string) {
-    super(name, value, ref, id)
+  value: NumberValue | VectorValue
+  constructor(name: string, value: NodeValueInfo, ref: string, id?: string) {
+    super(name, ref, id)
+
+    if (value.valueType === 'NUMBER') {
+      this.value = new NumberValue(value.value)
+    } else {
+      this.value = new VectorValue(value.value)
+    }
   }
 
   serialize(): ExternalVariableConfig {
@@ -33,7 +41,7 @@ export class ExternalVariable extends ReferrableVariable {
       type: this.type,
       id: this.id,
       name: this.name,
-      value: this.value,
+      value: this.value.get(),
       ref: this.ref,
     }
   }

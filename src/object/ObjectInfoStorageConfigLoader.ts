@@ -13,7 +13,6 @@ import {
   formulaObjectConfigSchema,
   FormulaObjectInfo,
 } from './FormulaObjectInfo'
-import { parseExpression } from '../utils'
 import {
   animationObjectConfigSchema,
   AnimationObjectInfo,
@@ -26,6 +25,7 @@ import {
 import { CameraSwitcherInfo } from './CameraSwitcherObjectInfo'
 import { SceneSwitcherInfo } from './SceneSwitcherObjectInfo'
 import Switcher from '../utils/Switcher'
+import { parse, predictNodeValueType } from '../utils'
 
 type SceneMap = Map<string, Map<string, THREE.Object3D>>
 type InSceneObjectInfoConfigMap = Map<string, InSceneObjectInfoConfig>
@@ -92,7 +92,6 @@ class ObjectInfoStorageConfigLoader {
     )
     this.loadCameraObjectInfoList(gltf, config.cameraObjectInfos)
     this.loadAnimationObjectInfoList(gltf, config.animationObjectInfos)
-    this.loadFormulaObjectInfoList(config.formulaObjectInfos)
     this.loadUniqueObjectInfoList(
       cameraSwitcher,
       sceneSwitcher,
@@ -178,28 +177,6 @@ class ObjectInfoStorageConfigLoader {
       animationObjectInfos.push(result)
     }
     return animationObjectInfos
-  }
-
-  loadFormulaObjectInfoList(
-    formulaObjectInfoConfigList: ObjectConfig[]
-  ): FormulaObjectInfo[] {
-    const formulaObjectInfos: FormulaObjectInfo[] = []
-    for (const formulaObjectInfoConfig of formulaObjectInfoConfigList) {
-      const parseConfigResult = formulaObjectConfigSchema.safeParse(
-        formulaObjectInfoConfig
-      )
-      if (!parseConfigResult.success) continue
-      const configValue = parseConfigResult.data
-      const parsedFormulaResult = parseExpression(configValue.formula)
-      if (parsedFormulaResult.status === 'ERROR') continue
-      const result = this.objectInfoStorage.createFormulaObjectInfo(
-        parsedFormulaResult.data,
-        formulaObjectInfoConfig.id
-      )
-      if (result === null) continue
-      formulaObjectInfos.push(result)
-    }
-    return formulaObjectInfos
   }
 
   loadInSceneObjectInfoList(

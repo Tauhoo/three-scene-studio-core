@@ -11,7 +11,7 @@ type ListenerMap<P extends EventPacket<string, any>> = {
   ) => void)[]
 }
 
-class EventDispatcher<P extends EventPacket<string & {}, any>> {
+class EventDispatcher<P extends EventPacket<string, any>> {
   private listenerMap: ListenerMap<P> = {}
 
   dispatch<K extends P['type']>(

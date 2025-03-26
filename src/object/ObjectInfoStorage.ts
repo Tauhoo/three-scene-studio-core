@@ -33,7 +33,6 @@ export const objectInfoStorageConfigSchema = z.object({
     cameraSwitcher: objectConfigSchema.nullable(),
     sceneSwitcher: objectConfigSchema.nullable(),
   }),
-  formulaObjectInfos: z.array(objectConfigSchema),
   animationObjectInfos: z.array(objectConfigSchema),
   cameraObjectInfos: z.array(objectConfigSchema),
 })
@@ -272,9 +271,6 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
             ? null
             : sceneSwitcherObjectInfo.serialize(),
       },
-      formulaObjectInfos: this.getFormulaObjectInfos().map(objectInfo =>
-        objectInfo.serialize()
-      ),
       animationObjectInfos: this.getAnimationObjectInfos().map(objectInfo =>
         objectInfo.serialize()
       ),

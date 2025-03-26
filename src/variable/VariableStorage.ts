@@ -2,7 +2,7 @@ import * as z from 'zod'
 import DataStorage from '../utils/DataStorage'
 import { Variable } from './Variable'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
-import { FormulaObjectInfo } from '../object'
+import { FormulaObjectInfo, ObjectInfoManager } from '../object'
 import { VariableConnectorStorage } from './VariableConnectorStorage'
 import { convertToNoneDuplicateRef } from '../utils/naming'
 import { TimeVariable } from './TimeVariable'
@@ -13,6 +13,7 @@ import { VariableGroup } from './types'
 import { FormulaVariable, GlobalFormulaVariable } from './formula'
 import { ContainerWidthVariable } from './ContainerWidthVariable'
 import { ContainerHeightVariable } from './ContainerHeightVariable'
+import { parse, predictNodeValueType } from '../utils'
 
 export const variableStorageConfigSchema = z.object({
   variables: z.array(variableConfigSchema),
@@ -39,8 +40,10 @@ export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
   private refStorage: DataStorage<string, ReferrableVariable>
   private variableConnectorStorage: VariableConnectorStorage
   private systemVariables: DataStorage<string, Variable>
-
-  constructor(variableConnectorStorage: VariableConnectorStorage) {
+  constructor(
+    variableConnectorStorage: VariableConnectorStorage,
+    objectInfoManager: ObjectInfoManager
+  ) {
     super()
     this.idStorage = new DataStorage<string, Variable>(id => id)
     this.refStorage = new DataStorage<string, ReferrableVariable>(ref => ref)
@@ -126,29 +129,37 @@ export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
     const { objectInfoManager, clock, context } = threeSceneStudioManager
     switch (config.type) {
       case 'FORMULA':
-        const formulaObject = objectInfoManager.objectInfoStorage.get(
-          config.formulaObjectInfoId
-        )
-        if (!(formulaObject instanceof FormulaObjectInfo)) {
-          return null
+        const parsedResult = parse(config.formula)
+        if (parsedResult.status === 'ERROR') {
+          throw new Error(parsedResult.error)
         }
+        const formulaObjectInfo =
+          objectInfoManager.objectInfoStorage.createFormulaObjectInfo({
+            text: config.formula,
+            node: parsedResult.data,
+            valueType: config.valueType,
+          })
         return new FormulaVariable(
-          formulaObject,
+          formulaObjectInfo,
           objectInfoManager,
           this.variableConnectorStorage,
           this,
           config.id
         )
       case 'GLOBAL_FORMULA': {
-        const formulaObject = objectInfoManager.objectInfoStorage.get(
-          config.formulaObjectInfoId
-        )
-        if (!(formulaObject instanceof FormulaObjectInfo)) {
-          return null
+        const parsedResult = parse(config.formula)
+        if (parsedResult.status === 'ERROR') {
+          throw new Error(parsedResult.error)
         }
+        const formulaObjectInfo =
+          objectInfoManager.objectInfoStorage.createFormulaObjectInfo({
+            text: config.formula,
+            node: parsedResult.data,
+            valueType: config.valueType,
+          })
         return new GlobalFormulaVariable(
           config.ref,
-          formulaObject,
+          formulaObjectInfo,
           config.name,
           objectInfoManager,
           this.variableConnectorStorage,

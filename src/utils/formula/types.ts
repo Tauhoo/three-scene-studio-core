@@ -57,4 +57,22 @@ export type FormulaNode =
   | MinusPrefixUnaryNode
   | ParenthesesExpressionNode
 
-export type NodeValueType = 'NUMBER' | 'VECTOR'
+export type VectorValueInfo = {
+  valueType: 'VECTOR'
+  value: number[]
+}
+
+export type NumberValueInfo = {
+  valueType: 'NUMBER'
+  value: number
+}
+
+export type NodeValueInfo = VectorValueInfo | NumberValueInfo
+
+export type NodeValueType = NodeValueInfo['valueType']
+
+export type FormulaInfo = {
+  text: string
+  node: FormulaNode
+  valueType: NodeValueType
+}

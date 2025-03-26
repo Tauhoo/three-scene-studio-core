@@ -1,14 +1,14 @@
-import { FormulaInfo } from '../utils/expression'
 import { ObjectInfo, ObjectInfoEvent, ObjectPath } from './ObjectInfo'
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
+import { calculate, FormulaInfo } from '../utils'
 
 export const formulaObjectConfigSchema = z.object({
   type: z.literal('FORMULA'),
   id: z.string(),
   formula: z.string(),
-  value: z.number(),
+  value: z.union([z.number(), z.array(z.number())]),
 })
 
 export type FormulaObjectConfig = z.infer<typeof formulaObjectConfigSchema>
@@ -23,8 +23,7 @@ export class FormulaObjectInfo extends ObjectInfo {
   readonly data: Record<string, number> = {}
   private formulaInfo: FormulaInfo
   readonly eventDispatcher: EventDispatcher<FormulaObjectEventPacket>
-  value: number = 0
-  private initData: Record<string, number>
+  value: number | number[] = 0
 
   constructor(formulaInfo: FormulaInfo, id?: string) {
     super()
@@ -32,18 +31,15 @@ export class FormulaObjectInfo extends ObjectInfo {
     this.config = {
       type: 'FORMULA',
       id: id ?? uuidv4(),
-      formula: formulaInfo.expression,
-      value: 0,
+      formula: formulaInfo.text,
+      value: formulaInfo.valueType === 'NUMBER' ? 0 : [],
     }
     this.formulaInfo = formulaInfo
-    this.initData = Object.fromEntries(
-      this.formulaInfo.variables.map(ref => [ref, 0])
-    )
     this.updateFormula(formulaInfo)
   }
 
   updateFormula(formulaInfo: FormulaInfo) {
-    this.config.formula = formulaInfo.expression
+    this.config.formula = formulaInfo.text
 
     // update formula
     this.formulaInfo = formulaInfo
@@ -53,10 +49,12 @@ export class FormulaObjectInfo extends ObjectInfo {
       delete this.data[key]
     }
 
-    // update init data
-    this.initData = Object.fromEntries(
-      this.formulaInfo.variables.map(ref => [ref, 0])
-    )
+    if (formulaInfo.valueType === 'NUMBER') {
+      this.value = 0
+    } else {
+      this.value = []
+    }
+
     this.eventDispatcher.dispatch('FORMULA_INFO_UPDATE', { formulaInfo })
   }
 
@@ -65,18 +63,13 @@ export class FormulaObjectInfo extends ObjectInfo {
   }
 
   calculateValue() {
-    try {
-      const newValue = this.formulaInfo.node.evaluate({
-        ...this.initData,
-        ...this.data,
-      })
-      this.value = newValue
-      this.eventDispatcher.dispatch('FORMULA_VALUE_UPDATE', { value: newValue })
-    } catch (error) {
-      console.error(error)
-      this.value = 0
-      this.eventDispatcher.dispatch('FORMULA_VALUE_UPDATE', { value: 0 })
+    const result = calculate(this.formulaInfo.node, this.data)
+    if (result.status === 'ERROR') {
+      console.error(result.error)
+      return
     }
+    this.value = result.data
+    this.eventDispatcher.dispatch('FORMULA_VALUE_UPDATE', { value: this.value })
   }
 
   setValue(objectPath: ObjectPath, value: any) {

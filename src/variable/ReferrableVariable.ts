@@ -1,4 +1,5 @@
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
+import { NodeValueInfo } from '../utils'
 import { Variable, VariableEventPacket } from './Variable'
 
 export type ReferrableVariableEventPacket =
@@ -21,8 +22,8 @@ export abstract class ReferrableVariable extends Variable {
     | VariableEventPacket
   >
 
-  constructor(name: string, value: number, ref: string, id?: string) {
-    super(value, id)
+  constructor(name: string, ref: string, id?: string) {
+    super(id)
     this._name = name
     this._ref = ref
   }
@@ -49,7 +50,7 @@ export abstract class ReferrableVariable extends Variable {
     type: string
     id: string
     name: string
-    value: number
+    value: number | number[]
     ref: string
   }
 }

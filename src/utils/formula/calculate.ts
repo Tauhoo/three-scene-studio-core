@@ -7,19 +7,7 @@ import {
 import { functionMap } from './function'
 import { BinaryOperationNode, FormulaNode } from './types'
 
-export type Parameter =
-  | {
-      type: 'NUMBER'
-      name: string
-      value: number
-    }
-  | {
-      type: 'VECTOR'
-      name: string
-      value: number[]
-    }
-
-export type Parameters = Record<string, Parameter>
+export type Parameters = Record<string, number | number[]>
 
 export function calculate(
   node: FormulaNode,
@@ -38,7 +26,7 @@ export function calculate(
         `Variable ${node.name} not found`
       )
     }
-    return successResponse(variable.value)
+    return successResponse(variable)
   }
 
   if (node.type === 'VECTOR') {

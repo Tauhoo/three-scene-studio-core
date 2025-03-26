@@ -19,7 +19,7 @@ export class VariableConnector {
   private variable: Variable
   private objectInfo: ObjectInfo
   private objectPath: ObjectPath
-  private updateObject: (value: number) => void
+  private updateObject: (value: number | number[]) => void
 
   constructor(
     variable: Variable,
@@ -31,7 +31,7 @@ export class VariableConnector {
     this.variable = variable
     this.objectInfo = objectInfo
     this.objectPath = objectPath
-    this.updateObject = (value: number) => {
+    this.updateObject = (value: number | number[]) => {
       const result = this.objectInfo.setValue(this.objectPath, value)
       if (result.status === 'ERROR') {
         console.error(result.error)
@@ -39,7 +39,7 @@ export class VariableConnector {
     }
     const originVariable: Variable = variable
     originVariable.dispatcher.addListener('VALUE_CHANGED', this.updateObject)
-    this.updateObject(originVariable.value)
+    this.updateObject(originVariable.value.get())
   }
 
   getVariable() {

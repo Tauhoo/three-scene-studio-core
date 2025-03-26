@@ -1,10 +1,11 @@
 import Context from '../utils/Context'
 import EventDispatcher from '../utils/EventDispatcher'
+import { NodeValueType, NumberValueInfo } from '../utils'
 import {
   ReferrableVariable,
   ReferrableVariableEventPacket,
 } from './ReferrableVariable'
-import { VariableEventPacket } from './Variable'
+import { NumberValue, VariableEventPacket } from './Variable'
 import * as z from 'zod'
 
 export const containerWidthVariableConfigSchema = z.object({
@@ -26,6 +27,8 @@ export class ContainerWidthVariable extends ReferrableVariable {
     ReferrableVariableEventPacket | VariableEventPacket
   >()
 
+  value: NumberValue
+
   constructor(
     private context: Context,
     name: string,
@@ -33,12 +36,13 @@ export class ContainerWidthVariable extends ReferrableVariable {
     id?: string
   ) {
     const rect = context.canvasContainer.getBoundingClientRect()
-    super(name, rect.width, ref, id)
+    super(name, ref, id)
+    this.value = new NumberValue(rect.width)
     context.addListener('CANVAS_RESIZE', this.onCanvasResize)
   }
 
   private onCanvasResize = (event: { width: number }) => {
-    this.value = event.width
+    this.value.set(event.width)
   }
 
   destroy() {
@@ -51,7 +55,7 @@ export class ContainerWidthVariable extends ReferrableVariable {
       type: this.type,
       id: this.id,
       name: this.name,
-      value: this.value,
+      value: this.value.get(),
       ref: this.ref,
     }
   }

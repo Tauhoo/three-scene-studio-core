@@ -21,7 +21,7 @@ describe('calculate', () => {
       throw new Error('Failed to parse expression error: ' + node.error)
     }
     const variables: Parameters = {
-      x: { type: 'NUMBER', name: 'x', value: 10 },
+      x: 10,
     }
     const result = calculate(node.data, variables)
     expect(result).toEqual(successResponse(10))

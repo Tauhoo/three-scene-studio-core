@@ -5,7 +5,8 @@ import {
   ReferrableVariableEventPacket,
 } from './ReferrableVariable'
 import * as z from 'zod'
-import { VariableEventPacket } from './Variable'
+import { NumberValue, VariableEventPacket } from './Variable'
+import { NodeValueType } from '../utils'
 
 export const containerHeightVariableConfigSchema = z.object({
   type: z.literal('CONTAINER_HEIGHT'),
@@ -26,6 +27,8 @@ export class ContainerHeightVariable extends ReferrableVariable {
     ReferrableVariableEventPacket | VariableEventPacket
   >()
 
+  value: NumberValue
+
   constructor(
     private context: Context,
     name: string,
@@ -33,12 +36,13 @@ export class ContainerHeightVariable extends ReferrableVariable {
     id?: string
   ) {
     const rect = context.canvasContainer.getBoundingClientRect()
-    super(name, rect.height, ref, id)
+    super(name, ref, id)
+    this.value = new NumberValue(rect.height)
     context.addListener('CANVAS_RESIZE', this.onCanvasResize)
   }
 
   private onCanvasResize = (event: { height: number }) => {
-    this.value = event.height
+    this.value.set(event.height)
   }
 
   serialize(): ContainerHeightVariableConfig {
@@ -46,7 +50,7 @@ export class ContainerHeightVariable extends ReferrableVariable {
       type: this.type,
       id: this.id,
       name: this.name,
-      value: this.value,
+      value: this.value.get(),
       ref: this.ref,
     }
   }
@@ -54,5 +58,9 @@ export class ContainerHeightVariable extends ReferrableVariable {
   destroy() {
     this.context.removeListener('CANVAS_RESIZE', this.onCanvasResize)
     super.destroy()
+  }
+
+  getValueType(): NodeValueType {
+    return 'NUMBER'
   }
 }

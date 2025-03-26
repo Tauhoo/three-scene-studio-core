@@ -4,8 +4,9 @@ import {
   ReferrableVariableEventPacket,
 } from './ReferrableVariable'
 import * as z from 'zod'
-import { VariableEventPacket } from './Variable'
+import { NumberValue, VariableEventPacket } from './Variable'
 import { Clock } from '../Clock'
+import { NodeValueInfo, NumberValueInfo } from '../utils'
 
 export const timeVariableConfigSchema = z.object({
   type: z.literal('TIME'),
@@ -24,15 +25,16 @@ export class TimeVariable extends ReferrableVariable {
     ReferrableVariableEventPacket | VariableEventPacket
   >()
   private _enabled = true
+  value: NumberValue = new NumberValue(0)
 
   constructor(private clock: Clock, name: string, ref: string, id?: string) {
-    super(name, 0, ref, id)
+    super(name, ref, id)
     clock.addListener('TICK', this.onTick)
   }
 
   private onTick = () => {
     if (this.enabled) {
-      this.value = Date.now()
+      this.value.set(Date.now())
     }
   }
 
@@ -43,7 +45,7 @@ export class TimeVariable extends ReferrableVariable {
   set enabled(value: boolean) {
     this._enabled = value
     if (!value) {
-      this.value = 0
+      this.value.set(0)
     }
   }
 
@@ -52,7 +54,7 @@ export class TimeVariable extends ReferrableVariable {
       type: this.type,
       id: this.id,
       name: this.name,
-      value: this.value,
+      value: this.value.get(),
       ref: this.ref,
     }
   }

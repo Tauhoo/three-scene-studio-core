@@ -6,7 +6,6 @@ import {
   variableConnectorConfigSchema,
 } from './VariableConnector'
 import { VariableStorage } from './VariableStorage'
-import { ReferrableVariable } from './ReferrableVariable'
 import { Variable } from './Variable'
 import { ObjectInfo, ObjectPath } from '../object'
 

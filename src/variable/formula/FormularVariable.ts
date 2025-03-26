@@ -1,16 +1,23 @@
 import * as z from 'zod'
-import { Variable, VariableEventPacket } from '../Variable'
+import {
+  NumberValue,
+  Variable,
+  VariableEventPacket,
+  VectorValue,
+} from '../Variable'
 import EventDispatcher from '../../utils/EventDispatcher'
 import { FormulaObjectInfo, ObjectInfoManager } from '../../object'
 import { VariableConnectorStorage } from '../VariableConnectorStorage'
 import { ReferrableVariable } from '../ReferrableVariable'
 import { VariableStorage } from '../VariableStorage'
+import { getVariableFromNode } from '../../utils'
 
 export const formulaVariableConfigSchema = z.object({
   type: z.literal('FORMULA'),
   id: z.string(),
-  value: z.number(),
-  formulaObjectInfoId: z.string(),
+  value: z.union([z.number(), z.array(z.number())]),
+  formula: z.string(),
+  valueType: z.union([z.literal('NUMBER'), z.literal('VECTOR')]),
 })
 
 export type FormulaVariableConfig = z.infer<typeof formulaVariableConfigSchema>
@@ -24,6 +31,8 @@ export class FormulaVariable extends Variable {
   private variableConnectorStorage: VariableConnectorStorage
   private variableStorage: VariableStorage
 
+  value: NumberValue | VectorValue
+
   getFormulaObjectInfo() {
     return this.formulaObjectInfo
   }
@@ -35,7 +44,12 @@ export class FormulaVariable extends Variable {
     variableStorage: VariableStorage,
     id?: string
   ) {
-    super(formulaObjectInfo.value, id)
+    super(id)
+    if (typeof formulaObjectInfo.value === 'number') {
+      this.value = new NumberValue(formulaObjectInfo.value)
+    } else {
+      this.value = new VectorValue(formulaObjectInfo.value)
+    }
     this.variableStorage = variableStorage
     this.variableConnectorStorage = variableConnectorStorage
     this.objectInfoManager = objectInfoManager
@@ -51,12 +65,17 @@ export class FormulaVariable extends Variable {
     this.updateReferredVariables()
   }
 
-  private onFormulaValueUpdate = ({ value }: { value: number }) => {
-    this.value = value
+  private onFormulaValueUpdate = ({ value }: { value: number | number[] }) => {
+    if (typeof value === 'number' && this.value instanceof NumberValue) {
+      this.value.set(value)
+    } else if (Array.isArray(value) && this.value instanceof VectorValue) {
+      this.value.set(value)
+    }
   }
 
   updateReferredVariables() {
-    const variableRefs = this.formulaObjectInfo.getFormulaInfo().variables
+    const info = this.formulaObjectInfo.getFormulaInfo()
+    const variableRefs = getVariableFromNode(info.node)
 
     // clear old referred variables
     this.variableConnectorStorage.deleteObjectConnectors(
@@ -109,8 +128,9 @@ export class FormulaVariable extends Variable {
     return {
       type: this.type,
       id: this.id,
-      formulaObjectInfoId: this.formulaObjectInfo.config.id,
-      value: 0,
+      formula: this.formulaObjectInfo.config.formula,
+      value: this.value.get(),
+      valueType: this.value.valueType,
     }
   }
 }

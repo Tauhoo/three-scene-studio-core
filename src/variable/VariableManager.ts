@@ -8,12 +8,12 @@ import { ObjectInfoManager } from '../object'
 import Context from '../utils/Context'
 import { TimeVariable } from './TimeVariable'
 import { Clock } from '../Clock'
-import { parseExpression } from '../utils'
 import { ThreeSceneStudioManager } from '../ThreeSceneStudioManager'
 import { FormulaVariable, GlobalFormulaVariable } from './formula'
 import { ContainerHeightVariable } from './ContainerHeightVariable'
 import { ContainerWidthVariable } from './ContainerWidthVariable'
 import { ExternalVariable } from './ExternalVariable'
+import { parse, predictNodeValueType } from '../utils'
 
 export const variableManagerConfigSchema = z.object({
   variableStorage: variableStorageConfigSchema,
@@ -35,7 +35,10 @@ export class VariableManager {
     clock: Clock
   ) {
     this.variableConnectorStorage = new VariableConnectorStorage()
-    this.variableStorage = new VariableStorage(this.variableConnectorStorage)
+    this.variableStorage = new VariableStorage(
+      this.variableConnectorStorage,
+      objectInfoManager
+    )
     this.objectInfoManager = objectInfoManager
     this.context = context
     this.clock = clock
@@ -44,18 +47,26 @@ export class VariableManager {
   // Variable initializers
 
   createFormulaVariable(formula: string, id?: string): FormulaVariable {
-    const parsedResult = parseExpression(formula, {
-      existVariables: this.variableStorage
-        .getAllReferrableVariables()
-        .map(variable => variable.ref),
-    })
+    const parsedResult = parse(formula)
     if (parsedResult.status === 'ERROR') {
       throw new Error(parsedResult.error)
     }
+    const predictResult = predictNodeValueType(parsedResult.data, name => {
+      const variable = this.variableStorage.getVariableById(name)
+      if (variable === null) {
+        return null
+      }
+      return variable.value.valueType
+    })
+    if (predictResult.status === 'FAIL') {
+      throw new Error(predictResult.error)
+    }
     const formulaObjectInfo =
-      this.objectInfoManager.objectInfoStorage.createFormulaObjectInfo(
-        parsedResult.data
-      )
+      this.objectInfoManager.objectInfoStorage.createFormulaObjectInfo({
+        text: formula,
+        node: parsedResult.data,
+        valueType: predictResult.info.value,
+      })
     const variable = new FormulaVariable(
       formulaObjectInfo,
       this.objectInfoManager,
@@ -73,14 +84,26 @@ export class VariableManager {
     name: string,
     id?: string
   ): GlobalFormulaVariable {
-    const parsedResult = parseExpression(formula)
+    const parsedResult = parse(formula)
     if (parsedResult.status === 'ERROR') {
       throw new Error(parsedResult.error)
     }
+    const predictResult = predictNodeValueType(parsedResult.data, name => {
+      const variable = this.variableStorage.getVariableById(name)
+      if (variable === null) {
+        return null
+      }
+      return variable.value.valueType
+    })
+    if (predictResult.status === 'FAIL') {
+      throw new Error(predictResult.error)
+    }
     const formulaObjectInfo =
-      this.objectInfoManager.objectInfoStorage.createFormulaObjectInfo(
-        parsedResult.data
-      )
+      this.objectInfoManager.objectInfoStorage.createFormulaObjectInfo({
+        text: formula,
+        node: parsedResult.data,
+        valueType: predictResult.info.value,
+      })
     this.objectInfoManager.objectInfoStorage.setObjectInfo(formulaObjectInfo)
     const variable = new GlobalFormulaVariable(
       this.variableStorage.convertToNoneDuplicateRef(ref),
@@ -127,13 +150,15 @@ export class VariableManager {
 
   createExternalVariable(
     name: string,
-    value: number,
+    value: number | number[],
     ref: string,
     id?: string
   ): ExternalVariable {
     const variable = new ExternalVariable(
       name,
-      value,
+      typeof value === 'number'
+        ? { valueType: 'NUMBER', value }
+        : { valueType: 'VECTOR', value },
       this.variableStorage.convertToNoneDuplicateRef(ref),
       id
     )

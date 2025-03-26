@@ -1,17 +1,18 @@
 import * as z from 'zod'
-import { VariableEventPacket } from '../Variable'
-import { FormulaInfo } from '../../utils/expression'
+import { NumberValue, VariableEventPacket, VectorValue } from '../Variable'
 import EventDispatcher, { EventPacket } from '../../utils/EventDispatcher'
 import { ReferrableVariable } from '../ReferrableVariable'
 import { FormulaObjectInfo, ObjectInfoManager } from '../../object'
 import { VariableConnectorStorage } from '../VariableConnectorStorage'
 import { VariableStorage } from '../VariableStorage'
+import { FormulaInfo, getVariableFromNode } from '../../utils'
 
 export const globalFormulaVariableConfigSchema = z.object({
   type: z.literal('GLOBAL_FORMULA'),
   id: z.string(),
-  formulaObjectInfoId: z.string(),
-  value: z.number(),
+  formula: z.string(),
+  valueType: z.union([z.literal('NUMBER'), z.literal('VECTOR')]),
+  value: z.union([z.number(), z.array(z.number())]),
   name: z.string(),
   ref: z.string(),
 })
@@ -24,12 +25,6 @@ export type GlobalFormulaVariableEventPacket = EventPacket<
   'FORMULA_VARIABLE_UPDATE',
   { formulaInfo: FormulaInfo }
 >
-
-type RecursiveInfo = {
-  ref: string
-  children: RecursiveInfo[]
-}
-
 export class GlobalFormulaVariable extends ReferrableVariable {
   type: 'GLOBAL_FORMULA' = 'GLOBAL_FORMULA'
   group: 'USER_DEFINED' = 'USER_DEFINED'
@@ -38,6 +33,7 @@ export class GlobalFormulaVariable extends ReferrableVariable {
   private objectInfoManager: ObjectInfoManager
   private variableConnectorStorage: VariableConnectorStorage
   private variableStorage: VariableStorage
+  value: NumberValue | VectorValue
 
   getFormulaObjectInfo() {
     return this.formulaObjectInfo
@@ -52,7 +48,12 @@ export class GlobalFormulaVariable extends ReferrableVariable {
     variableStorage: VariableStorage,
     id?: string
   ) {
-    super(name, formulaObjectInfo.value, ref, id)
+    super(name, ref, id)
+    if (typeof formulaObjectInfo.value === 'number') {
+      this.value = new NumberValue(formulaObjectInfo.value)
+    } else {
+      this.value = new VectorValue(formulaObjectInfo.value)
+    }
     this.objectInfoManager = objectInfoManager
     this.variableStorage = variableStorage
     this.variableConnectorStorage = variableConnectorStorage
@@ -69,7 +70,11 @@ export class GlobalFormulaVariable extends ReferrableVariable {
   }
 
   private onFormulaValueUpdate = ({ value }: { value: number }) => {
-    this.value = value
+    if (typeof value === 'number' && this.value instanceof NumberValue) {
+      this.value.set(value)
+    } else if (Array.isArray(value) && this.value instanceof VectorValue) {
+      this.value.set(value)
+    }
   }
 
   allReferredVariables = () => {
@@ -88,7 +93,8 @@ export class GlobalFormulaVariable extends ReferrableVariable {
   }
 
   updateReferredVariables = () => {
-    const variableRefs = this.formulaObjectInfo.getFormulaInfo().variables
+    const info = this.formulaObjectInfo.getFormulaInfo()
+    const variableRefs = getVariableFromNode(info.node)
 
     // clear old referred variables
     this.variableConnectorStorage.deleteObjectConnectors(
@@ -143,8 +149,9 @@ export class GlobalFormulaVariable extends ReferrableVariable {
       name: this.name,
       ref: this.ref,
       id: this.id,
-      formulaObjectInfoId: this.formulaObjectInfo.config.id,
-      value: 0,
+      formula: this.formulaObjectInfo.config.formula,
+      value: this.value.get(),
+      valueType: this.value.valueType,
     }
   }
 }
