@@ -6,7 +6,6 @@ import {
 import * as z from 'zod'
 import { NumberValue, VariableEventPacket } from './Variable'
 import { Clock } from '../Clock'
-import { NodeValueInfo, NumberValueInfo } from '../utils'
 
 export const timeVariableConfigSchema = z.object({
   type: z.literal('TIME'),

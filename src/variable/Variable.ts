@@ -39,10 +39,9 @@ export class NumberValue extends EventDispatcher<
   }
 
   set(value: number) {
+    if (this._value === value) return
     this._value = value
-    if (this._value !== value) {
-      this.dispatch('VALUE_CHANGED', value)
-    }
+    this.dispatch('VALUE_CHANGED', value)
   }
 
   get(): number {
@@ -63,9 +62,8 @@ export class VectorValue extends EventDispatcher<
   }
 
   set(value: number[]) {
+    if (this._value === value) return
     this._value = value
-    if (this._value !== value) {
-      this.dispatch('VALUE_CHANGED', value)
-    }
+    this.dispatch('VALUE_CHANGED', value)
   }
 }

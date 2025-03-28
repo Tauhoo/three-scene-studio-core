@@ -52,7 +52,7 @@ export class VariableManager {
       throw new Error(parsedResult.error)
     }
     const predictResult = predictNodeValueType(parsedResult.data, name => {
-      const variable = this.variableStorage.getVariableById(name)
+      const variable = this.variableStorage.getVariableByRef(name)
       if (variable === null) {
         return null
       }

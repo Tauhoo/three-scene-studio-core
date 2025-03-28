@@ -1,3 +1,4 @@
+@preprocessor typescript
 @include "./number.ne"
 @include "./vector.ne"
 @include "./unary-operator.ne"
@@ -6,18 +7,18 @@
 
 expression -> expression_binary_operator_expression {% id %}
 
-parentheses_expression[E] -> "(" ($E ("," $E):*):? ")" {% data => {
+parentheses_expression[E] -> "(" ($E ("," $E):*):? ")" {% (data: any[]): any => {
     if(data[1] === null) return { type: "PARENTHESES_EXPRESSION", expressions: [], id: uuidV4() }
     const result = []
     result.push(data[1][0])
-    result.push(...data[1][1].map(item => item[1]))
+    result.push(...data[1][1].map((item:any[])=> item[1]))
     return { type: "PARENTHESES_EXPRESSION", expressions: result, id: uuidV4() }
 } %}
 
 @{% 
-    const uuidV4 = require('uuid').v4
-    const flatten = data => {
-        const result = []
+    import { v4 as uuidV4 } from 'uuid'
+    const flatten = (data: any[]): any[] => {
+        const result: any[] = []
         if(Array.isArray(data)){
             for(const item of data){
                 result.push(...flatten(item))

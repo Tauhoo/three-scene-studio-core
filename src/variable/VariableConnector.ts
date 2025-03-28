@@ -1,7 +1,12 @@
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
-import { ObjectInfo, ObjectPath, objectPathSchema } from '../object'
-import { Variable } from '.'
+import {
+  MeshObjectInfo,
+  ObjectInfo,
+  ObjectPath,
+  objectPathSchema,
+} from '../object'
+import { FormulaVariable, Variable } from '.'
 
 export const variableConnectorConfigSchema = z.object({
   id: z.string(),
@@ -38,7 +43,7 @@ export class VariableConnector {
       }
     }
     const originVariable: Variable = variable
-    originVariable.dispatcher.addListener('VALUE_CHANGED', this.updateObject)
+    originVariable.value.addListener('VALUE_CHANGED', this.updateObject)
     this.updateObject(originVariable.value.get())
   }
 
@@ -56,7 +61,7 @@ export class VariableConnector {
 
   destroy() {
     const originVariable: Variable = this.variable
-    originVariable.dispatcher.removeListener('VALUE_CHANGED', this.updateObject)
+    originVariable.value.removeListener('VALUE_CHANGED', this.updateObject)
   }
 
   serialize(): VariableConnectorConfig {
