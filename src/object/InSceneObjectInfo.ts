@@ -12,6 +12,7 @@ import { SceneObjectInfo } from './SceneObjectInfo'
 import { EventPacket } from '../utils'
 import EventDispatcher from '../utils/EventDispatcher'
 import { z } from 'zod'
+import { PropertyTypeMap } from './property'
 
 export const inSceneObjectInfoConfigSchema = objectConfigSchema.extend({
   sceneId: z.string(),
@@ -48,6 +49,13 @@ export type InSceneObjectInfoEvent =
   | ObjectInfoEvent
 
 export abstract class InSceneObjectInfo extends ObjectInfo {
+  static propertyTypeMap: PropertyTypeMap = {
+    name: { type: 'STRING' },
+    position: { type: 'VECTOR_3D' },
+    rotation: { type: 'VECTOR_3D' },
+    scale: { type: 'VECTOR_3D' },
+  }
+
   abstract readonly config: InSceneObjectInfoConfig
   abstract readonly data: THREE.Object3D
   children: InSceneObjectInfo[]

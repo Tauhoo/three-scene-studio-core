@@ -1,8 +1,16 @@
 import * as THREE from 'three'
 import { CameraObjectInfo } from './CameraObjectInfo'
 import { ObjectPath } from '../ObjectInfo'
+import { PropertyTypeMap } from '../property'
 
 export class OrthographicCameraObjectInfo extends CameraObjectInfo {
+  static propertyTypeMap: PropertyTypeMap = {
+    ...CameraObjectInfo.propertyTypeMap,
+    left: { type: 'NUMBER' },
+    right: { type: 'NUMBER' },
+    top: { type: 'NUMBER' },
+    bottom: { type: 'NUMBER' },
+  }
   declare data: THREE.OrthographicCamera
   constructor(data: THREE.OrthographicCamera, id?: string) {
     super(data, id)

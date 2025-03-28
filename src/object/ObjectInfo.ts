@@ -1,6 +1,7 @@
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { errorResponse, successResponse } from '../utils/response'
 import { z } from 'zod'
+import { PropertyTypeMap } from './property'
 
 export const objectPathSchema = z.array(z.string())
 export type ObjectPath = z.infer<typeof objectPathSchema>
@@ -18,6 +19,7 @@ export type ObjectInfoEvent =
   | EventPacket<'DATA_VALUE_UPDATE', { objectPath: ObjectPath }>
 
 export abstract class ObjectInfo {
+  static propertyTypeMap: PropertyTypeMap = {}
   abstract readonly config: ObjectConfig
   abstract readonly data: any
   abstract readonly eventDispatcher: EventDispatcher<ObjectInfoEvent>

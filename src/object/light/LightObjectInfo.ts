@@ -4,6 +4,7 @@ import { InSceneObjectInfo, InSceneObjectInfoEvent } from '../InSceneObjectInfo'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfoStorage } from '../ObjectInfoStorage'
 import EventDispatcher from '../../utils/EventDispatcher'
+import { PropertyTypeMap } from '../property'
 
 export const lightObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_LIGHT'),
@@ -15,6 +16,10 @@ export const lightObjectConfigSchema = z.object({
 export type LightObjectConfig = z.infer<typeof lightObjectConfigSchema>
 
 export class LightObjectInfo extends InSceneObjectInfo {
+  static propertyTypeMap: PropertyTypeMap = {
+    ...InSceneObjectInfo.propertyTypeMap,
+    intensity: { type: 'NUMBER' },
+  }
   readonly config: LightObjectConfig
   readonly data: THREE.Light
   readonly eventDispatcher: EventDispatcher<InSceneObjectInfoEvent>

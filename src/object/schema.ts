@@ -27,7 +27,3 @@ export const uniqueObjectInfoConfigSchema = z.object({
 export type UniqueObjectInfoConfig = z.infer<
   typeof uniqueObjectInfoConfigSchema
 >
-
-// Others
-// formulaObjectConfigSchema
-// animationObjectConfigSchema
