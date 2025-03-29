@@ -40,8 +40,8 @@ export class MeshObjectInfo extends InSceneObjectInfo {
     this.eventDispatcher = new EventDispatcher()
   }
 
-  setValue(objectPath: ObjectPath, value: any) {
-    const result = super.setValue(objectPath, value)
+  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
+    const result = super.setValue(objectPath, value, isVector)
     if (this.boxHelper !== null) {
       this.boxHelper.update()
     }

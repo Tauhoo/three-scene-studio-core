@@ -1,7 +1,7 @@
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { errorResponse, successResponse } from '../utils/response'
 import { z } from 'zod'
-import { PropertyTypeMap } from './property'
+import { MapTypeDefinition } from './property'
 
 export const objectPathSchema = z.array(z.string())
 export type ObjectPath = z.infer<typeof objectPathSchema>
@@ -18,8 +18,13 @@ export type ObjectInfoEvent =
   | EventPacket<'DESTROY', ObjectInfo>
   | EventPacket<'DATA_VALUE_UPDATE', { objectPath: ObjectPath }>
 
+export const objectInfoPropertyTypeDefinition: MapTypeDefinition = {
+  type: 'MAP',
+  map: {},
+}
+
 export abstract class ObjectInfo {
-  static propertyTypeMap: PropertyTypeMap = {}
+  propertyTypeDefinition: MapTypeDefinition = objectInfoPropertyTypeDefinition
   abstract readonly config: ObjectConfig
   abstract readonly data: any
   abstract readonly eventDispatcher: EventDispatcher<ObjectInfoEvent>
@@ -28,7 +33,7 @@ export abstract class ObjectInfo {
     return this.config
   }
 
-  setValue(objectPath: ObjectPath, value: any) {
+  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
     if (objectPath.length === 0) {
       return errorResponse('INVALID_OBJECT_PATH', 'Invalid object path')
     }
@@ -43,8 +48,23 @@ export abstract class ObjectInfo {
       }
       objectValue = objectValue[key]
     }
+
     if (objectValue[objectPath[objectPath.length - 1]] !== value) {
-      objectValue[objectPath[objectPath.length - 1]] = value
+      if (isVector) {
+        if (value[0] !== undefined) {
+          objectValue[objectPath[objectPath.length - 1]].x = value[0]
+        }
+
+        if (value[1] !== undefined) {
+          objectValue[objectPath[objectPath.length - 1]].y = value[1]
+        }
+
+        if (value[2] !== undefined) {
+          objectValue[objectPath[objectPath.length - 1]].z = value[2]
+        }
+      } else {
+        objectValue[objectPath[objectPath.length - 1]] = value
+      }
       this.eventDispatcher.dispatch('DATA_VALUE_UPDATE', { objectPath })
     }
     return successResponse(null)

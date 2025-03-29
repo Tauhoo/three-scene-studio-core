@@ -72,8 +72,8 @@ export class FormulaObjectInfo extends ObjectInfo {
     this.eventDispatcher.dispatch('FORMULA_VALUE_UPDATE', { value: this.value })
   }
 
-  setValue(objectPath: ObjectPath, value: any) {
-    const result = super.setValue(objectPath, value)
+  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
+    const result = super.setValue(objectPath, value, isVector)
     this.calculateValue()
     return result
   }

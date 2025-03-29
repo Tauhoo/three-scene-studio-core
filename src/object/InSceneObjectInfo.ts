@@ -1,8 +1,8 @@
 import {
-  ObjectConfig,
   objectConfigSchema,
   ObjectInfo,
   ObjectInfoEvent,
+  objectInfoPropertyTypeDefinition,
   ObjectPath,
 } from './ObjectInfo'
 import * as THREE from 'three'
@@ -12,7 +12,7 @@ import { SceneObjectInfo } from './SceneObjectInfo'
 import { EventPacket } from '../utils'
 import EventDispatcher from '../utils/EventDispatcher'
 import { z } from 'zod'
-import { PropertyTypeMap } from './property'
+import { MapTypeDefinition } from './property'
 
 export const inSceneObjectInfoConfigSchema = objectConfigSchema.extend({
   sceneId: z.string(),
@@ -48,13 +48,19 @@ export type InSceneObjectInfoEvent =
   | EventPacket<'HELPER_CHANGE', { enabled: boolean }>
   | ObjectInfoEvent
 
-export abstract class InSceneObjectInfo extends ObjectInfo {
-  static propertyTypeMap: PropertyTypeMap = {
+export const inSceneObjectInfoPropertyTypeDefinition: MapTypeDefinition = {
+  type: 'MAP',
+  map: {
+    ...objectInfoPropertyTypeDefinition.map,
     name: { type: 'STRING' },
     position: { type: 'VECTOR_3D' },
     rotation: { type: 'VECTOR_3D' },
     scale: { type: 'VECTOR_3D' },
-  }
+  },
+}
+export abstract class InSceneObjectInfo extends ObjectInfo {
+  propertyTypeDefinition: MapTypeDefinition =
+    inSceneObjectInfoPropertyTypeDefinition
 
   abstract readonly config: InSceneObjectInfoConfig
   abstract readonly data: THREE.Object3D
@@ -233,10 +239,10 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     }
   }
 
-  setValue(objectPath: ObjectPath, value: any) {
+  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
     const from = this.data.name
     const to = value
-    const setResult = super.setValue(objectPath, value)
+    const setResult = super.setValue(objectPath, value, isVector)
     if (objectPath.join('.') === 'name') {
       this.eventDispatcher.dispatch('CHILD_NAME_CHANGE', {
         level: 1,

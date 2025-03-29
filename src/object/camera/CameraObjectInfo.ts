@@ -1,8 +1,14 @@
 import * as THREE from 'three'
-import { ObjectInfo, ObjectInfoEvent, ObjectPath } from '../ObjectInfo'
+import {
+  ObjectInfo,
+  ObjectInfoEvent,
+  objectInfoPropertyTypeDefinition,
+  ObjectPath,
+} from '../ObjectInfo'
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import EventDispatcher, { EventPacket } from '../../utils/EventDispatcher'
+import { MapTypeDefinition } from '../property'
 
 export const cameraObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_CAMERA'),
@@ -15,7 +21,17 @@ export type CameraObjectInfoEvent =
   | EventPacket<'HELPER_CHANGE', { enabled: boolean }>
   | ObjectInfoEvent
 
+export const cameraObjectInfoPropertyTypeDefinition: MapTypeDefinition = {
+  type: 'MAP',
+  map: {
+    ...objectInfoPropertyTypeDefinition.map,
+    name: { type: 'STRING' },
+    position: { type: 'VECTOR_3D' },
+  },
+}
 export class CameraObjectInfo extends ObjectInfo {
+  propertyTypeDefinition: MapTypeDefinition =
+    cameraObjectInfoPropertyTypeDefinition
   readonly config: CameraObjectConfig
   readonly data: THREE.Camera
   readonly eventDispatcher: EventDispatcher<CameraObjectInfoEvent>
@@ -49,8 +65,8 @@ export class CameraObjectInfo extends ObjectInfo {
     this.data.updateMatrixWorld()
   }
 
-  setValue(objectPath: ObjectPath, value: any) {
-    const result = super.setValue(objectPath, value)
+  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
+    const result = super.setValue(objectPath, value, isVector)
     this.data.updateMatrix()
     this.data.updateMatrixWorld()
     if (this.cameraHelper !== null) {

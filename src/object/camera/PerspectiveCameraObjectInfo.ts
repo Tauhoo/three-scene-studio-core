@@ -1,21 +1,29 @@
 import * as THREE from 'three'
-import { CameraObjectInfo } from './CameraObjectInfo'
+import {
+  CameraObjectInfo,
+  cameraObjectInfoPropertyTypeDefinition,
+} from './CameraObjectInfo'
 import { ObjectPath } from '../ObjectInfo'
-import { PropertyTypeMap } from '../property'
+import { MapTypeDefinition } from '../property'
 
-export class PerspectiveCameraObjectInfo extends CameraObjectInfo {
-  static propertyTypeMap: PropertyTypeMap = {
-    ...CameraObjectInfo.propertyTypeMap,
+const perspectiveCameraObjectInfoPropertyTypeDefinition: MapTypeDefinition = {
+  type: 'MAP',
+  map: {
+    ...cameraObjectInfoPropertyTypeDefinition.map,
     fov: { type: 'NUMBER' },
     aspect: { type: 'NUMBER' },
-  }
+  },
+}
+export class PerspectiveCameraObjectInfo extends CameraObjectInfo {
+  propertyTypeDefinition: MapTypeDefinition =
+    perspectiveCameraObjectInfoPropertyTypeDefinition
   declare data: THREE.PerspectiveCamera
   constructor(data: THREE.PerspectiveCamera, id?: string) {
     super(data, id)
   }
 
-  setValue(objectPath: ObjectPath, value: any) {
-    const result = super.setValue(objectPath, value)
+  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
+    const result = super.setValue(objectPath, value, isVector)
     if (result.status === 'ERROR') {
       return result
     }

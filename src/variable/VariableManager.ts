@@ -44,8 +44,6 @@ export class VariableManager {
     this.clock = clock
   }
 
-  // Variable initializers
-
   createFormulaVariable(formula: string, id?: string): FormulaVariable {
     const parsedResult = parse(formula)
     if (parsedResult.status === 'ERROR') {

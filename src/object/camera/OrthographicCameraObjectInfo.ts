@@ -1,23 +1,31 @@
 import * as THREE from 'three'
-import { CameraObjectInfo } from './CameraObjectInfo'
+import {
+  CameraObjectInfo,
+  cameraObjectInfoPropertyTypeDefinition,
+} from './CameraObjectInfo'
 import { ObjectPath } from '../ObjectInfo'
-import { PropertyTypeMap } from '../property'
+import { MapTypeDefinition } from '../property'
 
-export class OrthographicCameraObjectInfo extends CameraObjectInfo {
-  static propertyTypeMap: PropertyTypeMap = {
-    ...CameraObjectInfo.propertyTypeMap,
+const orthographicCameraObjectInfoPropertyTypeDefinition: MapTypeDefinition = {
+  type: 'MAP',
+  map: {
+    ...cameraObjectInfoPropertyTypeDefinition.map,
     left: { type: 'NUMBER' },
     right: { type: 'NUMBER' },
     top: { type: 'NUMBER' },
     bottom: { type: 'NUMBER' },
-  }
+  },
+}
+export class OrthographicCameraObjectInfo extends CameraObjectInfo {
+  propertyTypeDefinition: MapTypeDefinition =
+    orthographicCameraObjectInfoPropertyTypeDefinition
   declare data: THREE.OrthographicCamera
   constructor(data: THREE.OrthographicCamera, id?: string) {
     super(data, id)
   }
 
-  setValue(objectPath: ObjectPath, value: any) {
-    const result = super.setValue(objectPath, value)
+  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
+    const result = super.setValue(objectPath, value, isVector)
     if (result.status === 'ERROR') {
       return result
     }
