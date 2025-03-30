@@ -10,7 +10,7 @@ import { FormulaObjectInfo, ObjectInfoManager } from '../../object'
 import { VariableConnectorStorage } from '../VariableConnectorStorage'
 import { ReferrableVariable } from '../ReferrableVariable'
 import { VariableStorage } from '../VariableStorage'
-import { getVariableFromNode } from '../../utils'
+import { errorResponse, getVariableFromNode } from '../../utils'
 
 export const formulaVariableConfigSchema = z.object({
   type: z.literal('FORMULA'),
@@ -62,7 +62,7 @@ export class FormulaVariable extends Variable {
       'FORMULA_INFO_UPDATE',
       this.updateReferredVariables
     )
-    this.updateReferredVariables()
+    this.updateReferredVariables({ valueTypeChange: false })
   }
 
   private onFormulaValueUpdate = ({ value }: { value: number | number[] }) => {
@@ -73,7 +73,7 @@ export class FormulaVariable extends Variable {
     }
   }
 
-  updateReferredVariables() {
+  updateReferredVariables = (data: { valueTypeChange: boolean }) => {
     const info = this.formulaObjectInfo.getFormulaInfo()
     const variableRefs = getVariableFromNode(info.node)
 
@@ -103,9 +103,32 @@ export class FormulaVariable extends Variable {
         [variable.ref]
       )
     }
+
+    if (data.valueTypeChange) {
+      if (
+        info.valueType === 'NUMBER' &&
+        typeof this.formulaObjectInfo.value === 'number'
+      ) {
+        this.value = new NumberValue(this.formulaObjectInfo.value)
+        this.dispatcher.dispatch('VALUE_TYPE_CHANGED', info.valueType)
+      } else if (
+        info.valueType === 'VECTOR' &&
+        Array.isArray(this.formulaObjectInfo.value)
+      ) {
+        this.value = new VectorValue(this.formulaObjectInfo.value)
+        this.dispatcher.dispatch('VALUE_TYPE_CHANGED', info.valueType)
+      } else {
+        throw errorResponse(
+          'FORMULA_OBJECT_VARIABLE_TYPE_MISMATCH',
+          'Formula object info type and variable value type is mismatch'
+        )
+      }
+    }
   }
 
   destroy() {
+    console.log('DEBUG: destroy')
+
     this.formulaObjectInfo.eventDispatcher.removeListener(
       'FORMULA_VALUE_UPDATE',
       this.onFormulaValueUpdate

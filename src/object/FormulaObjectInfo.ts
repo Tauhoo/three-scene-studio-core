@@ -15,7 +15,10 @@ export type FormulaObjectConfig = z.infer<typeof formulaObjectConfigSchema>
 
 export type FormulaObjectEventPacket =
   | EventPacket<'FORMULA_VALUE_UPDATE', { value: any }>
-  | EventPacket<'FORMULA_INFO_UPDATE', { formulaInfo: FormulaInfo }>
+  | EventPacket<
+      'FORMULA_INFO_UPDATE',
+      { formulaInfo: FormulaInfo; valueTypeChange: boolean }
+    >
   | ObjectInfoEvent
 
 export class FormulaObjectInfo extends ObjectInfo {
@@ -41,6 +44,7 @@ export class FormulaObjectInfo extends ObjectInfo {
   updateFormula(formulaInfo: FormulaInfo) {
     this.config.formula = formulaInfo.text
 
+    const valueTypeChange = this.formulaInfo.valueType !== formulaInfo.valueType
     // update formula
     this.formulaInfo = formulaInfo
 
@@ -55,7 +59,12 @@ export class FormulaObjectInfo extends ObjectInfo {
       this.value = []
     }
 
-    this.eventDispatcher.dispatch('FORMULA_INFO_UPDATE', { formulaInfo })
+    console.log('DEBUG: formula change', valueTypeChange)
+
+    this.eventDispatcher.dispatch('FORMULA_INFO_UPDATE', {
+      formulaInfo,
+      valueTypeChange,
+    })
   }
 
   getFormulaInfo() {
