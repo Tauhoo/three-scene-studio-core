@@ -24,7 +24,7 @@ import {
 } from './InSceneObjectInfo'
 import { z } from 'zod'
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
-import { FormulaInfo } from '../utils'
+import { FormulaInfo, FormulaNode } from '../utils'
 import ObjectInfoStorageConfigLoader from './ObjectInfoStorageConfigLoader'
 
 export const objectInfoStorageConfigSchema = z.object({
@@ -176,8 +176,12 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     return result
   }
 
-  createFormulaObjectInfo(formulaInfo: FormulaInfo, id?: string) {
-    const result = new FormulaObjectInfo(formulaInfo, id)
+  createFormulaObjectInfo(
+    formulaNode: FormulaNode,
+    initValue: number | number[],
+    id?: string
+  ) {
+    const result = new FormulaObjectInfo(formulaNode, initValue, id)
     this.set(result.config.id, result)
     return result
   }

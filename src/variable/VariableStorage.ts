@@ -125,42 +125,22 @@ export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
   private createVariableFromConfig(
     threeSceneStudioManager: ThreeSceneStudioManager,
     config: VariableConfig
-  ): Variable | null {
+  ): Variable {
     const { objectInfoManager, clock, context } = threeSceneStudioManager
     switch (config.type) {
       case 'FORMULA':
-        const parsedResult = parse(config.formula)
-        if (parsedResult.status === 'ERROR') {
-          throw new Error(parsedResult.error)
-        }
-        const formulaObjectInfo =
-          objectInfoManager.objectInfoStorage.createFormulaObjectInfo({
-            text: config.formula,
-            node: parsedResult.data,
-            valueType: config.valueType,
-          })
         return new FormulaVariable(
-          formulaObjectInfo,
+          config.formula,
           objectInfoManager,
           this.variableConnectorStorage,
           this,
           config.id
         )
       case 'GLOBAL_FORMULA': {
-        const parsedResult = parse(config.formula)
-        if (parsedResult.status === 'ERROR') {
-          throw new Error(parsedResult.error)
-        }
-        const formulaObjectInfo =
-          objectInfoManager.objectInfoStorage.createFormulaObjectInfo({
-            text: config.formula,
-            node: parsedResult.data,
-            valueType: config.valueType,
-          })
         return new GlobalFormulaVariable(
           config.ref,
-          formulaObjectInfo,
           config.name,
+          config.formula,
           objectInfoManager,
           this.variableConnectorStorage,
           this,

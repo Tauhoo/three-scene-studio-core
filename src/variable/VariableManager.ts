@@ -45,28 +45,8 @@ export class VariableManager {
   }
 
   createFormulaVariable(formula: string, id?: string): FormulaVariable {
-    const parsedResult = parse(formula)
-    if (parsedResult.status === 'ERROR') {
-      throw new Error(parsedResult.error)
-    }
-    const predictResult = predictNodeValueType(parsedResult.data, name => {
-      const variable = this.variableStorage.getVariableByRef(name)
-      if (variable === null) {
-        return null
-      }
-      return variable.value.valueType
-    })
-    if (predictResult.status === 'FAIL') {
-      throw new Error(predictResult.error)
-    }
-    const formulaObjectInfo =
-      this.objectInfoManager.objectInfoStorage.createFormulaObjectInfo({
-        text: formula,
-        node: parsedResult.data,
-        valueType: predictResult.info.value,
-      })
     const variable = new FormulaVariable(
-      formulaObjectInfo,
+      formula,
       this.objectInfoManager,
       this.variableConnectorStorage,
       this.variableStorage,
@@ -82,30 +62,9 @@ export class VariableManager {
     name: string,
     id?: string
   ): GlobalFormulaVariable {
-    const parsedResult = parse(formula)
-    if (parsedResult.status === 'ERROR') {
-      throw new Error(parsedResult.error)
-    }
-    const predictResult = predictNodeValueType(parsedResult.data, name => {
-      const variable = this.variableStorage.getVariableById(name)
-      if (variable === null) {
-        return null
-      }
-      return variable.value.valueType
-    })
-    if (predictResult.status === 'FAIL') {
-      throw new Error(predictResult.error)
-    }
-    const formulaObjectInfo =
-      this.objectInfoManager.objectInfoStorage.createFormulaObjectInfo({
-        text: formula,
-        node: parsedResult.data,
-        valueType: predictResult.info.value,
-      })
-    this.objectInfoManager.objectInfoStorage.setObjectInfo(formulaObjectInfo)
     const variable = new GlobalFormulaVariable(
       this.variableStorage.convertToNoneDuplicateRef(ref),
-      formulaObjectInfo,
+      formula,
       name,
       this.objectInfoManager,
       this.variableConnectorStorage,

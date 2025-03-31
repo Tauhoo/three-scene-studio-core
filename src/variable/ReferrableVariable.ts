@@ -1,5 +1,4 @@
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
-import { NodeValueInfo } from '../utils'
 import { Variable, VariableEventPacket } from './Variable'
 
 export type ReferrableVariableEventPacket =
