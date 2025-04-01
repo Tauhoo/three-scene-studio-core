@@ -28,6 +28,7 @@ export type FormulaManagerState =
       type: 'TYPE_PREDICTION_FAILED'
       error: string
       problemNode: FormulaNode
+      formulaNode: FormulaNode
     }
   | {
       type: 'INITIALIZING'
@@ -59,6 +60,10 @@ export class FormulaManager {
     this.formula = '0'
 
     this.updateFormula(formula)
+  }
+
+  getState() {
+    return this.state
   }
 
   onValueTypeChange = (value: any) => {
@@ -105,6 +110,7 @@ export class FormulaManager {
       type: 'INITIALIZING',
     }
     this.value = new NumberValue(0)
+    this.formula = '0'
   }
 
   onReferredVariableValueTypeChange = () => {
@@ -112,9 +118,11 @@ export class FormulaManager {
   }
 
   updateFormula(formula: string) {
-    // reset state
+    // get current state before beingreset
+    const currentState = this.state
+
+    // reset state - remove referred variable
     this.reset()
-    this.formula = formula
 
     // parse formula
     const parseResult = parse(formula)
@@ -123,35 +131,18 @@ export class FormulaManager {
         type: 'INVALID_FORMULA',
         error: parseResult.error,
       }
-      return
-    }
+      this.formula = formula
 
-    // predict value type
-    const predictResult = predictNodeValueType(parseResult.data, ref => {
-      const variable = this.variableStorage.getVariableByRef(ref)
-      if (variable === null) return null
-      return variable.value.valueType
-    })
-    if (predictResult.status === 'FAIL') {
-      this.state = {
-        type: 'TYPE_PREDICTION_FAILED',
-        error: predictResult.error,
-        problemNode: predictResult.problemNode,
+      // check if value type changed
+      const valueTypeChanged =
+        (currentState.type === 'ACTIVE' &&
+          currentState.valueType !== 'NUMBER') ||
+        currentState.type !== 'ACTIVE'
+      if (valueTypeChanged) {
+        this.dispatcher.dispatch('VALUE_TYPE_CHANGED', 'NUMBER')
       }
       return
     }
-
-    // check if value type changed
-    const valueTypeChanged =
-      this.state.type === 'ACTIVE' &&
-      this.state.valueType !== predictResult.info.value
-
-    // create formula object info
-    const formulaObjectInfo =
-      this.objectInfoManager.objectInfoStorage.createFormulaObjectInfo(
-        { type: 'NUMBER', value: 0, text: '0', id: 'temp' },
-        0
-      )
 
     // get referred variables
     let referredVariables: ReferrableVariable[] = []
@@ -169,9 +160,41 @@ export class FormulaManager {
       )
     }
 
+    // predict value type
+    const predictResult = predictNodeValueType(parseResult.data, ref => {
+      const variable = this.variableStorage.getVariableByRef(ref)
+      if (variable === null) return null
+      return variable.value.valueType
+    })
+    if (predictResult.status === 'FAIL') {
+      this.state = {
+        type: 'TYPE_PREDICTION_FAILED',
+        error: predictResult.error,
+        problemNode: predictResult.problemNode,
+        formulaNode: parseResult.data,
+      }
+      this.formula = formula
+      // check if value type changed
+      const valueTypeChanged =
+        (currentState.type === 'ACTIVE' &&
+          currentState.valueType !== 'NUMBER') ||
+        currentState.type !== 'ACTIVE'
+      if (valueTypeChanged) {
+        this.dispatcher.dispatch('VALUE_TYPE_CHANGED', 'NUMBER')
+      }
+      return
+    }
+
+    // create formula object info
+    const formulaObjectInfo =
+      this.objectInfoManager.objectInfoStorage.createFormulaObjectInfo(
+        parseResult.data,
+        predictResult.info.value === 'NUMBER' ? 0 : [0, 0, 0]
+      )
+
     // set up initial data
     for (const variable of referredVariables) {
-      formulaObjectInfo.setValue([variable.ref], variable.value)
+      formulaObjectInfo.setValue([variable.ref], variable.value.get())
     }
 
     // set up connector
@@ -183,6 +206,8 @@ export class FormulaManager {
       )
     }
 
+    // set data
+    this.formula = formula
     this.state = {
       type: 'ACTIVE',
       formulaObjectInfo: formulaObjectInfo,
@@ -194,11 +219,14 @@ export class FormulaManager {
       this.value = new VectorValue([])
     }
 
+    // check if value type changed
+    const valueTypeChanged =
+      (currentState.type === 'ACTIVE' &&
+        currentState.valueType !== predictResult.info.value) ||
+      currentState.type !== 'ACTIVE'
     if (valueTypeChanged) {
       this.dispatcher.dispatch('VALUE_TYPE_CHANGED', this.state.valueType)
     }
-
-    return
   }
 
   destroy() {

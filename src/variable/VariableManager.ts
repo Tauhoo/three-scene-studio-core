@@ -13,7 +13,6 @@ import { FormulaVariable, GlobalFormulaVariable } from './formula'
 import { ContainerHeightVariable } from './ContainerHeightVariable'
 import { ContainerWidthVariable } from './ContainerWidthVariable'
 import { ExternalVariable } from './ExternalVariable'
-import { parse, predictNodeValueType } from '../utils'
 
 export const variableManagerConfigSchema = z.object({
   variableStorage: variableStorageConfigSchema,
@@ -64,8 +63,8 @@ export class VariableManager {
   ): GlobalFormulaVariable {
     const variable = new GlobalFormulaVariable(
       this.variableStorage.convertToNoneDuplicateRef(ref),
-      formula,
       name,
+      formula,
       this.objectInfoManager,
       this.variableConnectorStorage,
       this.variableStorage,

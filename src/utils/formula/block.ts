@@ -198,3 +198,17 @@ export const getBlocksFromNode = (node: FormulaNode): Block[] => {
 
   return []
 }
+
+export const blockToText = (blocks: Block[]) => {
+  return blocks
+    .map(block => {
+      if (block.type === 'VARIABLE') {
+        return block.name
+      }
+      if (block.type === 'FUNCTION') {
+        return block.func
+      }
+      return block.text
+    })
+    .join('')
+}

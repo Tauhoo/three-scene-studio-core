@@ -1,10 +1,5 @@
 import * as z from 'zod'
-import {
-  NumberValue,
-  Variable,
-  VariableEventPacket,
-  VectorValue,
-} from '../Variable'
+import { Variable, VariableEventPacket } from '../Variable'
 import EventDispatcher from '../../utils/EventDispatcher'
 import { ObjectInfoManager } from '../../object'
 import { VariableConnectorStorage } from '../VariableConnectorStorage'
