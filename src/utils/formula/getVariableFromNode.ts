@@ -2,12 +2,12 @@ import { traverseNode } from './transverse'
 import { FormulaNode } from './types'
 
 export const getVariableFromNode = (node: FormulaNode): string[] => {
-  const variables: string[] = []
+  const variables: Set<string> = new Set()
 
   traverseNode(node, node => {
     if (node.type === 'VARIABLE') {
-      variables.push(node.name)
+      variables.add(node.name)
     }
   })
-  return variables
+  return Array.from(variables)
 }

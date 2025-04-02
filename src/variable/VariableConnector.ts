@@ -1,10 +1,11 @@
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfo, ObjectPath, objectPathSchema } from '../object'
-import { Variable } from '.'
+import { FormulaVariable, Variable } from '.'
 import {
   getProperyTypeFromMap,
   propertyTypeAndNodeValueTypeCompatible,
+  PropertyTypeDefinition,
 } from '../object/property'
 
 export const variableConnectorConfigSchema = z.object({
@@ -50,21 +51,28 @@ export class VariableConnector {
 
   setupUpdater = () => {
     if (this.updateObject !== null) {
-      this.variable.value.addListener('VALUE_CHANGED', this.updateObject)
+      this.variable.value.removeListener('VALUE_CHANGED', this.updateObject)
       this.updateObject = null
     }
 
+    let propertyTypeDefinition: PropertyTypeDefinition
     const propertyTypePathResult = getProperyTypeFromMap(
       this.objectPath,
       this.objectInfo.propertyTypeDefinition
     )
-    if (propertyTypePathResult.status === 'ERROR') {
-      this.status = { type: 'INVALID_OBJECT_PATH' }
-      return
+    if (propertyTypePathResult.status === 'SUCCESS') {
+      propertyTypeDefinition = propertyTypePathResult.data
+    } else {
+      // can't get property type definition from object path, so we use default value
+      if (this.variable.value.valueType === 'NUMBER') {
+        propertyTypeDefinition = { type: 'NUMBER' }
+      } else {
+        propertyTypeDefinition = { type: 'VECTOR_2D' }
+      }
     }
 
     const compatibilityResult = propertyTypeAndNodeValueTypeCompatible(
-      propertyTypePathResult.data,
+      propertyTypeDefinition,
       this.variable.value.valueType
     )
 
@@ -72,10 +80,9 @@ export class VariableConnector {
       this.status = { type: 'SOURCE_TARGET_TYPE_MISMATCH' }
       return
     }
-
     if (
-      propertyTypePathResult.data.type === 'VECTOR_2D' ||
-      propertyTypePathResult.data.type === 'VECTOR_3D'
+      propertyTypeDefinition.type === 'VECTOR_2D' ||
+      propertyTypeDefinition.type === 'VECTOR_3D'
     ) {
       this.updateObject = (value: any) => {
         const result = this.objectInfo.setValue(this.objectPath, value, true)

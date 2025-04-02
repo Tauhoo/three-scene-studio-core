@@ -66,12 +66,20 @@ export class FormulaManager {
     return this.state
   }
 
-  onValueTypeChange = (value: any) => {
+  onFormulaObjectInfoDataValueUpdate = () => {
     if (this.state.type === 'ACTIVE') {
-      if (typeof value === 'number' && this.value instanceof NumberValue) {
-        this.value.set(value)
-      } else if (Array.isArray(value) && this.value instanceof VectorValue) {
-        this.value.set(value)
+      if (
+        typeof this.state.formulaObjectInfo.value === 'number' &&
+        this.value instanceof NumberValue
+      ) {
+        this.value.set(this.state.formulaObjectInfo.value)
+      }
+
+      if (
+        Array.isArray(this.state.formulaObjectInfo.value) &&
+        this.value instanceof VectorValue
+      ) {
+        this.value.set(this.state.formulaObjectInfo.value)
       }
     }
   }
@@ -100,7 +108,7 @@ export class FormulaManager {
       )
       this.state.formulaObjectInfo.eventDispatcher.removeListener(
         'FORMULA_VALUE_UPDATE',
-        this.onValueTypeChange
+        this.onFormulaObjectInfoDataValueUpdate
       )
       this.objectInfoManager.objectInfoStorage.delete(
         this.state.formulaObjectInfo.config.id
@@ -109,8 +117,14 @@ export class FormulaManager {
     this.state = {
       type: 'INITIALIZING',
     }
-    this.value = new NumberValue(0)
-    this.formula = '0'
+
+    if (this.value instanceof NumberValue) {
+      this.value.set(0)
+      this.formula = '0'
+    } else {
+      this.value.set([])
+      this.formula = '[]'
+    }
   }
 
   onReferredVariableValueTypeChange = () => {
@@ -214,10 +228,19 @@ export class FormulaManager {
       valueType: predictResult.info.value,
     }
     if (this.state.valueType === 'NUMBER') {
-      this.value = new NumberValue(0)
+      if (!(this.value instanceof NumberValue)) {
+        this.value = new NumberValue(0)
+      }
     } else {
-      this.value = new VectorValue([])
+      if (!(this.value instanceof VectorValue)) {
+        this.value = new VectorValue([])
+      }
     }
+
+    formulaObjectInfo.eventDispatcher.addListener(
+      'FORMULA_VALUE_UPDATE',
+      this.onFormulaObjectInfoDataValueUpdate
+    )
 
     // check if value type changed
     const valueTypeChanged =
