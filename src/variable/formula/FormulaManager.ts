@@ -122,8 +122,8 @@ export class FormulaManager {
       this.value.set(0)
       this.formula = '0'
     } else {
-      this.value.set([])
-      this.formula = '[]'
+      this.value = new NumberValue(0)
+      this.formula = '0'
     }
   }
 
@@ -134,6 +134,8 @@ export class FormulaManager {
   updateFormula(formula: string) {
     // get current state before beingreset
     const currentState = this.state
+    const currentValueType: NodeValueType =
+      currentState.type === 'ACTIVE' ? currentState.valueType : 'NUMBER'
 
     // reset state - remove referred variable
     this.reset()
@@ -148,11 +150,7 @@ export class FormulaManager {
       this.formula = formula
 
       // check if value type changed
-      const valueTypeChanged =
-        (currentState.type === 'ACTIVE' &&
-          currentState.valueType !== 'NUMBER') ||
-        currentState.type !== 'ACTIVE'
-      if (valueTypeChanged) {
+      if (currentValueType !== 'NUMBER') {
         this.dispatcher.dispatch('VALUE_TYPE_CHANGED', 'NUMBER')
       }
       return
@@ -160,6 +158,7 @@ export class FormulaManager {
 
     // get referred variables
     let referredVariables: ReferrableVariable[] = []
+
     for (const variable of getVariableFromNode(parseResult.data)) {
       const variableInfo = this.variableStorage.getVariableByRef(variable)
       if (variableInfo === null) continue
@@ -189,14 +188,21 @@ export class FormulaManager {
       }
       this.formula = formula
       // check if value type changed
-      const valueTypeChanged =
-        (currentState.type === 'ACTIVE' &&
-          currentState.valueType !== 'NUMBER') ||
-        currentState.type !== 'ACTIVE'
-      if (valueTypeChanged) {
+      if (currentValueType !== 'NUMBER') {
         this.dispatcher.dispatch('VALUE_TYPE_CHANGED', 'NUMBER')
       }
       return
+    }
+
+    // set value of this formula
+    if (predictResult.info.value === 'NUMBER') {
+      if (!(this.value instanceof NumberValue)) {
+        this.value = new NumberValue(0)
+      }
+    } else {
+      if (!(this.value instanceof VectorValue)) {
+        this.value = new VectorValue([])
+      }
     }
 
     // create formula object info
@@ -205,6 +211,11 @@ export class FormulaManager {
         parseResult.data,
         predictResult.info.value === 'NUMBER' ? 0 : [0, 0, 0]
       )
+
+    formulaObjectInfo.eventDispatcher.addListener(
+      'FORMULA_VALUE_UPDATE',
+      this.onFormulaObjectInfoDataValueUpdate
+    )
 
     // set up initial data
     for (const variable of referredVariables) {
@@ -227,27 +238,11 @@ export class FormulaManager {
       formulaObjectInfo: formulaObjectInfo,
       valueType: predictResult.info.value,
     }
-    if (this.state.valueType === 'NUMBER') {
-      if (!(this.value instanceof NumberValue)) {
-        this.value = new NumberValue(0)
-      }
-    } else {
-      if (!(this.value instanceof VectorValue)) {
-        this.value = new VectorValue([])
-      }
-    }
-
-    formulaObjectInfo.eventDispatcher.addListener(
-      'FORMULA_VALUE_UPDATE',
-      this.onFormulaObjectInfoDataValueUpdate
-    )
 
     // check if value type changed
-    const valueTypeChanged =
-      (currentState.type === 'ACTIVE' &&
-        currentState.valueType !== predictResult.info.value) ||
-      currentState.type !== 'ACTIVE'
-    if (valueTypeChanged) {
+    if (currentValueType !== predictResult.info.value) {
+      console.log('DEBUG: VALUE_TYPE_CHANGED', formula)
+
       this.dispatcher.dispatch('VALUE_TYPE_CHANGED', this.state.valueType)
     }
   }

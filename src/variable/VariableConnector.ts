@@ -1,7 +1,7 @@
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfo, ObjectPath, objectPathSchema } from '../object'
-import { FormulaVariable, Variable } from '.'
+import { FormulaVariable, GlobalFormulaVariable, Variable } from '.'
 import {
   getProperyTypeFromMap,
   propertyTypeAndNodeValueTypeCompatible,
@@ -67,7 +67,7 @@ export class VariableConnector {
       if (this.variable.value.valueType === 'NUMBER') {
         propertyTypeDefinition = { type: 'NUMBER' }
       } else {
-        propertyTypeDefinition = { type: 'VECTOR_2D' }
+        propertyTypeDefinition = { type: 'VECTOR' }
       }
     }
 
@@ -92,6 +92,9 @@ export class VariableConnector {
       }
     } else {
       this.updateObject = (value: any) => {
+        if (this.variable instanceof GlobalFormulaVariable) {
+          console.log('DEBUG: ', this.objectPath.join('.'), value)
+        }
         const result = this.objectInfo.setValue(this.objectPath, value)
         if (result.status === 'ERROR') {
           console.error(result.error)

@@ -3,6 +3,7 @@ import { errorResponse, NodeValueType, successResponse } from '../utils'
 export type PropertyTypeDefinition =
   | { type: 'VECTOR_3D' }
   | { type: 'VECTOR_2D' }
+  | { type: 'VECTOR' }
   | { type: 'NUMBER' }
   | { type: 'STRING' }
   | MapTypeDefinition

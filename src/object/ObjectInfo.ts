@@ -49,25 +49,43 @@ export abstract class ObjectInfo {
       objectValue = objectValue[key]
     }
 
-    if (objectValue[objectPath[objectPath.length - 1]] !== value) {
-      if (isVector) {
-        if (value[0] !== undefined) {
-          objectValue[objectPath[objectPath.length - 1]].x = value[0]
-        }
-
-        if (value[1] !== undefined) {
-          objectValue[objectPath[objectPath.length - 1]].y = value[1]
-        }
-
-        if (value[2] !== undefined) {
-          objectValue[objectPath[objectPath.length - 1]].z = value[2]
-        }
-      } else {
-        objectValue[objectPath[objectPath.length - 1]] = value
+    let isUpdated = false
+    if (isVector) {
+      if (
+        value[0] !== undefined &&
+        objectValue[objectPath[objectPath.length - 1]].x !== value[0]
+      ) {
+        objectValue[objectPath[objectPath.length - 1]].x = value[0]
+        isUpdated = true
       }
+
+      if (
+        value[1] !== undefined &&
+        objectValue[objectPath[objectPath.length - 1]].y !== value[1]
+      ) {
+        objectValue[objectPath[objectPath.length - 1]].y = value[1]
+        isUpdated = true
+      }
+
+      if (
+        value[2] !== undefined &&
+        objectValue[objectPath[objectPath.length - 1]].z !== value[2]
+      ) {
+        objectValue[objectPath[objectPath.length - 1]].z = value[2]
+        isUpdated = true
+      }
+    } else {
+      if (objectValue[objectPath[objectPath.length - 1]] !== value) {
+        objectValue[objectPath[objectPath.length - 1]] = value
+        isUpdated = true
+      }
+    }
+
+    if (isUpdated) {
       this.eventDispatcher.dispatch('DATA_VALUE_UPDATE', { objectPath })
     }
-    return successResponse(null)
+
+    return successResponse(isUpdated)
   }
 
   getValue(objectPath: ObjectPath) {

@@ -24,8 +24,9 @@ import {
 } from './InSceneObjectInfo'
 import { z } from 'zod'
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
-import { FormulaInfo, FormulaNode } from '../utils'
+import { FormulaNode } from '../utils'
 import ObjectInfoStorageConfigLoader from './ObjectInfoStorageConfigLoader'
+import { Clock } from '../Clock'
 
 export const objectInfoStorageConfigSchema = z.object({
   inSceneObjectInfos: z.array(inSceneObjectInfoConfigSchema),
@@ -42,7 +43,7 @@ export type ObjectInfoStorageConfig = z.infer<
 >
 
 export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
-  constructor() {
+  constructor(private clock: Clock) {
     super(value => value)
   }
 
@@ -181,7 +182,7 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     initValue: number | number[],
     id?: string
   ) {
-    const result = new FormulaObjectInfo(formulaNode, initValue, id)
+    const result = new FormulaObjectInfo(this.clock, formulaNode, initValue, id)
     this.set(result.config.id, result)
     return result
   }

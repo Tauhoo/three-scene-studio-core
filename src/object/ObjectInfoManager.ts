@@ -7,6 +7,7 @@ import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 import Switcher from '../utils/Switcher'
 import { CameraObjectInfo } from './camera'
 import { SceneObjectInfo } from './SceneObjectInfo'
+import { Clock } from '../Clock'
 
 export const objectInfoManagerConfigSchema = z.object({
   objectInfoStorage: objectInfoStorageConfigSchema,
@@ -17,8 +18,8 @@ export type ObjectInfoManagerConfig = z.infer<
 >
 export class ObjectInfoManager {
   readonly objectInfoStorage: ObjectInfoStorage
-  constructor() {
-    this.objectInfoStorage = new ObjectInfoStorage()
+  constructor(private clock: Clock) {
+    this.objectInfoStorage = new ObjectInfoStorage(clock)
   }
 
   loadConfig(

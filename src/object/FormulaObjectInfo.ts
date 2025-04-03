@@ -2,7 +2,8 @@ import { ObjectInfo, ObjectInfoEvent, ObjectPath } from './ObjectInfo'
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
-import { calculate, FormulaInfo, FormulaNode, NodeValueType } from '../utils'
+import { calculate, FormulaNode } from '../utils'
+import { Clock } from '../Clock'
 
 export const formulaObjectConfigSchema = z.object({
   type: z.literal('FORMULA'),
@@ -20,10 +21,12 @@ export class FormulaObjectInfo extends ObjectInfo {
   readonly data: Record<string, number> = {}
   readonly eventDispatcher: EventDispatcher<FormulaObjectEventPacket>
 
+  needUpdate = true
   private formulaNode: FormulaNode
   value: number | number[] = 0
 
   constructor(
+    private clock: Clock,
     formulaNode: FormulaNode,
     initValue: number | number[],
     id?: string
@@ -36,6 +39,15 @@ export class FormulaObjectInfo extends ObjectInfo {
     }
     this.formulaNode = formulaNode
     this.updateFormula(formulaNode, initValue)
+
+    this.clock.addListener('TICK', this.onTick)
+  }
+
+  onTick = () => {
+    if (this.needUpdate) {
+      this.calculateValue()
+      this.needUpdate = false
+    }
   }
 
   updateFormula(formulaNode: FormulaNode, initValue: number | number[]) {
@@ -45,6 +57,7 @@ export class FormulaObjectInfo extends ObjectInfo {
 
     this.formulaNode = formulaNode
     this.value = initValue
+    this.needUpdate = true
   }
 
   getFormulaNode() {
@@ -57,13 +70,21 @@ export class FormulaObjectInfo extends ObjectInfo {
       console.error(result.error)
       return
     }
+
     this.value = result.data
     this.eventDispatcher.dispatch('FORMULA_VALUE_UPDATE', { value: this.value })
   }
 
   setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
     const result = super.setValue(objectPath, value, isVector)
-    this.calculateValue()
+    if (result.status === 'SUCCESS') {
+      this.needUpdate = result.data
+    }
     return result
+  }
+
+  destroy(): void {
+    this.clock.removeListener('TICK', this.onTick)
+    super.destroy()
   }
 }
