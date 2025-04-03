@@ -76,6 +76,9 @@ export class FormulaObjectInfo extends ObjectInfo {
   }
 
   setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
+    if (objectPath.join('.') === 'test') {
+      console.log('DEBUG: setValue test', value, isVector)
+    }
     const result = super.setValue(objectPath, value, isVector)
     if (result.status === 'SUCCESS') {
       this.needUpdate = result.data

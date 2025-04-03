@@ -85,12 +85,20 @@ export class FormulaManager {
   }
 
   reset() {
-    if (this.state.type === 'ACTIVE') {
+    if (
+      this.state.type === 'ACTIVE' ||
+      this.state.type === 'TYPE_PREDICTION_FAILED'
+    ) {
       // get referred variables
+      let node: FormulaNode
+      if (this.state.type === 'ACTIVE') {
+        node = this.state.formulaObjectInfo.getFormulaNode()
+      } else {
+        node = this.state.formulaNode
+      }
+
       let referredVariables: ReferrableVariable[] = []
-      for (const variable of getVariableFromNode(
-        this.state.formulaObjectInfo.getFormulaNode()
-      )) {
+      for (const variable of getVariableFromNode(node)) {
         const variableInfo = this.variableStorage.getVariableByRef(variable)
         if (variableInfo === null) continue
         referredVariables.push(variableInfo)
@@ -102,7 +110,9 @@ export class FormulaManager {
           this.onReferredVariableValueTypeChange
         )
       }
+    }
 
+    if (this.state.type === 'ACTIVE') {
       this.variableConnectorStorage.deleteObjectConnectors(
         this.state.formulaObjectInfo.config.id
       )
