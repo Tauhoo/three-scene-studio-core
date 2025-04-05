@@ -126,16 +126,10 @@ export class FormulaManager {
         this.state.formulaObjectInfo.config.id
       )
     }
+
+    // In initializing state, the value isn't correct.
     this.state = {
       type: 'INITIALIZING',
-    }
-
-    if (this.value instanceof NumberValue) {
-      this.value.set(0)
-      this.formula = '0'
-    } else {
-      this.value = new NumberValue(0)
-      this.formula = '0'
     }
   }
 
@@ -163,6 +157,7 @@ export class FormulaManager {
 
       // check if value type changed
       if (currentValueType !== 'NUMBER') {
+        this.value = new NumberValue(0)
         this.dispatcher.dispatch('VALUE_TYPE_CHANGED', 'NUMBER')
       }
       return
@@ -201,6 +196,7 @@ export class FormulaManager {
       this.formula = formula
       // check if value type changed
       if (currentValueType !== 'NUMBER') {
+        this.value = new NumberValue(0)
         this.dispatcher.dispatch('VALUE_TYPE_CHANGED', 'NUMBER')
       }
       return
