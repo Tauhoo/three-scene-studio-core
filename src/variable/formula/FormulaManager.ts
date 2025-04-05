@@ -73,6 +73,7 @@ export class FormulaManager {
         this.value instanceof NumberValue
       ) {
         this.value.set(this.state.formulaObjectInfo.value)
+        return
       }
 
       if (
@@ -80,6 +81,7 @@ export class FormulaManager {
         this.value instanceof VectorValue
       ) {
         this.value.set(this.state.formulaObjectInfo.value)
+        return
       }
     }
   }
@@ -249,10 +251,7 @@ export class FormulaManager {
       valueType: predictResult.info.value,
     }
 
-    // check if value type changed
     if (currentValueType !== predictResult.info.value) {
-      console.log('DEBUG: VALUE_TYPE_CHANGED', formula)
-
       this.dispatcher.dispatch('VALUE_TYPE_CHANGED', this.state.valueType)
     }
   }

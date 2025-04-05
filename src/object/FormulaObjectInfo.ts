@@ -38,7 +38,8 @@ export class FormulaObjectInfo extends ObjectInfo {
       id: id ?? uuidv4(),
     }
     this.formulaNode = formulaNode
-    this.updateFormula(formulaNode, initValue)
+    this.value = initValue
+    this.needUpdate = true
 
     this.clock.addListener('TICK', this.onTick)
   }
@@ -48,16 +49,6 @@ export class FormulaObjectInfo extends ObjectInfo {
       this.calculateValue()
       this.needUpdate = false
     }
-  }
-
-  updateFormula(formulaNode: FormulaNode, initValue: number | number[]) {
-    for (const [key, value] of Object.entries(this.data)) {
-      delete this.data[key]
-    }
-
-    this.formulaNode = formulaNode
-    this.value = initValue
-    this.needUpdate = true
   }
 
   getFormulaNode() {
@@ -76,12 +67,13 @@ export class FormulaObjectInfo extends ObjectInfo {
   }
 
   setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
-    if (objectPath.join('.') === 'test') {
-      console.log('DEBUG: setValue test', value, isVector)
-    }
     const result = super.setValue(objectPath, value, isVector)
     if (result.status === 'SUCCESS') {
       this.needUpdate = result.data
+    } else {
+      console.error(
+        'fail set value to' + objectPath.join('.') + ' value ' + result
+      )
     }
     return result
   }

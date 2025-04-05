@@ -50,9 +50,6 @@ export class VariableConnector {
   }
 
   setupUpdater = () => {
-    if (this.variable instanceof GlobalFormulaVariable) {
-      console.log('DEBUG: setup updater', this.variable.ref)
-    }
     if (this.updateObject !== null) {
       this.variable.value.removeListener('VALUE_CHANGED', this.updateObject)
       this.updateObject = null
@@ -95,24 +92,13 @@ export class VariableConnector {
       }
     } else {
       this.updateObject = (value: any) => {
-        if (this.variable instanceof GlobalFormulaVariable) {
-          console.log('DEBUG: update', this.objectPath.join('.'), value)
-        }
         const result = this.objectInfo.setValue(this.objectPath, value)
         if (result.status === 'ERROR') {
           console.error(result.error)
         }
       }
     }
-
     this.variable.value.addListener('VALUE_CHANGED', this.updateObject)
-    if (this.variable instanceof GlobalFormulaVariable) {
-      console.log(
-        'DEBUG: check init value',
-        this.variable.ref,
-        this.variable.value.get()
-      )
-    }
     this.updateObject(this.variable.value.get())
   }
 

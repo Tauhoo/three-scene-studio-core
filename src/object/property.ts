@@ -33,7 +33,8 @@ export function propertyTypeAndNodeValueTypeCompatible(
   if (nodeValueType === 'VECTOR') {
     if (
       propertyTypeDefinition.type === 'VECTOR_3D' ||
-      propertyTypeDefinition.type === 'VECTOR_2D'
+      propertyTypeDefinition.type === 'VECTOR_2D' ||
+      propertyTypeDefinition.type === 'VECTOR'
     ) {
       return successResponse(null)
     } else {

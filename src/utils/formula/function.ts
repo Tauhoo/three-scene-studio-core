@@ -150,8 +150,13 @@ export const functionInfos: FunctionInfo[] = [
         output: 'NUMBER',
       },
     ],
-    func: (a: number[], b: number[]) =>
-      a.reduce((acc, curr, index) => acc + curr * b[index], 0),
+    func: (a: number[], b: number[]) => {
+      if (a.length > b.length) {
+        return a.reduce((acc, curr, index) => acc + curr * (b[index] ?? 0), 0)
+      } else {
+        return b.reduce((acc, curr, index) => acc + curr * (a[index] ?? 0), 0)
+      }
+    },
   },
   {
     keyword: 'cross',
