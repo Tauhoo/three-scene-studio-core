@@ -48,20 +48,40 @@ export class CameraObjectInfo extends ObjectInfo {
     this.data = data
     this.eventDispatcher = new EventDispatcher()
 
+    console.log('DEBUG: parent', this.data.parent)
+
+    console.log(
+      'DEBUG: position',
+      this.data.position.x,
+      this.data.position.y,
+      this.data.position.z
+    )
+    console.log(
+      'DEBUG: quaternion',
+      this.data.quaternion.x,
+      this.data.quaternion.y,
+      this.data.quaternion.z
+    )
+    console.log(
+      'DEBUG: scale',
+      this.data.scale.x,
+      this.data.scale.y,
+      this.data.scale.z
+    )
+
     const worldPosition = new THREE.Vector3()
     const worldQuaternion = new THREE.Quaternion()
     const worldScale = new THREE.Vector3()
 
-    // detach from parent and update world matrix
-    this.data.getWorldPosition(worldPosition)
-    this.data.getWorldQuaternion(worldQuaternion)
-    this.data.getWorldScale(worldScale)
+    // // detach from parent and update world matrix
+    this.data.matrixWorld.decompose(worldPosition, worldQuaternion, worldScale)
 
     this.data.removeFromParent()
 
     this.data.position.copy(worldPosition)
     this.data.quaternion.copy(worldQuaternion)
     this.data.scale.copy(worldScale)
+
     this.data.updateMatrixWorld()
   }
 
