@@ -46,7 +46,7 @@ export class GlobalFormulaVariable extends ReferrableVariable {
       objectInfoManager,
       variableConnectorStorage,
       variableStorage,
-      id
+      ref
     )
     this.formulaManager.dispatcher.addListener(
       'VALUE_TYPE_CHANGED',

@@ -13,6 +13,7 @@ import { NumberValue, VectorValue } from '../Variable'
 import { VariableConnectorStorage } from '../VariableConnectorStorage'
 import { VariableStorage } from '../VariableStorage'
 import EventDispatcher from '../../utils/EventDispatcher'
+import { GlobalFormulaVariable } from './GlobalFormulaVariable'
 
 export type FormulaManagerState =
   | {
@@ -31,7 +32,16 @@ export type FormulaManagerState =
       formulaNode: FormulaNode
     }
   | {
+      type: 'RECURSIVE_FORMULA'
+      detectedPath: string[]
+      formulaNode: FormulaNode
+    }
+  | {
       type: 'INITIALIZING'
+    }
+  | {
+      type: 'CHECKING_RECURSIVE_FORMULA'
+      formulaNode: FormulaNode
     }
 
 export class FormulaManager {
@@ -42,13 +52,14 @@ export class FormulaManager {
   dispatcher = new EventDispatcher<VariableEventPacket>()
   value: NumberValue | VectorValue
   formula: string
+  ref?: string
 
   constructor(
     formula: string,
     objectInfoManager: ObjectInfoManager,
     variableConnectorStorage: VariableConnectorStorage,
     variableStorage: VariableStorage,
-    id?: string
+    ref?: string
   ) {
     this.objectInfoManager = objectInfoManager
     this.variableConnectorStorage = variableConnectorStorage
@@ -58,6 +69,7 @@ export class FormulaManager {
     }
     this.value = new NumberValue(0)
     this.formula = '0'
+    this.ref = ref
 
     this.updateFormula(formula)
   }
@@ -172,6 +184,8 @@ export class FormulaManager {
       referredVariables.push(variableInfo)
     }
 
+    // check recursive formula
+
     // set up referred variables type changing event
     for (const variable of referredVariables) {
       variable.dispatcher.addListener(
@@ -211,6 +225,33 @@ export class FormulaManager {
       if (!(this.value instanceof VectorValue)) {
         this.value = new VectorValue([])
       }
+    }
+
+    // check recursive formula
+    this.state = {
+      type: 'CHECKING_RECURSIVE_FORMULA',
+      formulaNode: parseResult.data,
+    }
+    const detectedPath = checkRecursiveFormula(
+      new Set(referredVariables.map(v => v.ref)),
+      new Set(),
+      this.variableStorage,
+      this.ref
+    )
+
+    if (detectedPath !== null) {
+      this.state = {
+        type: 'RECURSIVE_FORMULA',
+        detectedPath: detectedPath,
+        formulaNode: parseResult.data,
+      }
+      this.formula = formula
+      // check if value type changed
+      if (currentValueType !== 'NUMBER') {
+        this.value = new NumberValue(0)
+        this.dispatcher.dispatch('VALUE_TYPE_CHANGED', 'NUMBER')
+      }
+      return
     }
 
     // create formula object info
@@ -255,4 +296,56 @@ export class FormulaManager {
   destroy() {
     this.reset()
   }
+}
+
+function checkRecursiveFormula(
+  referredVariableRefs: Set<string>,
+  visitedVariableRefs: Set<string>,
+  variableStorage: VariableStorage,
+  variableRef?: string
+): string[] | null {
+  if (variableRef !== undefined && visitedVariableRefs.has(variableRef))
+    return [variableRef]
+
+  for (const referredVariableRef of referredVariableRefs) {
+    const referredVariable =
+      variableStorage.getVariableByRef(referredVariableRef)
+    if (!(referredVariable instanceof GlobalFormulaVariable)) continue
+    const state = referredVariable.formulaManager.getState()
+
+    let node: FormulaNode | null = null
+    if (state.type === 'RECURSIVE_FORMULA') {
+      node = state.formulaNode
+    }
+    if (state.type === 'TYPE_PREDICTION_FAILED') {
+      node = state.formulaNode
+    }
+    if (state.type === 'ACTIVE') {
+      node = state.formulaObjectInfo.getFormulaNode()
+    }
+
+    if (state.type === 'CHECKING_RECURSIVE_FORMULA') {
+      node = state.formulaNode
+    }
+
+    if (node === null) continue
+
+    const result = checkRecursiveFormula(
+      new Set(getVariableFromNode(node)),
+      new Set(
+        variableRef === undefined
+          ? visitedVariableRefs
+          : [...visitedVariableRefs, variableRef]
+      ),
+      variableStorage,
+      referredVariable.ref
+    )
+    if (result === null) continue
+
+    if (variableRef === undefined) return result
+
+    return [variableRef, ...result]
+  }
+
+  return null
 }
