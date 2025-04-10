@@ -1,11 +1,15 @@
 import * as z from 'zod'
-import { Variable, VariableEventPacket } from '../Variable'
+import { Variable } from '../Variable'
 import EventDispatcher from '../../utils/EventDispatcher'
 import { ObjectInfoManager } from '../../object'
 import { VariableConnectorStorage } from '../VariableConnectorStorage'
 import { VariableStorage } from '../VariableStorage'
-import { FormulaManager, FormulaManagerEventPacket } from './FormulaManager'
-import { EventPacket, NodeValueType } from '../../utils'
+import {
+  FormulaManager,
+  FormulaManagerEventPacket,
+  FormulaManagerState,
+} from './FormulaManager'
+import { NodeValueType } from '../../utils'
 
 export const formulaVariableConfigSchema = z.object({
   type: z.literal('FORMULA'),
@@ -46,6 +50,14 @@ export class FormulaVariable extends Variable {
       'RECURSIVE_FORMULA_DETECTED',
       this.onRecursiveFormulaDetected
     )
+    this.formulaManager.dispatcher.addListener(
+      'STATE_CHANGED',
+      this.onStateChange
+    )
+  }
+
+  onStateChange = (state: FormulaManagerState) => {
+    this.dispatcher.dispatch('STATE_CHANGED', state)
   }
 
   onValueTypeChange = (valueType: NodeValueType) => {
@@ -64,6 +76,14 @@ export class FormulaVariable extends Variable {
     this.formulaManager.dispatcher.removeListener(
       'VALUE_TYPE_CHANGED',
       this.onValueTypeChange
+    )
+    this.formulaManager.dispatcher.removeListener(
+      'STATE_CHANGED',
+      this.onStateChange
+    )
+    this.formulaManager.dispatcher.removeListener(
+      'RECURSIVE_FORMULA_DETECTED',
+      this.onRecursiveFormulaDetected
     )
     this.formulaManager.destroy()
     super.destroy()

@@ -1,4 +1,4 @@
-import { VariableEventPacket } from '../Variable'
+import { Variable, VariableEventPacket } from '../Variable'
 
 import { FormulaObjectInfo, ObjectInfoManager } from '../../object'
 import { EventPacket, getVariableFromNode } from '../../utils'
@@ -46,7 +46,8 @@ export type FormulaManagerState =
 
 export type FormulaManagerEventPacket =
   | VariableEventPacket
-  | EventPacket<'RECURSIVE_FORMULA_DETECTED', string[]>
+  | EventPacket<'RECURSIVE_FORMULA_DETECTED', string[]> // used by other variables to update their state
+  | EventPacket<'STATE_CHANGED', FormulaManagerState> // For external to detect change'
 export class FormulaManager {
   private objectInfoManager: ObjectInfoManager
   private variableConnectorStorage: VariableConnectorStorage
@@ -73,15 +74,41 @@ export class FormulaManager {
     this.value = new NumberValue(0)
     this.formula = '0'
     this.ref = ref
-
+    this.variableStorage.addListener(
+      'DELETE_VARIABLE',
+      this.onVariableAddedOrDeleted
+    )
+    this.variableStorage.addListener(
+      'SET_VARIABLE',
+      this.onVariableAddedOrDeleted
+    )
     this.updateFormula(formula)
+  }
+
+  private onVariableAddedOrDeleted = (data: { variable: Variable }) => {
+    if (!(data.variable instanceof GlobalFormulaVariable)) return
+    let node: FormulaNode | null = null
+    if (this.state.type === 'ACTIVE') {
+      node = this.state.formulaObjectInfo.getFormulaNode()
+    } else if (this.state.type === 'RECURSIVE_FORMULA') {
+      node = this.state.formulaNode
+    } else if (this.state.type === 'TYPE_PREDICTION_FAILED') {
+      node = this.state.formulaNode
+    } else if (this.state.type === 'CHECKING_RECURSIVE_FORMULA') {
+      node = this.state.formulaNode
+    }
+    if (node === null) return
+
+    const variableRefs = getVariableFromNode(node)
+    if (!variableRefs.includes(data.variable.ref)) return
+    this.updateFormula(this.formula)
   }
 
   getState() {
     return this.state
   }
 
-  onFormulaObjectInfoDataValueUpdate = () => {
+  private onFormulaObjectInfoDataValueUpdate = () => {
     if (this.state.type === 'ACTIVE') {
       if (
         typeof this.state.formulaObjectInfo.value === 'number' &&
@@ -195,6 +222,7 @@ export class FormulaManager {
         this.value = new NumberValue(0)
         this.dispatcher.dispatch('VALUE_TYPE_CHANGED', 'NUMBER')
       }
+      this.dispatcher.dispatch('STATE_CHANGED', this.state)
       return
     }
 
@@ -241,6 +269,7 @@ export class FormulaManager {
         this.value = new NumberValue(0)
         this.dispatcher.dispatch('VALUE_TYPE_CHANGED', 'NUMBER')
       }
+      this.dispatcher.dispatch('STATE_CHANGED', this.state)
       return
     }
 
@@ -260,6 +289,7 @@ export class FormulaManager {
       type: 'CHECKING_RECURSIVE_FORMULA',
       formulaNode: parseResult.data,
     }
+    this.dispatcher.dispatch('STATE_CHANGED', this.state)
     const detectedPath = checkRecursiveFormula(
       new Set(referredVariables.map(v => v.ref)),
       new Set(),
@@ -282,6 +312,7 @@ export class FormulaManager {
       }
 
       this.dispatcher.dispatch('RECURSIVE_FORMULA_DETECTED', detectedPath)
+      this.dispatcher.dispatch('STATE_CHANGED', this.state)
       return
     }
 
@@ -322,10 +353,19 @@ export class FormulaManager {
     if (currentValueType !== predictResult.info.value) {
       this.dispatcher.dispatch('VALUE_TYPE_CHANGED', this.state.valueType)
     }
+    this.dispatcher.dispatch('STATE_CHANGED', this.state)
   }
 
   destroy() {
     this.reset()
+    this.variableStorage.removeListener(
+      'DELETE_VARIABLE',
+      this.onVariableAddedOrDeleted
+    )
+    this.variableStorage.removeListener(
+      'SET_VARIABLE',
+      this.onVariableAddedOrDeleted
+    )
   }
 }
 

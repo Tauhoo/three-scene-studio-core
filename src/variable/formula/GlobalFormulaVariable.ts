@@ -1,12 +1,18 @@
 import * as z from 'zod'
-import { VariableEventPacket } from '../Variable'
-import EventDispatcher, { EventPacket } from '../../utils/EventDispatcher'
-import { ReferrableVariable } from '../ReferrableVariable'
+import EventDispatcher from '../../utils/EventDispatcher'
+import {
+  ReferrableVariable,
+  ReferrableVariableEventPacket,
+} from '../ReferrableVariable'
 import { ObjectInfoManager } from '../../object'
 import { VariableConnectorStorage } from '../VariableConnectorStorage'
 import { VariableStorage } from '../VariableStorage'
-import { FormulaInfo, NodeValueType } from '../../utils'
-import { FormulaManager, FormulaManagerEventPacket } from './FormulaManager'
+import { NodeValueType } from '../../utils'
+import {
+  FormulaManager,
+  FormulaManagerEventPacket,
+  FormulaManagerState,
+} from './FormulaManager'
 
 export const globalFormulaVariableConfigSchema = z.object({
   type: z.literal('GLOBAL_FORMULA'),
@@ -21,7 +27,9 @@ export type GlobalFormulaVariableConfig = z.infer<
   typeof globalFormulaVariableConfigSchema
 >
 
-export type GlobalFormulaVariableEventPacket = FormulaManagerEventPacket
+export type GlobalFormulaVariableEventPacket =
+  | ReferrableVariableEventPacket
+  | FormulaManagerEventPacket
 
 export class GlobalFormulaVariable extends ReferrableVariable {
   type: 'GLOBAL_FORMULA' = 'GLOBAL_FORMULA'
@@ -54,6 +62,14 @@ export class GlobalFormulaVariable extends ReferrableVariable {
       'RECURSIVE_FORMULA_DETECTED',
       this.onRecursiveFormulaDetected
     )
+    this.formulaManager.dispatcher.addListener(
+      'STATE_CHANGED',
+      this.onStateChange
+    )
+  }
+
+  onStateChange = (state: FormulaManagerState) => {
+    this.dispatcher.dispatch('STATE_CHANGED', state)
   }
 
   onValueTypeChange = (valueType: NodeValueType) => {
@@ -72,6 +88,14 @@ export class GlobalFormulaVariable extends ReferrableVariable {
     this.formulaManager.dispatcher.removeListener(
       'VALUE_TYPE_CHANGED',
       this.onValueTypeChange
+    )
+    this.formulaManager.dispatcher.removeListener(
+      'STATE_CHANGED',
+      this.onStateChange
+    )
+    this.formulaManager.dispatcher.removeListener(
+      'RECURSIVE_FORMULA_DETECTED',
+      this.onRecursiveFormulaDetected
     )
     this.formulaManager.destroy()
     super.destroy()
