@@ -66,6 +66,17 @@ export class GlobalFormulaVariable extends ReferrableVariable {
       'STATE_CHANGED',
       this.onStateChange
     )
+    this.formulaManager.dispatcher.addListener(
+      'RECURSIVE_STATE_UPDATED',
+      this.onRecursiveStateUpdated
+    )
+  }
+
+  onRecursiveStateUpdated = () => {
+    this.dispatcher.dispatch(
+      'RECURSIVE_STATE_UPDATED',
+      this.formulaManager.getState()
+    )
   }
 
   onStateChange = (state: FormulaManagerState) => {

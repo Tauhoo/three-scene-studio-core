@@ -48,6 +48,7 @@ export type FormulaManagerEventPacket =
   | VariableEventPacket
   | EventPacket<'RECURSIVE_FORMULA_DETECTED', string[]> // used by other variables to update their state
   | EventPacket<'STATE_CHANGED', FormulaManagerState> // For external to detect change'
+  | EventPacket<'RECURSIVE_STATE_UPDATED', FormulaManagerState> // Used by other variables to update their state from it's recursive state
 export class FormulaManager {
   private objectInfoManager: ObjectInfoManager
   private variableConnectorStorage: VariableConnectorStorage
@@ -159,6 +160,10 @@ export class FormulaManager {
           'RECURSIVE_FORMULA_DETECTED',
           this.onReferredVariableRecursiveFormulaDetected
         )
+        variable.dispatcher.addListener(
+          'RECURSIVE_STATE_UPDATED',
+          this.onReferredVariableRecursiveStateChange
+        )
       }
     }
 
@@ -183,6 +188,12 @@ export class FormulaManager {
 
   onReferredVariableValueTypeChange = () => {
     this.updateFormula(this.formula)
+  }
+
+  onReferredVariableRecursiveStateChange = () => {
+    if (this.state.type === 'RECURSIVE_FORMULA') {
+      this.updateFormula(this.formula)
+    }
   }
 
   onReferredVariableRecursiveFormulaDetected = (path: string[]) => {
@@ -223,6 +234,9 @@ export class FormulaManager {
         this.dispatcher.dispatch('VALUE_TYPE_CHANGED', 'NUMBER')
       }
       this.dispatcher.dispatch('STATE_CHANGED', this.state)
+      if (currentState.type === 'RECURSIVE_FORMULA') {
+        this.dispatcher.dispatch('RECURSIVE_STATE_UPDATED', this.state)
+      }
       return
     }
 
@@ -248,6 +262,10 @@ export class FormulaManager {
         'RECURSIVE_FORMULA_DETECTED',
         this.onReferredVariableRecursiveFormulaDetected
       )
+      variable.dispatcher.addListener(
+        'RECURSIVE_STATE_UPDATED',
+        this.onReferredVariableRecursiveStateChange
+      )
     }
 
     // predict value type
@@ -270,6 +288,9 @@ export class FormulaManager {
         this.dispatcher.dispatch('VALUE_TYPE_CHANGED', 'NUMBER')
       }
       this.dispatcher.dispatch('STATE_CHANGED', this.state)
+      if (currentState.type === 'RECURSIVE_FORMULA') {
+        this.dispatcher.dispatch('RECURSIVE_STATE_UPDATED', this.state)
+      }
       return
     }
 
@@ -313,6 +334,9 @@ export class FormulaManager {
 
       this.dispatcher.dispatch('RECURSIVE_FORMULA_DETECTED', detectedPath)
       this.dispatcher.dispatch('STATE_CHANGED', this.state)
+      if (currentState.type === 'RECURSIVE_FORMULA') {
+        this.dispatcher.dispatch('RECURSIVE_STATE_UPDATED', this.state)
+      }
       return
     }
 
@@ -354,6 +378,9 @@ export class FormulaManager {
       this.dispatcher.dispatch('VALUE_TYPE_CHANGED', this.state.valueType)
     }
     this.dispatcher.dispatch('STATE_CHANGED', this.state)
+    if (currentState.type === 'RECURSIVE_FORMULA') {
+      this.dispatcher.dispatch('RECURSIVE_STATE_UPDATED', this.state)
+    }
   }
 
   destroy() {
