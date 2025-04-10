@@ -1,7 +1,7 @@
 import { VariableEventPacket } from '../Variable'
 
 import { FormulaObjectInfo, ObjectInfoManager } from '../../object'
-import { getVariableFromNode } from '../../utils'
+import { EventPacket, getVariableFromNode } from '../../utils'
 import {
   FormulaNode,
   NodeValueType,
@@ -44,12 +44,15 @@ export type FormulaManagerState =
       formulaNode: FormulaNode
     }
 
+export type FormulaManagerEventPacket =
+  | VariableEventPacket
+  | EventPacket<'RECURSIVE_FORMULA_DETECTED', string[]>
 export class FormulaManager {
   private objectInfoManager: ObjectInfoManager
   private variableConnectorStorage: VariableConnectorStorage
   private variableStorage: VariableStorage
   private state: FormulaManagerState
-  dispatcher = new EventDispatcher<VariableEventPacket>()
+  dispatcher = new EventDispatcher<FormulaManagerEventPacket>()
   value: NumberValue | VectorValue
   formula: string
   ref?: string
@@ -101,7 +104,9 @@ export class FormulaManager {
   reset() {
     if (
       this.state.type === 'ACTIVE' ||
-      this.state.type === 'TYPE_PREDICTION_FAILED'
+      this.state.type === 'TYPE_PREDICTION_FAILED' ||
+      this.state.type === 'RECURSIVE_FORMULA' ||
+      this.state.type === 'CHECKING_RECURSIVE_FORMULA'
     ) {
       // get referred variables
       let node: FormulaNode
@@ -122,6 +127,10 @@ export class FormulaManager {
         variable.dispatcher.removeListener(
           'VALUE_TYPE_CHANGED',
           this.onReferredVariableValueTypeChange
+        )
+        variable.dispatcher.removeListener(
+          'RECURSIVE_FORMULA_DETECTED',
+          this.onReferredVariableRecursiveFormulaDetected
         )
       }
     }
@@ -146,6 +155,20 @@ export class FormulaManager {
   }
 
   onReferredVariableValueTypeChange = () => {
+    this.updateFormula(this.formula)
+  }
+
+  onReferredVariableRecursiveFormulaDetected = (path: string[]) => {
+    if (this.state.type === 'RECURSIVE_FORMULA') {
+      const isInRecursiveCycle = compareRecursivePath(
+        this.state.detectedPath,
+        path
+      )
+      if (isInRecursiveCycle) {
+        return
+      }
+    }
+
     this.updateFormula(this.formula)
   }
 
@@ -186,11 +209,16 @@ export class FormulaManager {
 
     // check recursive formula
 
-    // set up referred variables type changing event
+    // set up referred variables event
     for (const variable of referredVariables) {
+      if (variable.ref === this.ref) continue
       variable.dispatcher.addListener(
         'VALUE_TYPE_CHANGED',
         this.onReferredVariableValueTypeChange
+      )
+      variable.dispatcher.addListener(
+        'RECURSIVE_FORMULA_DETECTED',
+        this.onReferredVariableRecursiveFormulaDetected
       )
     }
 
@@ -246,11 +274,14 @@ export class FormulaManager {
         formulaNode: parseResult.data,
       }
       this.formula = formula
+
       // check if value type changed
       if (currentValueType !== 'NUMBER') {
         this.value = new NumberValue(0)
         this.dispatcher.dispatch('VALUE_TYPE_CHANGED', 'NUMBER')
       }
+
+      this.dispatcher.dispatch('RECURSIVE_FORMULA_DETECTED', detectedPath)
       return
     }
 
@@ -348,4 +379,20 @@ function checkRecursiveFormula(
   }
 
   return null
+}
+
+function compareRecursivePath(path1: string[], path2: string[]): boolean {
+  const cleanPath1 = path1.slice(0, path1.length - 1)
+  const cleanPath2 = path2.slice(0, path2.length - 1)
+  if (cleanPath1.length === 0) return false
+  if (cleanPath2.length === 0) return false
+  if (cleanPath1.length !== cleanPath2.length) return false
+  const start = cleanPath1[0]
+  const indexOffset = cleanPath2.findIndex(value => value === start)
+  if (indexOffset === -1) return false
+  for (let i = 0; i < cleanPath1.length; i++) {
+    if (cleanPath1[i] !== cleanPath2[(i + indexOffset) % cleanPath2.length])
+      return false
+  }
+  return true
 }

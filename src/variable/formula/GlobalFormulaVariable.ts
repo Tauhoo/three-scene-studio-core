@@ -6,7 +6,7 @@ import { ObjectInfoManager } from '../../object'
 import { VariableConnectorStorage } from '../VariableConnectorStorage'
 import { VariableStorage } from '../VariableStorage'
 import { FormulaInfo, NodeValueType } from '../../utils'
-import { FormulaManager } from './FormulaManager'
+import { FormulaManager, FormulaManagerEventPacket } from './FormulaManager'
 
 export const globalFormulaVariableConfigSchema = z.object({
   type: z.literal('GLOBAL_FORMULA'),
@@ -21,14 +21,12 @@ export type GlobalFormulaVariableConfig = z.infer<
   typeof globalFormulaVariableConfigSchema
 >
 
-export type GlobalFormulaVariableEventPacket = EventPacket<
-  'FORMULA_VARIABLE_UPDATE',
-  { formulaInfo: FormulaInfo }
->
+export type GlobalFormulaVariableEventPacket = FormulaManagerEventPacket
+
 export class GlobalFormulaVariable extends ReferrableVariable {
   type: 'GLOBAL_FORMULA' = 'GLOBAL_FORMULA'
   group: 'USER_DEFINED' = 'USER_DEFINED'
-  dispatcher = new EventDispatcher<VariableEventPacket>()
+  dispatcher = new EventDispatcher<GlobalFormulaVariableEventPacket>()
   formulaManager: FormulaManager
 
   constructor(
@@ -52,10 +50,18 @@ export class GlobalFormulaVariable extends ReferrableVariable {
       'VALUE_TYPE_CHANGED',
       this.onValueTypeChange
     )
+    this.formulaManager.dispatcher.addListener(
+      'RECURSIVE_FORMULA_DETECTED',
+      this.onRecursiveFormulaDetected
+    )
   }
 
   onValueTypeChange = (valueType: NodeValueType) => {
     this.dispatcher.dispatch('VALUE_TYPE_CHANGED', valueType)
+  }
+
+  onRecursiveFormulaDetected = (detectedPath: string[]) => {
+    this.dispatcher.dispatch('RECURSIVE_FORMULA_DETECTED', detectedPath)
   }
 
   get value() {
