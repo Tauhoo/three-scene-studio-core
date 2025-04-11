@@ -2,7 +2,7 @@ import { ObjectInfo, ObjectInfoEvent, ObjectPath } from './ObjectInfo'
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
-import { calculate, FormulaNode } from '../utils'
+import { calculate, cleanCalculateResult, FormulaNode } from '../utils'
 import { Clock } from '../Clock'
 
 export const formulaObjectConfigSchema = z.object({
@@ -62,7 +62,7 @@ export class FormulaObjectInfo extends ObjectInfo {
       return
     }
 
-    this.value = result.data
+    this.value = cleanCalculateResult(result.data)
     this.eventDispatcher.dispatch('FORMULA_VALUE_UPDATE', { value: this.value })
   }
 

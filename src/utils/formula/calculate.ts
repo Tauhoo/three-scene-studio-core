@@ -139,6 +139,24 @@ export function calculate(
   return errorResponse('UNKNOWN_NODE_TYPE', `Unknown node type: ${node.type}`)
 }
 
+export const cleanCalculateResult = <V extends number | number[]>(
+  value: V
+): V => {
+  if (typeof value === 'number') {
+    if (isNaN(value)) return 0 as V
+    if (!isFinite(value)) {
+      if (value > 0) return Number.MAX_SAFE_INTEGER as V
+      return Number.MIN_SAFE_INTEGER as V
+    }
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(cleanCalculateResult) as V
+  }
+
+  return value
+}
+
 const calculateBinaryOperatorForNumber = (
   a: number,
   operator: BinaryOperationNode['type'],
