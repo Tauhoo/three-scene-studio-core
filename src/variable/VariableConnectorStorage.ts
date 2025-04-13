@@ -8,6 +8,7 @@ import {
 import { VariableStorage } from './VariableStorage'
 import { Variable } from './Variable'
 import { ObjectInfo, ObjectPath } from '../object'
+import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 
 export const variableConnectorStorageConfigSchema = z.object({
   connectors: z.array(variableConnectorConfigSchema),
@@ -21,11 +22,27 @@ type PathStorageKey = {
   objectId: string
 }
 
-export class VariableConnectorStorage {
+export type VariableConnectorStorageEventPacket =
+  | EventPacket<
+      'SET',
+      {
+        connector: VariableConnector
+      }
+    >
+  | EventPacket<
+      'DELETE',
+      {
+        objectId: string
+        objectPath: ObjectPath
+      }
+    >
+
+export class VariableConnectorStorage extends EventDispatcher<VariableConnectorStorageEventPacket> {
   private pathStorage: DataStorage<PathStorageKey, VariableConnector>
   private objectInfoIdStorage: DataStorage<string, VariableConnector[]>
 
   constructor() {
+    super()
     this.pathStorage = new DataStorage<PathStorageKey, VariableConnector>(
       key => key.objectId + '.' + key.objectPath.join('.')
     )
@@ -47,6 +64,10 @@ export class VariableConnectorStorage {
       this.objectInfoIdStorage.set(objectId, newConnectors)
     }
     connector.destroy()
+    this.dispatch('DELETE', {
+      objectId,
+      objectPath,
+    })
   }
 
   get(objectId: string, objectPath: ObjectPath) {
@@ -78,6 +99,7 @@ export class VariableConnectorStorage {
         connector,
       ])
     }
+    this.dispatch('SET', { connector })
   }
 
   connectVariableToObjectInfo(
