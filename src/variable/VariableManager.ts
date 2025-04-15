@@ -13,6 +13,8 @@ import { FormulaVariable, GlobalFormulaVariable } from './formula'
 import { ContainerHeightVariable } from './ContainerHeightVariable'
 import { ContainerWidthVariable } from './ContainerWidthVariable'
 import { ExternalVariable } from './ExternalVariable'
+import NameManager from '../NameManager'
+import { successResponse } from '../utils'
 
 export const variableManagerConfigSchema = z.object({
   variableStorage: variableStorageConfigSchema,
@@ -31,19 +33,20 @@ export class VariableManager {
   constructor(
     objectInfoManager: ObjectInfoManager,
     context: Context,
-    clock: Clock
+    clock: Clock,
+    nameManager: NameManager
   ) {
     this.variableConnectorStorage = new VariableConnectorStorage()
     this.variableStorage = new VariableStorage(
       this.variableConnectorStorage,
-      objectInfoManager
+      nameManager
     )
     this.objectInfoManager = objectInfoManager
     this.context = context
     this.clock = clock
   }
 
-  createFormulaVariable(formula: string, id?: string): FormulaVariable {
+  createFormulaVariable(formula: string, id?: string) {
     const variable = new FormulaVariable(
       formula,
       this.objectInfoManager,
@@ -51,8 +54,12 @@ export class VariableManager {
       this.variableStorage,
       id
     )
-    this.variableStorage.setVariable(variable)
-    return variable
+    const result = this.variableStorage.setVariable(variable)
+    if (result.status === 'ERROR') {
+      variable.destroy()
+      return result
+    }
+    return successResponse(variable)
   }
 
   createGlobalFormulaVariable(
@@ -60,9 +67,9 @@ export class VariableManager {
     formula: string,
     name: string,
     id?: string
-  ): GlobalFormulaVariable {
+  ) {
     const variable = new GlobalFormulaVariable(
-      this.variableStorage.convertToNoneDuplicateRef(ref),
+      ref,
       name,
       formula,
       this.objectInfoManager,
@@ -70,38 +77,32 @@ export class VariableManager {
       this.variableStorage,
       id
     )
-    this.variableStorage.setVariable(variable)
-    return variable
+    const result = this.variableStorage.setVariable(variable)
+    if (result.status === 'ERROR') {
+      variable.destroy()
+      return result
+    }
+    return successResponse(variable)
   }
 
-  createContainerHeightVariable(
-    name: string,
-    ref: string,
-    id?: string
-  ): ContainerHeightVariable {
-    const variable = new ContainerHeightVariable(
-      this.context,
-      name,
-      this.variableStorage.convertToNoneDuplicateRef(ref),
-      id
-    )
-    this.variableStorage.setVariable(variable)
-    return variable
+  createContainerHeightVariable(name: string, ref: string, id?: string) {
+    const variable = new ContainerHeightVariable(this.context, name, ref, id)
+    const result = this.variableStorage.setVariable(variable)
+    if (result.status === 'ERROR') {
+      variable.destroy()
+      return result
+    }
+    return successResponse(variable)
   }
 
-  createContainerWidthVariable(
-    name: string,
-    ref: string,
-    id?: string
-  ): ContainerWidthVariable {
-    const variable = new ContainerWidthVariable(
-      this.context,
-      name,
-      this.variableStorage.convertToNoneDuplicateRef(ref),
-      id
-    )
-    this.variableStorage.setVariable(variable)
-    return variable
+  createContainerWidthVariable(name: string, ref: string, id?: string) {
+    const variable = new ContainerWidthVariable(this.context, name, ref, id)
+    const result = this.variableStorage.setVariable(variable)
+    if (result.status === 'ERROR') {
+      variable.destroy()
+      return result
+    }
+    return successResponse(variable)
   }
 
   createExternalVariable(
@@ -109,28 +110,31 @@ export class VariableManager {
     value: number | number[],
     ref: string,
     id?: string
-  ): ExternalVariable {
+  ) {
     const variable = new ExternalVariable(
       name,
       typeof value === 'number'
         ? { valueType: 'NUMBER', value }
         : { valueType: 'VECTOR', value },
-      this.variableStorage.convertToNoneDuplicateRef(ref),
+      ref,
       id
     )
-    this.variableStorage.setVariable(variable)
-    return variable
+    const result = this.variableStorage.setVariable(variable)
+    if (result.status === 'ERROR') {
+      variable.destroy()
+      return result
+    }
+    return successResponse(variable)
   }
 
-  createTimeVariable(name: string, ref: string, id?: string): TimeVariable {
-    const variable = new TimeVariable(
-      this.clock,
-      name,
-      this.variableStorage.convertToNoneDuplicateRef(ref),
-      id
-    )
-    this.variableStorage.setVariable(variable)
-    return variable
+  createTimeVariable(name: string, ref: string, id?: string) {
+    const variable = new TimeVariable(this.clock, name, ref, id)
+    const result = this.variableStorage.setVariable(variable)
+    if (result.status === 'ERROR') {
+      variable.destroy()
+      return result
+    }
+    return successResponse(variable)
   }
 
   deleteVariable(id: string) {

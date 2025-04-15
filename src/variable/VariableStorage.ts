@@ -13,7 +13,13 @@ import { VariableGroup } from './types'
 import { FormulaVariable, GlobalFormulaVariable } from './formula'
 import { ContainerWidthVariable } from './ContainerWidthVariable'
 import { ContainerHeightVariable } from './ContainerHeightVariable'
-import { parse, predictNodeValueType } from '../utils'
+import {
+  errorResponse,
+  parse,
+  predictNodeValueType,
+  successResponse,
+} from '../utils'
+import NameManager from '../NameManager'
 
 export const variableStorageConfigSchema = z.object({
   variables: z.array(variableConfigSchema),
@@ -40,20 +46,18 @@ export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
   private refStorage: DataStorage<string, ReferrableVariable>
   private variableConnectorStorage: VariableConnectorStorage
   private systemVariables: DataStorage<string, Variable>
+  private nameManager: NameManager
+
   constructor(
     variableConnectorStorage: VariableConnectorStorage,
-    objectInfoManager: ObjectInfoManager
+    nameManager: NameManager
   ) {
     super()
     this.idStorage = new DataStorage<string, Variable>(id => id)
     this.refStorage = new DataStorage<string, ReferrableVariable>(ref => ref)
     this.systemVariables = new DataStorage<string, Variable>(id => id)
     this.variableConnectorStorage = variableConnectorStorage
-  }
-
-  convertToNoneDuplicateRef(ref: string) {
-    const refList = this.refStorage.getAll().map(variable => variable.ref)
-    return convertToNoneDuplicateRef(ref, refList)
+    this.nameManager = nameManager
   }
 
   deleteVariableById(id: string) {
@@ -61,6 +65,7 @@ export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
     if (variable === null) return
     this.idStorage.delete(id)
     if (variable instanceof ReferrableVariable) {
+      this.nameManager.removeRef(variable.ref)
       this.refStorage.delete(variable.ref)
     }
     if (variable.group === 'SYSTEM') {
@@ -86,6 +91,12 @@ export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
   }
 
   setVariable(variable: Variable) {
+    if (
+      variable instanceof ReferrableVariable &&
+      this.nameManager.hasRef(variable.ref)
+    ) {
+      return errorResponse('DUPLICATE_REF', 'Duplicate ref')
+    }
     if (variable.group === 'SYSTEM') {
       const systemVariable = this.systemVariables.get(variable.type)
       if (systemVariable !== null) {
@@ -95,11 +106,13 @@ export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
     }
     this.idStorage.set(variable.id, variable)
     if (variable instanceof ReferrableVariable) {
+      this.nameManager.addRef(variable.ref)
       this.refStorage.set(variable.ref, variable)
     }
     this.dispatch('SET_VARIABLE', {
       variable,
     })
+    return successResponse(null)
   }
 
   searchVariable(search: string, group: VariableGroup | null = null) {
@@ -125,45 +138,67 @@ export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
   private createVariableFromConfig(
     threeSceneStudioManager: ThreeSceneStudioManager,
     config: VariableConfig
-  ): Variable {
+  ) {
     const { objectInfoManager, clock, context } = threeSceneStudioManager
     switch (config.type) {
       case 'FORMULA':
-        return new FormulaVariable(
-          config.formula,
-          objectInfoManager,
-          this.variableConnectorStorage,
-          this,
-          config.id
+        return successResponse(
+          new FormulaVariable(
+            config.formula,
+            objectInfoManager,
+            this.variableConnectorStorage,
+            this,
+            config.id
+          )
         )
       case 'GLOBAL_FORMULA': {
-        return new GlobalFormulaVariable(
-          config.ref,
-          config.name,
-          config.formula,
-          objectInfoManager,
-          this.variableConnectorStorage,
-          this,
-          config.id
+        if (threeSceneStudioManager.nameManager.hasRef(config.ref)) {
+          return errorResponse('DUPLICATE_REF', 'Duplicate ref')
+        }
+        return successResponse(
+          new GlobalFormulaVariable(
+            config.ref,
+            config.name,
+            config.formula,
+            objectInfoManager,
+            this.variableConnectorStorage,
+            this,
+            config.id
+          )
         )
       }
       case 'TIME': {
-        return new TimeVariable(clock, config.name, config.ref, config.id)
+        if (threeSceneStudioManager.nameManager.hasRef(config.ref)) {
+          return errorResponse('DUPLICATE_REF', 'Duplicate ref')
+        }
+        return successResponse(
+          new TimeVariable(clock, config.name, config.ref, config.id)
+        )
       }
       case 'CONTAINER_WIDTH': {
-        return new ContainerWidthVariable(
-          context,
-          config.name,
-          config.ref,
-          config.id
+        if (threeSceneStudioManager.nameManager.hasRef(config.ref)) {
+          return errorResponse('DUPLICATE_REF', 'Duplicate ref')
+        }
+        return successResponse(
+          new ContainerWidthVariable(
+            context,
+            config.name,
+            config.ref,
+            config.id
+          )
         )
       }
       case 'CONTAINER_HEIGHT': {
-        return new ContainerHeightVariable(
-          context,
-          config.name,
-          config.ref,
-          config.id
+        if (threeSceneStudioManager.nameManager.hasRef(config.ref)) {
+          return errorResponse('DUPLICATE_REF', 'Duplicate ref')
+        }
+        return successResponse(
+          new ContainerHeightVariable(
+            context,
+            config.name,
+            config.ref,
+            config.id
+          )
         )
       }
     }

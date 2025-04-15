@@ -16,6 +16,7 @@ import Renderer from './Renderer'
 import { Clock } from './Clock'
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 import { Loader } from './loader'
+import NameManager from './NameManager'
 
 export const threeSceneStudioManagerConfigSchema = z.object({
   variableManager: variableManagerConfigSchema,
@@ -41,6 +42,7 @@ export class ThreeSceneStudioManager {
   readonly renderer: Renderer
   readonly context: Context
   readonly clock: Clock
+  readonly nameManager: NameManager = new NameManager()
 
   constructor(context?: Context) {
     if (context) {
@@ -69,7 +71,8 @@ export class ThreeSceneStudioManager {
     this.variableManager = new VariableManager(
       this.objectInfoManager,
       this.context,
-      this.clock
+      this.clock,
+      this.nameManager
     )
 
     // setup system object infos

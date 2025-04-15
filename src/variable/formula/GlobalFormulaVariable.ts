@@ -46,7 +46,7 @@ export class GlobalFormulaVariable extends ReferrableVariable {
     variableStorage: VariableStorage,
     id?: string
   ) {
-    super(ref, name, id)
+    super(name, ref, id)
     this.formulaManager = new FormulaManager(
       formula,
       objectInfoManager,
