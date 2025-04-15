@@ -87,14 +87,20 @@ export class VariableConnector {
       this.updateObject = (value: any) => {
         const result = this.objectInfo.setValue(this.objectPath, value, true)
         if (result.status === 'ERROR') {
-          console.error(result.error)
+          console.error(
+            `update vector failed: ${this.objectPath.join('.')}`,
+            result.error
+          )
         }
       }
     } else {
       this.updateObject = (value: any) => {
         const result = this.objectInfo.setValue(this.objectPath, value)
         if (result.status === 'ERROR') {
-          console.error(result.error)
+          console.error(
+            `update scalar failed: ${this.objectPath.join('.')}`,
+            result.error
+          )
         }
       }
     }

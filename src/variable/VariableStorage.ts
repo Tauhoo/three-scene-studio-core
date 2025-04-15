@@ -209,12 +209,17 @@ export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
     config: VariableStorageConfig
   ) {
     config.variables.forEach(variableConfig => {
-      const variable = this.createVariableFromConfig(
+      const createResult = this.createVariableFromConfig(
         threeSceneStudioManager,
         variableConfig
       )
-      if (variable instanceof Variable) {
-        this.setVariable(variable)
+      if (createResult.status === 'SUCCESS') {
+        this.setVariable(createResult.data)
+      } else {
+        console.error(
+          `create variable failed: ${JSON.stringify(variableConfig)}`,
+          createResult.error
+        )
       }
     })
   }
@@ -223,6 +228,7 @@ export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
     return {
       variables: this.idStorage
         .getAll()
+        .filter(variable => variable.group !== 'SYSTEM')
         .map(variable => variable.serialize() as VariableConfig),
     }
   }
