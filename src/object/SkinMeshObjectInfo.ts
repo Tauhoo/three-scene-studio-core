@@ -6,6 +6,7 @@ import { ObjectInfoStorage } from './ObjectInfoStorage'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { ObjectInfo, ObjectPath } from './ObjectInfo'
 import { BoneObjectInfo } from './BoneObjectInfo'
+import { SystemValueType } from '../utils'
 
 export const skinMeshObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_SKIN_MESH'),
@@ -77,8 +78,8 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
     return boneObjectInfos
   }
 
-  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
-    const result = super.setValue(objectPath, value, isVector)
+  setValue(objectPath: ObjectPath, value: any, valueType?: SystemValueType) {
+    const result = super.setValue(objectPath, value, valueType)
     if (this.boxHelper !== null) {
       this.boxHelper.update()
     }

@@ -1,7 +1,7 @@
 import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfo, ObjectPath, objectPathSchema } from '../object'
-import { FormulaVariable, GlobalFormulaVariable, Variable } from '.'
+import { FormulaVariable, Variable } from '.'
 import {
   getProperyTypeFromMap,
   propertyTypeAndNodeValueTypeCompatible,
@@ -31,6 +31,7 @@ export class VariableConnector {
   private objectPath: ObjectPath
   private updateObject: ((value: any) => void) | null = null
   private status: ConnectorStatus = { type: 'ACTIVE' }
+  enabled: boolean = true
 
   constructor(
     variable: Variable,
@@ -60,6 +61,7 @@ export class VariableConnector {
       this.objectPath,
       this.objectInfo.propertyTypeDefinition
     )
+
     if (propertyTypePathResult.status === 'SUCCESS') {
       propertyTypeDefinition = propertyTypePathResult.data
     } else {
@@ -80,30 +82,25 @@ export class VariableConnector {
       this.status = { type: 'SOURCE_TARGET_TYPE_MISMATCH' }
       return
     }
-    if (
-      propertyTypeDefinition.type === 'VECTOR_2D' ||
-      propertyTypeDefinition.type === 'VECTOR_3D'
-    ) {
-      this.updateObject = (value: any) => {
-        const result = this.objectInfo.setValue(this.objectPath, value, true)
-        if (result.status === 'ERROR') {
-          console.error(
-            `update vector failed: ${this.objectPath.join('.')}`,
-            result.error
-          )
-        }
-      }
-    } else {
-      this.updateObject = (value: any) => {
-        const result = this.objectInfo.setValue(this.objectPath, value)
-        if (result.status === 'ERROR') {
-          console.error(
-            `update scalar failed: ${this.objectPath.join('.')}`,
-            result.error
-          )
-        }
+
+    this.updateObject = (value: any) => {
+      if (!this.enabled) return
+      if (this.status.type !== 'ACTIVE') return
+      if (propertyTypeDefinition.type === 'MAP') return
+      const result = this.objectInfo.setValue(
+        this.objectPath,
+        value,
+        propertyTypeDefinition.type
+      )
+      if (result.status === 'ERROR') {
+        console.error(
+          `update vector failed: ${this.objectPath.join('.')}`,
+          result.error
+        )
       }
     }
+
+    this.status = { type: 'ACTIVE' }
     this.variable.value.addListener('VALUE_CHANGED', this.updateObject)
     this.updateObject(this.variable.value.get())
   }

@@ -2,6 +2,7 @@ import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { errorResponse, successResponse } from '../utils/response'
 import { z } from 'zod'
 import { MapTypeDefinition } from './property'
+import { SystemValueType } from '../utils'
 
 export const objectPathSchema = z.array(z.string())
 export type ObjectPath = z.infer<typeof objectPathSchema>
@@ -33,7 +34,11 @@ export abstract class ObjectInfo {
     return this.config
   }
 
-  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
+  setValue(
+    objectPath: ObjectPath,
+    value: any,
+    systemValueType?: SystemValueType
+  ) {
     if (objectPath.length === 0) {
       return errorResponse('INVALID_OBJECT_PATH', 'Invalid object path')
     }
@@ -50,7 +55,7 @@ export abstract class ObjectInfo {
     }
 
     let isUpdated = false
-    if (isVector) {
+    if (systemValueType === 'VECTOR_3D' || systemValueType === 'VECTOR_2D') {
       if (
         value[0] !== undefined &&
         objectValue[objectPath[objectPath.length - 1]].x !== value[0]
@@ -73,6 +78,20 @@ export abstract class ObjectInfo {
       ) {
         objectValue[objectPath[objectPath.length - 1]].z = value[2]
         isUpdated = true
+      }
+    } else if (systemValueType === 'VECTOR') {
+      const list = objectValue[objectPath[objectPath.length - 1]]
+      if (Array.isArray(value)) {
+        for (let index = 0; index < list.length; index++) {
+          if (
+            value[index] !== undefined ||
+            list[index] !== undefined ||
+            list[index] !== value[index]
+          ) {
+            list[index] = value[index]
+            isUpdated = true
+          }
+        }
       }
     } else {
       if (objectValue[objectPath[objectPath.length - 1]] !== value) {

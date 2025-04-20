@@ -2,9 +2,7 @@ import * as z from 'zod'
 import DataStorage from '../utils/DataStorage'
 import { Variable } from './Variable'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
-import { FormulaObjectInfo, ObjectInfoManager } from '../object'
 import { VariableConnectorStorage } from './VariableConnectorStorage'
-import { convertToNoneDuplicateRef } from '../utils/naming'
 import { TimeVariable } from './TimeVariable'
 import { ThreeSceneStudioManager } from '../ThreeSceneStudioManager'
 import { VariableConfig, variableConfigSchema } from './schema'
@@ -13,12 +11,7 @@ import { VariableGroup } from './types'
 import { FormulaVariable, GlobalFormulaVariable } from './formula'
 import { ContainerWidthVariable } from './ContainerWidthVariable'
 import { ContainerHeightVariable } from './ContainerHeightVariable'
-import {
-  errorResponse,
-  parse,
-  predictNodeValueType,
-  successResponse,
-} from '../utils'
+import { errorResponse, successResponse } from '../utils'
 import NameManager from '../NameManager'
 
 export const variableStorageConfigSchema = z.object({

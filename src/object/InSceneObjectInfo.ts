@@ -9,7 +9,7 @@ import * as THREE from 'three'
 import { ObjectInfoStorage } from './ObjectInfoStorage'
 import { getChildren } from './children'
 import { SceneObjectInfo } from './SceneObjectInfo'
-import { EventPacket } from '../utils'
+import { EventPacket, SystemValueType } from '../utils'
 import EventDispatcher from '../utils/EventDispatcher'
 import { z } from 'zod'
 import { MapTypeDefinition } from './property'
@@ -239,10 +239,10 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     }
   }
 
-  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
+  setValue(objectPath: ObjectPath, value: any, valueType?: SystemValueType) {
     const from = this.data.name
     const to = value
-    const setResult = super.setValue(objectPath, value, isVector)
+    const setResult = super.setValue(objectPath, value, valueType)
     if (objectPath.join('.') === 'name') {
       this.eventDispatcher.dispatch('CHILD_NAME_CHANGE', {
         level: 1,

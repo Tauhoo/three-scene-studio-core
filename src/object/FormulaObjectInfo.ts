@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { calculate, cleanCalculateResult, FormulaNode } from '../utils'
 import { Clock } from '../Clock'
-
+import { SystemValueType } from '../utils'
 export const formulaObjectConfigSchema = z.object({
   type: z.literal('FORMULA'),
   id: z.string(),
@@ -66,8 +66,8 @@ export class FormulaObjectInfo extends ObjectInfo {
     this.eventDispatcher.dispatch('FORMULA_VALUE_UPDATE', { value: this.value })
   }
 
-  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
-    const result = super.setValue(objectPath, value, isVector)
+  setValue(objectPath: ObjectPath, value: any, valueType?: SystemValueType) {
+    const result = super.setValue(objectPath, value, valueType)
     if (result.status === 'SUCCESS') {
       this.needUpdate = result.data
     } else {

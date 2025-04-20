@@ -1,11 +1,7 @@
 import { errorResponse, NodeValueType, successResponse } from '../utils'
-
+import { SystemValueType } from '../utils'
 export type PropertyTypeDefinition =
-  | { type: 'VECTOR_3D' }
-  | { type: 'VECTOR_2D' }
-  | { type: 'VECTOR' }
-  | { type: 'NUMBER' }
-  | { type: 'STRING' }
+  | { type: SystemValueType }
   | MapTypeDefinition
 
 export type MapTypeDefinition = {

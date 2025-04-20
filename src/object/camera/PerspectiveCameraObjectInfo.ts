@@ -5,6 +5,7 @@ import {
 } from './CameraObjectInfo'
 import { ObjectPath } from '../ObjectInfo'
 import { MapTypeDefinition } from '../property'
+import { SystemValueType } from '../../utils'
 
 const perspectiveCameraObjectInfoPropertyTypeDefinition: MapTypeDefinition = {
   type: 'MAP',
@@ -22,8 +23,8 @@ export class PerspectiveCameraObjectInfo extends CameraObjectInfo {
     super(data, id)
   }
 
-  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
-    const result = super.setValue(objectPath, value, isVector)
+  setValue(objectPath: ObjectPath, value: any, valueType?: SystemValueType) {
+    const result = super.setValue(objectPath, value, valueType)
     if (result.status === 'ERROR') {
       return result
     }

@@ -9,6 +9,7 @@ import * as z from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import EventDispatcher, { EventPacket } from '../../utils/EventDispatcher'
 import { MapTypeDefinition } from '../property'
+import { SystemValueType } from '../../utils'
 
 export const cameraObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_CAMERA'),
@@ -64,8 +65,8 @@ export class CameraObjectInfo extends ObjectInfo {
     this.data.updateMatrixWorld()
   }
 
-  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
-    const result = super.setValue(objectPath, value, isVector)
+  setValue(objectPath: ObjectPath, value: any, valueType?: SystemValueType) {
+    const result = super.setValue(objectPath, value, valueType)
     this.data.updateMatrix()
     this.data.updateMatrixWorld()
     if (this.cameraHelper !== null) {

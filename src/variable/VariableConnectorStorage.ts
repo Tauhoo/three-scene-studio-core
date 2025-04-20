@@ -78,7 +78,7 @@ export class VariableConnectorStorage extends EventDispatcher<VariableConnectorS
   }
 
   getByObjectInfoId(objectId: string) {
-    return this.objectInfoIdStorage.get(objectId)
+    return this.objectInfoIdStorage.get(objectId) ?? []
   }
 
   set(connector: VariableConnector) {
@@ -110,6 +110,16 @@ export class VariableConnectorStorage extends EventDispatcher<VariableConnectorS
     const connector = new VariableConnector(variable, objectInfo, objectPath)
     this.set(connector)
     return connector
+  }
+
+  searchConnectorsOnObject(objectId: string, partOfObjectPath: string[]) {
+    const connectors = this.objectInfoIdStorage.get(objectId)
+    if (connectors === null) return []
+    const prefix = partOfObjectPath.join('.')
+    return connectors.filter(connector => {
+      const objectPath = connector.getObjectPath().join('.')
+      return objectPath.startsWith(prefix)
+    })
   }
 
   deleteVariableConnectors(variableId: string) {

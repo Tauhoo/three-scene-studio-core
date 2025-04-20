@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfoStorage } from './ObjectInfoStorage'
 import EventDispatcher from '../utils/EventDispatcher'
 import { ObjectPath } from './ObjectInfo'
+import { SystemValueType } from '../utils'
+
 export const groupObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_GROUP'),
   id: z.string(),
@@ -39,8 +41,8 @@ export class GroupObjectInfo extends InSceneObjectInfo {
     this.eventDispatcher = new EventDispatcher()
   }
 
-  setValue(objectPath: ObjectPath, value: any, isVector?: boolean) {
-    const result = super.setValue(objectPath, value, isVector)
+  setValue(objectPath: ObjectPath, value: any, valueType?: SystemValueType) {
+    const result = super.setValue(objectPath, value, valueType)
     if (this.boxHelper !== null) {
       this.boxHelper.update()
     }
