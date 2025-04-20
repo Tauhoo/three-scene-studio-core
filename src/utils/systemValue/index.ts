@@ -3,6 +3,10 @@ import { errorResponse, successResponse } from '../response'
 
 export type SystemValueInfo =
   | {
+      type: 'EULER'
+      value: THREE.Euler
+    }
+  | {
       type: 'VECTOR_3D'
       value: THREE.Vector3
     }
@@ -42,6 +46,13 @@ export function parseSystemValue(value: any) {
     } as SystemValueInfo)
   }
 
+  if (value instanceof THREE.Euler) {
+    return successResponse({
+      type: 'EULER',
+      value: value,
+    } as SystemValueInfo)
+  }
+
   if (Array.isArray(value)) {
     const items: number[] = []
     for (let item of value) {
@@ -74,7 +85,7 @@ export function parseSystemValue(value: any) {
     } as SystemValueInfo)
   }
 
-  return errorResponse('INVALID_SYSTEM_VALUE', 'non of system value found')
+  return errorResponse('INVALID_SYSTEM_VALUE', 'none of system value found')
 }
 
 export function systemValueToString(value: any) {
@@ -84,6 +95,12 @@ export function systemValueToString(value: any) {
 
   if (value instanceof THREE.Vector2) {
     return successResponse('[' + value.toArray().join(', ') + ']')
+  }
+
+  if (value instanceof THREE.Euler) {
+    return successResponse(
+      '[' + value.x + ', ' + value.y + ', ' + value.z + ']'
+    )
   }
 
   if (Array.isArray(value)) {

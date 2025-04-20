@@ -30,6 +30,7 @@ export function propertyTypeAndNodeValueTypeCompatible(
     if (
       propertyTypeDefinition.type === 'VECTOR_3D' ||
       propertyTypeDefinition.type === 'VECTOR_2D' ||
+      propertyTypeDefinition.type === 'EULER' ||
       propertyTypeDefinition.type === 'VECTOR'
     ) {
       return successResponse(null)
@@ -72,6 +73,13 @@ export function getProperyTypeFromMap(
     }
 
     if (currentDefinition.type === 'VECTOR_2D' && ['x', 'y'].includes(path)) {
+      currentDefinition = {
+        type: 'NUMBER',
+      }
+      continue
+    }
+
+    if (currentDefinition.type === 'EULER' && ['x', 'y', 'z'].includes(path)) {
       currentDefinition = {
         type: 'NUMBER',
       }

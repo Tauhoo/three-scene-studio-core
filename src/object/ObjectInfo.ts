@@ -55,7 +55,11 @@ export abstract class ObjectInfo {
     }
 
     let isUpdated = false
-    if (systemValueType === 'VECTOR_3D' || systemValueType === 'VECTOR_2D') {
+    if (
+      systemValueType === 'VECTOR_3D' ||
+      systemValueType === 'VECTOR_2D' ||
+      systemValueType === 'EULER'
+    ) {
       if (
         value[0] !== undefined &&
         objectValue[objectPath[objectPath.length - 1]].x !== value[0]

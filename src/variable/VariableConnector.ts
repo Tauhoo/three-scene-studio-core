@@ -13,6 +13,7 @@ export const variableConnectorConfigSchema = z.object({
   variableId: z.string(),
   objectId: z.string(),
   objectPath: objectPathSchema,
+  enabled: z.boolean(),
 })
 
 export type VariableConnectorConfig = z.infer<
@@ -37,12 +38,15 @@ export class VariableConnector {
     variable: Variable,
     objectInfo: ObjectInfo,
     objectPath: ObjectPath,
+    enabled: boolean,
     id?: string
   ) {
     this.id = id ?? uuidv4()
     this.variable = variable
     this.objectInfo = objectInfo
     this.objectPath = objectPath
+    this.enabled = enabled
+
     this.setupUpdater()
     this.variable.dispatcher.addListener(
       'VALUE_TYPE_CHANGED',
@@ -137,6 +141,7 @@ export class VariableConnector {
       variableId: this.variable.id,
       objectId: this.objectInfo.config.id,
       objectPath: this.objectPath,
+      enabled: this.enabled,
     }
   }
 }

@@ -105,9 +105,15 @@ export class VariableConnectorStorage extends EventDispatcher<VariableConnectorS
   connectVariableToObjectInfo(
     variable: Variable,
     objectInfo: ObjectInfo,
-    objectPath: ObjectPath
+    objectPath: ObjectPath,
+    enabled: boolean = true
   ) {
-    const connector = new VariableConnector(variable, objectInfo, objectPath)
+    const connector = new VariableConnector(
+      variable,
+      objectInfo,
+      objectPath,
+      enabled
+    )
     this.set(connector)
     return connector
   }
@@ -152,10 +158,11 @@ export class VariableConnectorStorage extends EventDispatcher<VariableConnectorS
       const variable = variableStorage.getVariableById(connector.variableId)
       const object = objectInfoManager.objectInfoStorage.get(connector.objectId)
       const objectPath = connector.objectPath
+      const enabled = connector.enabled
       if (variable === null || object === null) {
         return
       }
-      this.set(new VariableConnector(variable, object, objectPath))
+      this.set(new VariableConnector(variable, object, objectPath, enabled))
     })
   }
 

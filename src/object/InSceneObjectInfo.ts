@@ -54,7 +54,7 @@ export const inSceneObjectInfoPropertyTypeDefinition: MapTypeDefinition = {
     ...objectInfoPropertyTypeDefinition.map,
     name: { type: 'STRING' },
     position: { type: 'VECTOR_3D' },
-    rotation: { type: 'VECTOR_3D' },
+    rotation: { type: 'EULER' },
     scale: { type: 'VECTOR_3D' },
   },
 }
