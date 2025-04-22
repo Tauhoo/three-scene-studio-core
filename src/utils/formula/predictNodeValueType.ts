@@ -236,6 +236,83 @@ export const predictNodeValueType = (
     }
   }
 
+  if (node.type === 'VECTOR_ITEM_SWIZZLE_EXTRACTION') {
+    const vectorInfo = predictNodeValueType(node.vector, variableChecker)
+    if (vectorInfo.status === 'FAIL') {
+      return vectorInfo
+    }
+    if (vectorInfo.info.value !== 'VECTOR') {
+      return {
+        status: 'FAIL',
+        error: 'Vector item swizzle extraction can only be used on a vector',
+        problemNode: node,
+      }
+    }
+    if (node.items.length === 1) {
+      return {
+        status: 'SUCCESS',
+        info: {
+          node: node,
+          value: 'NUMBER',
+        },
+      }
+    } else {
+      return {
+        status: 'SUCCESS',
+        info: {
+          node: node,
+          value: 'VECTOR',
+        },
+      }
+    }
+  }
+
+  if (node.type === 'VECTOR_ITEM_INDEX_EXTRACTION') {
+    const vectorInfo = predictNodeValueType(node.vector, variableChecker)
+    if (vectorInfo.status === 'FAIL') {
+      return vectorInfo
+    }
+    if (vectorInfo.info.value !== 'VECTOR') {
+      return {
+        status: 'FAIL',
+        error: 'Vector item index extraction can only be used on a vector',
+        problemNode: node,
+      }
+    }
+
+    for (const item of node.items) {
+      const validationResult = predictNodeValueType(item, variableChecker)
+      if (validationResult.status === 'FAIL') {
+        return validationResult
+      }
+      if (validationResult.info.value !== 'NUMBER') {
+        return {
+          status: 'FAIL',
+          error: 'Vector item index extraction index must be a number',
+          problemNode: item,
+        }
+      }
+    }
+
+    if (node.items.length === 1) {
+      return {
+        status: 'SUCCESS',
+        info: {
+          node: node,
+          value: 'NUMBER',
+        },
+      }
+    } else {
+      return {
+        status: 'SUCCESS',
+        info: {
+          node: node,
+          value: 'VECTOR',
+        },
+      }
+    }
+  }
+
   return {
     status: 'FAIL',
     error: 'Unknown node type',

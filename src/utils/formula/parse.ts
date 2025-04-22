@@ -77,4 +77,15 @@ const groupBinaryOperatorInput = (node: FormulaNode) => {
       groupBinaryOperatorInput(input)
     }
   }
+
+  if (node.type === 'VECTOR_ITEM_SWIZZLE_EXTRACTION') {
+    groupBinaryOperatorInput(node.vector)
+  }
+
+  if (node.type === 'VECTOR_ITEM_INDEX_EXTRACTION') {
+    groupBinaryOperatorInput(node.vector)
+    for (const item of node.items) {
+      groupBinaryOperatorInput(item)
+    }
+  }
 }

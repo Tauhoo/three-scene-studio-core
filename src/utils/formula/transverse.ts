@@ -55,4 +55,15 @@ export const traverseNode = (
   if (currentNode.type === 'VARIABLE') {
     callback(currentNode)
   }
+
+  if (currentNode.type === 'VECTOR_ITEM_SWIZZLE_EXTRACTION') {
+    traverseNode(currentNode.vector, callback)
+  }
+
+  if (currentNode.type === 'VECTOR_ITEM_INDEX_EXTRACTION') {
+    traverseNode(currentNode.vector, callback)
+    for (const item of currentNode.items) {
+      traverseNode(item, callback)
+    }
+  }
 }

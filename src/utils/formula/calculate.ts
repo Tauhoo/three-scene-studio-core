@@ -136,6 +136,58 @@ export function calculate(
     return calculate(node.expressions[0], variables)
   }
 
+  if (node.type === 'VECTOR_ITEM_SWIZZLE_EXTRACTION') {
+    const vector = calculate(node.vector, variables)
+    if (vector.status === 'ERROR') {
+      return vector
+    }
+
+    if (typeof vector.data === 'number') {
+      return errorResponse(
+        'VECTOR_NOT_ALLOWED',
+        'Vector is not allowed in vector item swizzle extraction'
+      )
+    }
+
+    return successResponse(
+      calculateVectorItemSwizzleExtraction(vector.data, node.items)
+    )
+  }
+
+  if (node.type === 'VECTOR_ITEM_INDEX_EXTRACTION') {
+    const vector = calculate(node.vector, variables)
+    if (vector.status === 'ERROR') {
+      return vector
+    }
+
+    if (typeof vector.data === 'number') {
+      return errorResponse(
+        'VECTOR_NOT_ALLOWED',
+        'Vector is not allowed in vector item index extraction'
+      )
+    }
+
+    const indexes: number[] = []
+    for (const item of node.items) {
+      const subResult = calculate(item, variables)
+      if (subResult.status === 'ERROR') {
+        return subResult
+      }
+      if (typeof subResult.data === 'number') {
+        indexes.push(subResult.data)
+      } else {
+        return errorResponse(
+          'VECTOR_NOT_ALLOWED',
+          'Vector is not allowed in vector item index extraction'
+        )
+      }
+    }
+
+    return successResponse(
+      calculateVectorItemIndexExtraction(vector.data, indexes)
+    )
+  }
+
   return errorResponse('UNKNOWN_NODE_TYPE', `Unknown node type: ${node.type}`)
 }
 
@@ -203,4 +255,42 @@ const calculateBinaryOperator = (
   }
 
   return 0
+}
+
+const calculateVectorItemSwizzleExtraction = (
+  vector: number[],
+  items: ('x' | 'y' | 'z' | 'w')[]
+) => {
+  const indices = items.map(item => {
+    if (item === 'x') {
+      return 0
+    }
+    if (item === 'y') {
+      return 1
+    }
+    if (item === 'z') {
+      return 2
+    }
+    if (item === 'w') {
+      return 3
+    }
+    return 0
+  })
+
+  const result = indices.map(index => vector[index] ?? 0)
+  if (result.length === 1) {
+    return result[0]
+  }
+  return result
+}
+
+const calculateVectorItemIndexExtraction = (
+  vector: number[],
+  items: number[]
+) => {
+  const result = items.map(v => vector[Math.floor(v)] ?? 0)
+  if (result.length === 1) {
+    return result[0]
+  }
+  return result
 }

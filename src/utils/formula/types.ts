@@ -47,6 +47,20 @@ export interface ParenthesesExpressionNode {
   expressions: FormulaNode[]
 }
 
+export interface VectorItemIndexExtractionNode {
+  id: string
+  type: 'VECTOR_ITEM_INDEX_EXTRACTION'
+  vector: FormulaNode
+  items: FormulaNode[]
+}
+
+export interface VectorItemSwizzleExtractionNode {
+  id: string
+  type: 'VECTOR_ITEM_SWIZZLE_EXTRACTION'
+  vector: FormulaNode
+  items: ('x' | 'y' | 'z' | 'w')[]
+}
+
 export type FormulaNode =
   | NumberNode
   | VariableNode
@@ -56,6 +70,8 @@ export type FormulaNode =
   | ImplicitMultiplicationNode
   | MinusPrefixUnaryNode
   | ParenthesesExpressionNode
+  | VectorItemIndexExtractionNode
+  | VectorItemSwizzleExtractionNode
 
 export type VectorValueInfo = {
   valueType: 'VECTOR'

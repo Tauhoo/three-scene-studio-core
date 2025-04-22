@@ -346,5 +346,33 @@ export const generateFunctionNode = (
     return successResponse(node)
   }
 
+  if (node.type === 'VECTOR_ITEM_INDEX_EXTRACTION') {
+    const mutatedItems: FormulaNode[] = []
+    for (const item of node.items) {
+      const result = generateFunctionNode(item)
+      if (result.status === 'ERROR') {
+        return result
+      }
+      mutatedItems.push(result.data)
+    }
+    node.items = mutatedItems
+
+    const result = generateFunctionNode(node.vector)
+    if (result.status === 'ERROR') {
+      return result
+    }
+    node.vector = result.data
+    return successResponse(node)
+  }
+
+  if (node.type === 'VECTOR_ITEM_SWIZZLE_EXTRACTION') {
+    const result = generateFunctionNode(node.vector)
+    if (result.status === 'ERROR') {
+      return result
+    }
+    node.vector = result.data
+    return successResponse(node)
+  }
+
   return errorResponse('INVALID_FORMULA', 'Invalid node type')
 }

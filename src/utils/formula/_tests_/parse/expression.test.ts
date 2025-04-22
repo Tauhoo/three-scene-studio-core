@@ -599,4 +599,197 @@ describe('Expression Parser', () => {
       })
     })
   })
+
+  describe('Should parseVector Item Swizzle Extraction and Index Extraction', () => {
+    it('should parse vector swizzle and index extraction operations', () => {
+      const result = parse('[1, 3].x + [1, 2, 3]{1 + v, v}')
+      expect(result).toEqual({
+        status: 'SUCCESS',
+        data: {
+          id: expect.any(String),
+          type: 'ADD',
+          inputs: [
+            {
+              id: expect.any(String),
+              type: 'VECTOR_ITEM_SWIZZLE_EXTRACTION',
+              vector: {
+                id: expect.any(String),
+                type: 'VECTOR',
+                items: [
+                  {
+                    id: expect.any(String),
+                    type: 'NUMBER',
+                    value: 1,
+                    text: '1',
+                  },
+                  {
+                    id: expect.any(String),
+                    type: 'NUMBER',
+                    value: 3,
+                    text: '3',
+                  },
+                ],
+              },
+              items: ['x'],
+            },
+            {
+              id: expect.any(String),
+              type: 'VECTOR_ITEM_INDEX_EXTRACTION',
+              vector: {
+                id: expect.any(String),
+                type: 'VECTOR',
+                items: [
+                  {
+                    id: expect.any(String),
+                    type: 'NUMBER',
+                    value: 1,
+                    text: '1',
+                  },
+                  {
+                    id: expect.any(String),
+                    type: 'NUMBER',
+                    value: 2,
+                    text: '2',
+                  },
+                  {
+                    id: expect.any(String),
+                    type: 'NUMBER',
+                    value: 3,
+                    text: '3',
+                  },
+                ],
+              },
+              items: [
+                {
+                  id: expect.any(String),
+                  type: 'ADD',
+                  inputs: [
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 1,
+                      text: '1',
+                    },
+                    { id: expect.any(String), type: 'VARIABLE', name: 'v' },
+                  ],
+                },
+                {
+                  id: expect.any(String),
+                  type: 'VARIABLE',
+                  name: 'v',
+                },
+              ],
+            },
+          ],
+        },
+      })
+    })
+
+    it('should parse vector swizzle and index extraction with shorthand multiplication', () => {
+      const result = parse('[4]v.xzw + [1, 2, 3]{1 + v, v}[3]')
+      expect(result).toEqual({
+        status: 'SUCCESS',
+        data: {
+          id: expect.any(String),
+          type: 'ADD',
+          inputs: [
+            {
+              id: expect.any(String),
+              type: 'IMP_MUL',
+              inputs: [
+                {
+                  id: expect.any(String),
+                  type: 'VECTOR',
+                  items: [
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 4,
+                      text: '4',
+                    },
+                  ],
+                },
+                {
+                  id: expect.any(String),
+                  type: 'VECTOR_ITEM_SWIZZLE_EXTRACTION',
+                  vector: {
+                    id: expect.any(String),
+                    type: 'VARIABLE',
+                    name: 'v',
+                  },
+                  items: ['x', 'z', 'w'],
+                },
+              ],
+            },
+            {
+              id: expect.any(String),
+              type: 'IMP_MUL',
+              inputs: [
+                {
+                  id: expect.any(String),
+                  type: 'VECTOR_ITEM_INDEX_EXTRACTION',
+                  vector: {
+                    id: expect.any(String),
+                    type: 'VECTOR',
+                    items: [
+                      {
+                        id: expect.any(String),
+                        type: 'NUMBER',
+                        value: 1,
+                        text: '1',
+                      },
+                      {
+                        id: expect.any(String),
+                        type: 'NUMBER',
+                        value: 2,
+                        text: '2',
+                      },
+                      {
+                        id: expect.any(String),
+                        type: 'NUMBER',
+                        value: 3,
+                        text: '3',
+                      },
+                    ],
+                  },
+                  items: [
+                    {
+                      id: expect.any(String),
+                      type: 'ADD',
+                      inputs: [
+                        {
+                          id: expect.any(String),
+                          type: 'NUMBER',
+                          value: 1,
+                          text: '1',
+                        },
+                        { id: expect.any(String), type: 'VARIABLE', name: 'v' },
+                      ],
+                    },
+                    {
+                      id: expect.any(String),
+                      type: 'VARIABLE',
+                      name: 'v',
+                    },
+                  ],
+                },
+                {
+                  id: expect.any(String),
+                  type: 'VECTOR',
+                  items: [
+                    {
+                      id: expect.any(String),
+                      type: 'NUMBER',
+                      value: 3,
+                      text: '3',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      })
+    })
+  })
 })

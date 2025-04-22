@@ -196,6 +196,29 @@ export const getBlocksFromNode = (node: FormulaNode): Block[] => {
     return result
   }
 
+  if (node.type === 'VECTOR_ITEM_SWIZZLE_EXTRACTION') {
+    const result: Block[] = getBlocksFromNode(node.vector)
+    result.push({
+      type: 'EXPRESSION',
+      text: '.' + node.items.join(''),
+      id: uuidv4(),
+    })
+    return result
+  }
+
+  if (node.type === 'VECTOR_ITEM_INDEX_EXTRACTION') {
+    const result: Block[] = getBlocksFromNode(node.vector)
+    result.push({ type: 'EXPRESSION', text: '{', id: uuidv4() })
+    for (let i = 0; i < node.items.length; i++) {
+      if (i !== 0) {
+        result.push({ type: 'EXPRESSION', text: ',', id: uuidv4() })
+      }
+      result.push(...getBlocksFromNode(node.items[i]))
+    }
+    result.push({ type: 'EXPRESSION', text: '}', id: uuidv4() })
+    return result
+  }
+
   return []
 }
 

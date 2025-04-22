@@ -115,6 +115,118 @@ const grammar: Grammar = {
     {"name": "zig_short_multiply", "symbols": ["number"]},
     {"name": "zig_short_multiply", "symbols": ["variable"]},
     {"name": "zig_short_multiply", "symbols": ["number", "variable"]},
+    {"name": "zig_short_multiply$macrocall$2", "symbols": ["variable"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$1$ebnf$1", "symbols": [/[xyzw]/]},
+    {"name": "zig_short_multiply$macrocall$1$ebnf$1", "symbols": ["zig_short_multiply$macrocall$1$ebnf$1", /[xyzw]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "zig_short_multiply$macrocall$1", "symbols": ["zig_short_multiply$macrocall$2", {"literal":"."}, "zig_short_multiply$macrocall$1$ebnf$1"], "postprocess":  (d: any[]): any => {
+            const items = d[2]
+            return { type: "VECTOR_ITEM_SWIZZLE_EXTRACTION", vector: d[0], items, id: uuidV4() }
+        } },
+    {"name": "zig_short_multiply", "symbols": ["zig_short_multiply$macrocall$1"]},
+    {"name": "zig_short_multiply$macrocall$4$macrocall$2", "symbols": ["expression"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$4$macrocall$1$ebnf$1$macrocall$2", "symbols": ["zig_short_multiply$macrocall$4$macrocall$2"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$4$macrocall$1$ebnf$1$macrocall$1$ebnf$1", "symbols": []},
+    {"name": "zig_short_multiply$macrocall$4$macrocall$1$ebnf$1$macrocall$1$ebnf$1$subexpression$1", "symbols": [{"literal":","}, "zig_short_multiply$macrocall$4$macrocall$1$ebnf$1$macrocall$2"]},
+    {"name": "zig_short_multiply$macrocall$4$macrocall$1$ebnf$1$macrocall$1$ebnf$1", "symbols": ["zig_short_multiply$macrocall$4$macrocall$1$ebnf$1$macrocall$1$ebnf$1", "zig_short_multiply$macrocall$4$macrocall$1$ebnf$1$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "zig_short_multiply$macrocall$4$macrocall$1$ebnf$1$macrocall$1", "symbols": ["zig_short_multiply$macrocall$4$macrocall$1$ebnf$1$macrocall$2", "zig_short_multiply$macrocall$4$macrocall$1$ebnf$1$macrocall$1$ebnf$1"], "postprocess":  (d: any[]): any[] => {
+            const items = [d[0], ...d[1].map(([_, expr]: any) => expr)]
+            return items
+        } },
+    {"name": "zig_short_multiply$macrocall$4$macrocall$1$ebnf$1", "symbols": ["zig_short_multiply$macrocall$4$macrocall$1$ebnf$1$macrocall$1"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$4$macrocall$1$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "zig_short_multiply$macrocall$4$macrocall$1", "symbols": [{"literal":"["}, "zig_short_multiply$macrocall$4$macrocall$1$ebnf$1", {"literal":"]"}], "postprocess":  (d: any[]): any => {
+            const items = d[1] ?? []
+            return { type: "VECTOR", items, id: uuidV4() }
+        } },
+    {"name": "zig_short_multiply$macrocall$4", "symbols": ["zig_short_multiply$macrocall$4$macrocall$1"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$3$ebnf$1", "symbols": [/[xyzw]/]},
+    {"name": "zig_short_multiply$macrocall$3$ebnf$1", "symbols": ["zig_short_multiply$macrocall$3$ebnf$1", /[xyzw]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "zig_short_multiply$macrocall$3", "symbols": ["zig_short_multiply$macrocall$4", {"literal":"."}, "zig_short_multiply$macrocall$3$ebnf$1"], "postprocess":  (d: any[]): any => {
+            const items = d[2]
+            return { type: "VECTOR_ITEM_SWIZZLE_EXTRACTION", vector: d[0], items, id: uuidV4() }
+        } },
+    {"name": "zig_short_multiply", "symbols": ["zig_short_multiply$macrocall$3"]},
+    {"name": "zig_short_multiply$macrocall$6$macrocall$2", "symbols": ["expression"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$6$macrocall$1$ebnf$1$subexpression$1$ebnf$1", "symbols": []},
+    {"name": "zig_short_multiply$macrocall$6$macrocall$1$ebnf$1$subexpression$1$ebnf$1$subexpression$1", "symbols": [{"literal":","}, "zig_short_multiply$macrocall$6$macrocall$2"]},
+    {"name": "zig_short_multiply$macrocall$6$macrocall$1$ebnf$1$subexpression$1$ebnf$1", "symbols": ["zig_short_multiply$macrocall$6$macrocall$1$ebnf$1$subexpression$1$ebnf$1", "zig_short_multiply$macrocall$6$macrocall$1$ebnf$1$subexpression$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "zig_short_multiply$macrocall$6$macrocall$1$ebnf$1$subexpression$1", "symbols": ["zig_short_multiply$macrocall$6$macrocall$2", "zig_short_multiply$macrocall$6$macrocall$1$ebnf$1$subexpression$1$ebnf$1"]},
+    {"name": "zig_short_multiply$macrocall$6$macrocall$1$ebnf$1", "symbols": ["zig_short_multiply$macrocall$6$macrocall$1$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$6$macrocall$1$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "zig_short_multiply$macrocall$6$macrocall$1", "symbols": [{"literal":"("}, "zig_short_multiply$macrocall$6$macrocall$1$ebnf$1", {"literal":")"}], "postprocess":  (data: any[]): any => {
+            if(data[1] === null) return { type: "PARENTHESES_EXPRESSION", expressions: [], id: uuidV4() }
+            const result = []
+            result.push(data[1][0])
+            result.push(...data[1][1].map((item:any[])=> item[1]))
+            return { type: "PARENTHESES_EXPRESSION", expressions: result, id: uuidV4() }
+        } },
+    {"name": "zig_short_multiply$macrocall$6", "symbols": ["zig_short_multiply$macrocall$6$macrocall$1"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$5$ebnf$1", "symbols": [/[xyzw]/]},
+    {"name": "zig_short_multiply$macrocall$5$ebnf$1", "symbols": ["zig_short_multiply$macrocall$5$ebnf$1", /[xyzw]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "zig_short_multiply$macrocall$5", "symbols": ["zig_short_multiply$macrocall$6", {"literal":"."}, "zig_short_multiply$macrocall$5$ebnf$1"], "postprocess":  (d: any[]): any => {
+            const items = d[2]
+            return { type: "VECTOR_ITEM_SWIZZLE_EXTRACTION", vector: d[0], items, id: uuidV4() }
+        } },
+    {"name": "zig_short_multiply", "symbols": ["zig_short_multiply$macrocall$5"]},
+    {"name": "zig_short_multiply$macrocall$8", "symbols": ["variable"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$9", "symbols": ["expression"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$7$ebnf$1", "symbols": []},
+    {"name": "zig_short_multiply$macrocall$7$ebnf$1$subexpression$1", "symbols": [{"literal":","}, "zig_short_multiply$macrocall$9"]},
+    {"name": "zig_short_multiply$macrocall$7$ebnf$1", "symbols": ["zig_short_multiply$macrocall$7$ebnf$1", "zig_short_multiply$macrocall$7$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "zig_short_multiply$macrocall$7", "symbols": ["zig_short_multiply$macrocall$8", {"literal":"{"}, "zig_short_multiply$macrocall$9", "zig_short_multiply$macrocall$7$ebnf$1", {"literal":"}"}], "postprocess":  (d: any[]): any => {
+            const items = [d[2], ...d[3].map(([_, expr]: any) => expr)]
+            return { type: "VECTOR_ITEM_INDEX_EXTRACTION", vector: d[0], items, id: uuidV4() }
+        } },
+    {"name": "zig_short_multiply", "symbols": ["zig_short_multiply$macrocall$7"]},
+    {"name": "zig_short_multiply$macrocall$11$macrocall$2", "symbols": ["expression"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$11$macrocall$1$ebnf$1$macrocall$2", "symbols": ["zig_short_multiply$macrocall$11$macrocall$2"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$11$macrocall$1$ebnf$1$macrocall$1$ebnf$1", "symbols": []},
+    {"name": "zig_short_multiply$macrocall$11$macrocall$1$ebnf$1$macrocall$1$ebnf$1$subexpression$1", "symbols": [{"literal":","}, "zig_short_multiply$macrocall$11$macrocall$1$ebnf$1$macrocall$2"]},
+    {"name": "zig_short_multiply$macrocall$11$macrocall$1$ebnf$1$macrocall$1$ebnf$1", "symbols": ["zig_short_multiply$macrocall$11$macrocall$1$ebnf$1$macrocall$1$ebnf$1", "zig_short_multiply$macrocall$11$macrocall$1$ebnf$1$macrocall$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "zig_short_multiply$macrocall$11$macrocall$1$ebnf$1$macrocall$1", "symbols": ["zig_short_multiply$macrocall$11$macrocall$1$ebnf$1$macrocall$2", "zig_short_multiply$macrocall$11$macrocall$1$ebnf$1$macrocall$1$ebnf$1"], "postprocess":  (d: any[]): any[] => {
+            const items = [d[0], ...d[1].map(([_, expr]: any) => expr)]
+            return items
+        } },
+    {"name": "zig_short_multiply$macrocall$11$macrocall$1$ebnf$1", "symbols": ["zig_short_multiply$macrocall$11$macrocall$1$ebnf$1$macrocall$1"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$11$macrocall$1$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "zig_short_multiply$macrocall$11$macrocall$1", "symbols": [{"literal":"["}, "zig_short_multiply$macrocall$11$macrocall$1$ebnf$1", {"literal":"]"}], "postprocess":  (d: any[]): any => {
+            const items = d[1] ?? []
+            return { type: "VECTOR", items, id: uuidV4() }
+        } },
+    {"name": "zig_short_multiply$macrocall$11", "symbols": ["zig_short_multiply$macrocall$11$macrocall$1"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$12", "symbols": ["expression"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$10$ebnf$1", "symbols": []},
+    {"name": "zig_short_multiply$macrocall$10$ebnf$1$subexpression$1", "symbols": [{"literal":","}, "zig_short_multiply$macrocall$12"]},
+    {"name": "zig_short_multiply$macrocall$10$ebnf$1", "symbols": ["zig_short_multiply$macrocall$10$ebnf$1", "zig_short_multiply$macrocall$10$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "zig_short_multiply$macrocall$10", "symbols": ["zig_short_multiply$macrocall$11", {"literal":"{"}, "zig_short_multiply$macrocall$12", "zig_short_multiply$macrocall$10$ebnf$1", {"literal":"}"}], "postprocess":  (d: any[]): any => {
+            const items = [d[2], ...d[3].map(([_, expr]: any) => expr)]
+            return { type: "VECTOR_ITEM_INDEX_EXTRACTION", vector: d[0], items, id: uuidV4() }
+        } },
+    {"name": "zig_short_multiply", "symbols": ["zig_short_multiply$macrocall$10"]},
+    {"name": "zig_short_multiply$macrocall$14$macrocall$2", "symbols": ["expression"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$14$macrocall$1$ebnf$1$subexpression$1$ebnf$1", "symbols": []},
+    {"name": "zig_short_multiply$macrocall$14$macrocall$1$ebnf$1$subexpression$1$ebnf$1$subexpression$1", "symbols": [{"literal":","}, "zig_short_multiply$macrocall$14$macrocall$2"]},
+    {"name": "zig_short_multiply$macrocall$14$macrocall$1$ebnf$1$subexpression$1$ebnf$1", "symbols": ["zig_short_multiply$macrocall$14$macrocall$1$ebnf$1$subexpression$1$ebnf$1", "zig_short_multiply$macrocall$14$macrocall$1$ebnf$1$subexpression$1$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "zig_short_multiply$macrocall$14$macrocall$1$ebnf$1$subexpression$1", "symbols": ["zig_short_multiply$macrocall$14$macrocall$2", "zig_short_multiply$macrocall$14$macrocall$1$ebnf$1$subexpression$1$ebnf$1"]},
+    {"name": "zig_short_multiply$macrocall$14$macrocall$1$ebnf$1", "symbols": ["zig_short_multiply$macrocall$14$macrocall$1$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$14$macrocall$1$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "zig_short_multiply$macrocall$14$macrocall$1", "symbols": [{"literal":"("}, "zig_short_multiply$macrocall$14$macrocall$1$ebnf$1", {"literal":")"}], "postprocess":  (data: any[]): any => {
+            if(data[1] === null) return { type: "PARENTHESES_EXPRESSION", expressions: [], id: uuidV4() }
+            const result = []
+            result.push(data[1][0])
+            result.push(...data[1][1].map((item:any[])=> item[1]))
+            return { type: "PARENTHESES_EXPRESSION", expressions: result, id: uuidV4() }
+        } },
+    {"name": "zig_short_multiply$macrocall$14", "symbols": ["zig_short_multiply$macrocall$14$macrocall$1"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$15", "symbols": ["expression"], "postprocess": id},
+    {"name": "zig_short_multiply$macrocall$13$ebnf$1", "symbols": []},
+    {"name": "zig_short_multiply$macrocall$13$ebnf$1$subexpression$1", "symbols": [{"literal":","}, "zig_short_multiply$macrocall$15"]},
+    {"name": "zig_short_multiply$macrocall$13$ebnf$1", "symbols": ["zig_short_multiply$macrocall$13$ebnf$1", "zig_short_multiply$macrocall$13$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "zig_short_multiply$macrocall$13", "symbols": ["zig_short_multiply$macrocall$14", {"literal":"{"}, "zig_short_multiply$macrocall$15", "zig_short_multiply$macrocall$13$ebnf$1", {"literal":"}"}], "postprocess":  (d: any[]): any => {
+            const items = [d[2], ...d[3].map(([_, expr]: any) => expr)]
+            return { type: "VECTOR_ITEM_INDEX_EXTRACTION", vector: d[0], items, id: uuidV4() }
+        } },
+    {"name": "zig_short_multiply", "symbols": ["zig_short_multiply$macrocall$13"]},
     {"name": "short_multiply$macrocall$2", "symbols": ["full_short_multiply"], "postprocess": id},
     {"name": "short_multiply$macrocall$3", "symbols": ["zig_short_multiply"], "postprocess": id},
     {"name": "short_multiply$macrocall$1", "symbols": ["short_multiply$macrocall$2"]},

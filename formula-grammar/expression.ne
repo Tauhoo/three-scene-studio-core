@@ -49,6 +49,14 @@ zig_short_multiply ->
     | variable
     | number variable
 
+    | vector_item_swizzle_extraction[variable {% id %}]
+    | vector_item_swizzle_extraction[vector[expression {% id %}] {% id %}]
+    | vector_item_swizzle_extraction[parentheses_expression[expression {% id %}] {% id %}]
+
+    | vector_item_index_extraction[variable {% id %}, expression {% id %}]
+    | vector_item_index_extraction[vector[expression {% id %}] {% id %}, expression {% id %}]
+    | vector_item_index_extraction[parentheses_expression[expression {% id %}] {% id %}, expression {% id %}]
+
 short_multiply -> zig_short_multiply_expression[full_short_multiply {% id %}, zig_short_multiply {% id %}] {% data =>{
     const result = flatten(data)
     if(result.length === 1) return result[0]
