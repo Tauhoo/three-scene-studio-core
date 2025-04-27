@@ -11,7 +11,6 @@ export const groupObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_GROUP'),
   id: z.string(),
   sceneId: z.string(),
-  childrenIds: z.array(z.string()),
 })
 
 export type GroupObjectConfig = z.infer<typeof groupObjectConfigSchema>
@@ -26,16 +25,14 @@ export class GroupObjectInfo extends InSceneObjectInfo {
     data: THREE.Object3D,
     sceneId: string,
     objectInfoStorage: ObjectInfoStorage,
-    id?: string,
-    children?: InSceneObjectInfo[]
+    id?: string
   ) {
     const actualId = id ?? uuidv4()
-    super(data, actualId, sceneId, objectInfoStorage, children)
+    super(data, actualId, sceneId, objectInfoStorage)
     this.config = {
       type: 'OBJECT_3D_GROUP',
       id: actualId,
       sceneId,
-      childrenIds: this.children.map(child => child.config.id),
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()

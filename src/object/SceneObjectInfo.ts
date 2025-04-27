@@ -9,7 +9,6 @@ export const sceneObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_SCENE'),
   id: z.string(),
   sceneId: z.string(),
-  childrenIds: z.array(z.string()),
 })
 
 export type SceneObjectConfig = z.infer<typeof sceneObjectConfigSchema>
@@ -30,16 +29,14 @@ export class SceneObjectInfo extends InSceneObjectInfo {
   constructor(
     data: THREE.Scene,
     objectInfoStorage: ObjectInfoStorage,
-    id?: string,
-    children?: InSceneObjectInfo[]
+    id?: string
   ) {
     const actualId = id ?? uuidv4()
-    super(data, actualId, actualId, objectInfoStorage, children)
+    super(data, actualId, actualId, objectInfoStorage)
     this.config = {
       type: 'OBJECT_3D_SCENE',
       id: actualId,
       sceneId: actualId,
-      childrenIds: this.children.map(child => child.config.id),
     }
     this.data = data
     this.animationMixer = new THREE.AnimationMixer(this.data)

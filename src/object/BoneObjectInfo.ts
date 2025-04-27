@@ -11,7 +11,6 @@ export const boneObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_BONE'),
   id: z.string(),
   sceneId: z.string(),
-  childrenIds: z.array(z.string()),
 })
 
 export type BoneObjectConfig = z.infer<typeof boneObjectConfigSchema>
@@ -26,16 +25,14 @@ export class BoneObjectInfo extends InSceneObjectInfo {
     data: THREE.Bone,
     sceneId: string,
     objectInfoStorage: ObjectInfoStorage,
-    id?: string,
-    children?: InSceneObjectInfo[]
+    id?: string
   ) {
     const actualId = id ?? uuidv4()
-    super(data, actualId, sceneId, objectInfoStorage, children)
+    super(data, actualId, sceneId, objectInfoStorage)
     this.config = {
       type: 'OBJECT_3D_BONE',
       id: actualId,
       sceneId,
-      childrenIds: this.children.map(child => child.config.id),
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()

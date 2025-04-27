@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import { LightObjectInfo } from './LightObjectInfo'
 import { ObjectInfoStorage } from '../ObjectInfoStorage'
-import { InSceneObjectInfo } from '../InSceneObjectInfo'
 
 export class AmbientLightObjectInfo extends LightObjectInfo {
   declare data: THREE.AmbientLight
@@ -9,9 +8,8 @@ export class AmbientLightObjectInfo extends LightObjectInfo {
     data: THREE.AmbientLight,
     sceneId: string,
     objectInfoStorage: ObjectInfoStorage,
-    id?: string,
-    children?: InSceneObjectInfo[]
+    id?: string
   ) {
-    super(data, sceneId, objectInfoStorage, id, children)
+    super(data, sceneId, objectInfoStorage, id)
   }
 }

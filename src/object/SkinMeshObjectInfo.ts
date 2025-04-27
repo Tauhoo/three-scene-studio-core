@@ -12,7 +12,6 @@ export const skinMeshObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_SKIN_MESH'),
   id: z.string(),
   sceneId: z.string(),
-  childrenIds: z.array(z.string()),
 })
 
 export type SkinMeshObjectConfig = z.infer<typeof skinMeshObjectConfigSchema>
@@ -30,16 +29,14 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
     data: THREE.SkinnedMesh,
     sceneId: string,
     objectInfoStorage: ObjectInfoStorage,
-    id?: string,
-    children?: InSceneObjectInfo[]
+    id?: string
   ) {
     const actualId = id ?? uuidv4()
-    super(data, actualId, sceneId, objectInfoStorage, children)
+    super(data, actualId, sceneId, objectInfoStorage)
     this.config = {
       type: 'OBJECT_3D_SKIN_MESH',
       id: actualId,
       sceneId,
-      childrenIds: this.children.map(child => child.config.id),
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()

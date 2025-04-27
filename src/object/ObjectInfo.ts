@@ -83,6 +83,30 @@ export abstract class ObjectInfo {
         objectValue[objectPath[objectPath.length - 1]].z = value[2]
         isUpdated = true
       }
+    } else if (systemValueType === 'COLOR') {
+      if (
+        value.r !== undefined &&
+        objectValue[objectPath[objectPath.length - 1]].r !== value[0]
+      ) {
+        objectValue[objectPath[objectPath.length - 1]].r = value[0]
+        isUpdated = true
+      }
+
+      if (
+        value.g !== undefined &&
+        objectValue[objectPath[objectPath.length - 1]].g !== value[1]
+      ) {
+        objectValue[objectPath[objectPath.length - 1]].g = value[1]
+        isUpdated = true
+      }
+
+      if (
+        value.b !== undefined &&
+        objectValue[objectPath[objectPath.length - 1]].b !== value[2]
+      ) {
+        objectValue[objectPath[objectPath.length - 1]].b = value[2]
+        isUpdated = true
+      }
     } else if (systemValueType === 'VECTOR') {
       const list = objectValue[objectPath[objectPath.length - 1]]
       if (Array.isArray(value)) {
@@ -96,6 +120,12 @@ export abstract class ObjectInfo {
             isUpdated = true
           }
         }
+      }
+    } else if (systemValueType === 'BOOLEAN') {
+      const booleanValue = Boolean(value)
+      if (objectValue[objectPath[objectPath.length - 1]] !== booleanValue) {
+        objectValue[objectPath[objectPath.length - 1]] = booleanValue
+        isUpdated = true
       }
     } else {
       if (objectValue[objectPath[objectPath.length - 1]] !== value) {

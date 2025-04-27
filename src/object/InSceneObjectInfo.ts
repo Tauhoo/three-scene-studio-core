@@ -16,7 +16,6 @@ import { MapTypeDefinition } from './property'
 
 export const inSceneObjectInfoConfigSchema = objectConfigSchema.extend({
   sceneId: z.string(),
-  childrenIds: z.array(z.string()),
 })
 
 export type InSceneObjectInfoConfig = z.infer<
@@ -73,13 +72,12 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
     data: THREE.Object3D,
     id: string,
     sceneId: string,
-    objectInfoStorage: ObjectInfoStorage,
-    children?: InSceneObjectInfo[]
+    objectInfoStorage: ObjectInfoStorage
   ) {
     super()
     data.userData['THREE_SCENE_STUDIO.OBJECT_INFO_ID'] = id
     this.objectInfoStorage = objectInfoStorage
-    this.children = children ?? getChildren(data, sceneId, objectInfoStorage)
+    this.children = getChildren(data, sceneId, objectInfoStorage)
     for (const child of this.children) {
       child.eventDispatcher.addListener('DESTROY', this.onChildrenDestroyed)
       child.eventDispatcher.addListener(

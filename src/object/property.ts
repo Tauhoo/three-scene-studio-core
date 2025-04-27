@@ -16,7 +16,10 @@ export function propertyTypeAndNodeValueTypeCompatible(
   nodeValueType: NodeValueType
 ) {
   if (nodeValueType === 'NUMBER') {
-    if (propertyTypeDefinition.type === 'NUMBER') {
+    if (
+      propertyTypeDefinition.type === 'NUMBER' ||
+      propertyTypeDefinition.type === 'BOOLEAN'
+    ) {
       return successResponse(null)
     } else {
       return errorResponse(
@@ -31,7 +34,8 @@ export function propertyTypeAndNodeValueTypeCompatible(
       propertyTypeDefinition.type === 'VECTOR_3D' ||
       propertyTypeDefinition.type === 'VECTOR_2D' ||
       propertyTypeDefinition.type === 'EULER' ||
-      propertyTypeDefinition.type === 'VECTOR'
+      propertyTypeDefinition.type === 'VECTOR' ||
+      propertyTypeDefinition.type === 'COLOR'
     ) {
       return successResponse(null)
     } else {
@@ -66,6 +70,13 @@ export function getProperyTypeFromMap(
       currentDefinition.type === 'VECTOR_3D' &&
       ['x', 'y', 'z'].includes(path)
     ) {
+      currentDefinition = {
+        type: 'NUMBER',
+      }
+      continue
+    }
+
+    if (currentDefinition.type === 'COLOR' && ['r', 'g', 'b'].includes(path)) {
       currentDefinition = {
         type: 'NUMBER',
       }

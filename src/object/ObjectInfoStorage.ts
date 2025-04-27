@@ -49,25 +49,25 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
 
   createSceneObjectInfo(
     group: THREE.Group,
-    id?: string,
-    children?: InSceneObjectInfo[]
+
+    id?: string
   ) {
     const scene = new THREE.Scene()
     scene.add(...group.children)
     scene.name = group.name
-    const result = new SceneObjectInfo(scene, this, id, children)
+    const result = new SceneObjectInfo(scene, this, id)
     this.set(result.config.id, result)
     return result
   }
 
   createEmptySceneObjectInfo(
     name: string,
-    id?: string,
-    children?: InSceneObjectInfo[]
+
+    id?: string
   ) {
     const scene = new THREE.Scene()
     scene.name = name
-    const result = new SceneObjectInfo(scene, this, id, children)
+    const result = new SceneObjectInfo(scene, this, id)
     this.set(result.config.id, result)
     return result
   }
@@ -93,10 +93,10 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   createBoneObjectInfo(
     bone: THREE.Bone,
     sceneId: string,
-    id?: string,
-    children?: InSceneObjectInfo[]
+
+    id?: string
   ) {
-    const result = new BoneObjectInfo(bone, sceneId, this, id, children)
+    const result = new BoneObjectInfo(bone, sceneId, this, id)
     this.set(result.config.id, result)
     return result
   }
@@ -104,16 +104,10 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   createLightObjectInfo(
     light: THREE.Light,
     sceneId: string,
-    id?: string,
-    children?: InSceneObjectInfo[]
+
+    id?: string
   ) {
-    const result = createLightObjectFromNative(
-      light,
-      this,
-      sceneId,
-      id,
-      children
-    )
+    const result = createLightObjectFromNative(light, this, sceneId, id)
     this.set(result.config.id, result)
     return result
   }
@@ -121,10 +115,10 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   createMeshObjectInfo(
     mesh: THREE.Mesh,
     sceneId: string,
-    id?: string,
-    children?: InSceneObjectInfo[]
+
+    id?: string
   ) {
-    const result = new MeshObjectInfo(mesh, sceneId, this, id, children)
+    const result = new MeshObjectInfo(mesh, sceneId, this, id)
     this.set(result.config.id, result)
     return result
   }
@@ -132,10 +126,10 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   createGroupObjectInfo(
     group: THREE.Object3D,
     sceneId: string,
-    id?: string,
-    children?: InSceneObjectInfo[]
+
+    id?: string
   ) {
-    const result = new GroupObjectInfo(group, sceneId, this, id, children)
+    const result = new GroupObjectInfo(group, sceneId, this, id)
     this.set(result.config.id, result)
     return result
   }
@@ -143,10 +137,10 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   createSkinMeshObjectInfo(
     mesh: THREE.SkinnedMesh,
     sceneId: string,
-    id?: string,
-    children?: InSceneObjectInfo[]
+
+    id?: string
   ) {
-    const result = new SkinMeshObjectInfo(mesh, sceneId, this, id, children)
+    const result = new SkinMeshObjectInfo(mesh, sceneId, this, id)
     this.set(result.config.id, result)
     return result
   }

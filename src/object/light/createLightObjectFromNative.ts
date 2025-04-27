@@ -6,22 +6,30 @@ import { PointLightObjectInfo } from './PointLightObjectInfo'
 import { RectAreaLightObjectInfo } from './RectAreaLightObjectInfo'
 import { SpotLightObjectInfo } from './SpotLightObjectInfo'
 import { ObjectInfoStorage } from '../ObjectInfoStorage'
-import { InSceneObjectInfo } from '../InSceneObjectInfo'
+import { LightObjectInfo } from './LightObjectInfo'
 
 export function createLightObjectFromNative(
   light: THREE.Light,
   objectInfoStorage: ObjectInfoStorage,
   sceneId: string,
-  id?: string,
-  children?: InSceneObjectInfo[]
+  id?: string
 ) {
+  const objectInfoId = light.userData['THREE_SCENE_STUDIO.OBJECT_INFO_ID'] as
+    | string
+    | undefined
+  if (objectInfoId) {
+    const objectInfo = objectInfoStorage.get(objectInfoId)
+    if (objectInfo instanceof LightObjectInfo) {
+      return objectInfo
+    }
+  }
+
   if (light instanceof THREE.AmbientLight) {
     const result = new AmbientLightObjectInfo(
       light,
       sceneId,
       objectInfoStorage,
-      id,
-      children
+      id
     )
     return result
   } else if (light instanceof THREE.DirectionalLight) {
@@ -29,8 +37,7 @@ export function createLightObjectFromNative(
       light,
       sceneId,
       objectInfoStorage,
-      id,
-      children
+      id
     )
     return result
   } else if (light instanceof THREE.HemisphereLight) {
@@ -38,8 +45,7 @@ export function createLightObjectFromNative(
       light,
       sceneId,
       objectInfoStorage,
-      id,
-      children
+      id
     )
     return result
   } else if (light instanceof THREE.PointLight) {
@@ -47,8 +53,7 @@ export function createLightObjectFromNative(
       light,
       sceneId,
       objectInfoStorage,
-      id,
-      children
+      id
     )
     return result
   } else if (light instanceof THREE.RectAreaLight) {
@@ -56,8 +61,7 @@ export function createLightObjectFromNative(
       light,
       sceneId,
       objectInfoStorage,
-      id,
-      children
+      id
     )
     return result
   } else if (light instanceof THREE.SpotLight) {
@@ -65,8 +69,7 @@ export function createLightObjectFromNative(
       light,
       sceneId,
       objectInfoStorage,
-      id,
-      children
+      id
     )
     return result
   } else {

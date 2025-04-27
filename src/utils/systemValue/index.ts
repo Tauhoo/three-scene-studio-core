@@ -19,6 +19,14 @@ export type SystemValueInfo =
       value: number[]
     }
   | {
+      type: 'COLOR'
+      value: THREE.Color
+    }
+  | {
+      type: 'BOOLEAN'
+      value: boolean
+    }
+  | {
       type: 'NUMBER'
       value: number
     }
@@ -53,6 +61,13 @@ export function parseSystemValue(value: any) {
     } as SystemValueInfo)
   }
 
+  if (value instanceof THREE.Color) {
+    return successResponse({
+      type: 'COLOR',
+      value: value,
+    } as SystemValueInfo)
+  }
+
   if (Array.isArray(value)) {
     const items: number[] = []
     for (let item of value) {
@@ -74,6 +89,13 @@ export function parseSystemValue(value: any) {
   if (typeof value === 'number') {
     return successResponse({
       type: 'NUMBER',
+      value: value,
+    } as SystemValueInfo)
+  }
+
+  if (typeof value === 'boolean') {
+    return successResponse({
+      type: 'BOOLEAN',
       value: value,
     } as SystemValueInfo)
   }

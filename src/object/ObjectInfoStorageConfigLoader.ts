@@ -82,14 +82,7 @@ class ObjectInfoStorageConfigLoader {
     config: ObjectInfoStorageConfig
   ) {
     const sceneMap = this.createSceneMap(gltf)
-    const inSceneObjectInfoConfigMap = this.createInSceneObjectInfoConfigMap(
-      config.inSceneObjectInfos
-    )
-    this.loadInSceneObjectInfoList(
-      config.inSceneObjectInfos,
-      sceneMap,
-      inSceneObjectInfoConfigMap
-    )
+    this.loadInSceneObjectInfoList(config.inSceneObjectInfos, sceneMap)
     this.loadCameraObjectInfoList(gltf, config.cameraObjectInfos)
     this.loadAnimationObjectInfoList(gltf, config.animationObjectInfos)
     this.loadUniqueObjectInfoList(
@@ -181,8 +174,7 @@ class ObjectInfoStorageConfigLoader {
 
   loadInSceneObjectInfoList(
     configList: InSceneObjectInfoConfig[],
-    sceneMap: SceneMap,
-    inSceneObjectInfoConfigMap: InSceneObjectInfoConfigMap
+    sceneMap: SceneMap
   ): InSceneObjectInfo[] {
     const inSceneObjectInfos: InSceneObjectInfo[] = []
     for (const inSceneObjectInfo of configList) {
@@ -195,12 +187,7 @@ class ObjectInfoStorageConfigLoader {
         continue
       }
 
-      const result = this.loadObjectInfoConfig(
-        objectData,
-        inSceneObjectInfo,
-        sceneMap,
-        inSceneObjectInfoConfigMap
-      )
+      const result = this.loadObjectInfoConfig(objectData, inSceneObjectInfo)
       if (result === null) continue
       inSceneObjectInfos.push(result)
     }
@@ -209,28 +196,11 @@ class ObjectInfoStorageConfigLoader {
 
   loadObjectInfoConfig(
     objectData: THREE.Object3D,
-    inSceneObjectInfo: InSceneObjectInfoConfig,
-    sceneMap: SceneMap,
-    inSceneObjectInfoConfigMap: InSceneObjectInfoConfigMap
+    inSceneObjectInfo: InSceneObjectInfoConfig
   ): InSceneObjectInfo | null {
     // check if object info already exists
     const objectInfo = this.objectInfoStorage.get(inSceneObjectInfo.id)
     if (objectInfo instanceof InSceneObjectInfo) return objectInfo
-
-    // load children
-    let children: InSceneObjectInfo[] = []
-    if (inSceneObjectInfo.childrenIds.length > 0) {
-      const childrenConfigList: InSceneObjectInfoConfig[] =
-        inSceneObjectInfo.childrenIds
-          .map(id => inSceneObjectInfoConfigMap.get(id))
-          .filter(config => config !== undefined)
-      children = this.loadInSceneObjectInfoList(
-        childrenConfigList,
-        sceneMap,
-        inSceneObjectInfoConfigMap
-      )
-    }
-
     if (
       inSceneObjectInfo.type === 'OBJECT_3D_LIGHT' &&
       objectData instanceof THREE.Light
@@ -240,8 +210,7 @@ class ObjectInfoStorageConfigLoader {
       return this.objectInfoStorage.createLightObjectInfo(
         objectData,
         inSceneObjectInfo.sceneId,
-        inSceneObjectInfo.id,
-        children
+        inSceneObjectInfo.id
       )
     }
 
@@ -254,8 +223,7 @@ class ObjectInfoStorageConfigLoader {
       return this.objectInfoStorage.createBoneObjectInfo(
         objectData,
         inSceneObjectInfo.sceneId,
-        inSceneObjectInfo.id,
-        children
+        inSceneObjectInfo.id
       )
     }
 
@@ -265,8 +233,7 @@ class ObjectInfoStorageConfigLoader {
       return this.objectInfoStorage.createGroupObjectInfo(
         objectData,
         inSceneObjectInfo.sceneId,
-        inSceneObjectInfo.id,
-        children
+        inSceneObjectInfo.id
       )
     }
 
@@ -279,8 +246,7 @@ class ObjectInfoStorageConfigLoader {
       return this.objectInfoStorage.createMeshObjectInfo(
         objectData,
         inSceneObjectInfo.sceneId,
-        inSceneObjectInfo.id,
-        children
+        inSceneObjectInfo.id
       )
     }
 
@@ -294,8 +260,7 @@ class ObjectInfoStorageConfigLoader {
       return this.objectInfoStorage.createSkinMeshObjectInfo(
         objectData,
         inSceneObjectInfo.sceneId,
-        inSceneObjectInfo.id,
-        children
+        inSceneObjectInfo.id
       )
     }
 
@@ -307,8 +272,7 @@ class ObjectInfoStorageConfigLoader {
       if (!parseResult.success) return null
       return this.objectInfoStorage.createSceneObjectInfo(
         objectData,
-        inSceneObjectInfo.id,
-        children
+        inSceneObjectInfo.id
       )
     }
     return null

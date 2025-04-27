@@ -13,28 +13,62 @@ export const getChildren = (
 ): InSceneObjectInfo[] => {
   return data.children
     .map(child => {
+      const objectInfoId = child.userData[
+        'THREE_SCENE_STUDIO.OBJECT_INFO_ID'
+      ] as string | undefined
+      if (objectInfoId) {
+        const objectInfo = objectInfoStorage.get(objectInfoId)
+        if (objectInfo instanceof InSceneObjectInfo) {
+          return objectInfo
+        }
+      }
+
       if (child instanceof THREE.SkinnedMesh) {
-        return objectInfoStorage.createSkinMeshObjectInfo(child, sceneId)
+        return objectInfoStorage.createSkinMeshObjectInfo(
+          child,
+          sceneId,
+          objectInfoId
+        )
       }
 
       if (child instanceof THREE.Mesh) {
-        return objectInfoStorage.createMeshObjectInfo(child, sceneId)
+        return objectInfoStorage.createMeshObjectInfo(
+          child,
+          sceneId,
+          objectInfoId
+        )
       }
 
       if (child instanceof THREE.Group) {
-        return objectInfoStorage.createGroupObjectInfo(child, sceneId)
+        return objectInfoStorage.createGroupObjectInfo(
+          child,
+          sceneId,
+          objectInfoId
+        )
       }
 
       if (child instanceof THREE.Bone) {
-        return objectInfoStorage.createBoneObjectInfo(child, sceneId)
+        return objectInfoStorage.createBoneObjectInfo(
+          child,
+          sceneId,
+          objectInfoId
+        )
       }
 
       if (child instanceof THREE.Light) {
-        return objectInfoStorage.createLightObjectInfo(child, sceneId)
+        return objectInfoStorage.createLightObjectInfo(
+          child,
+          sceneId,
+          objectInfoId
+        )
       }
 
       if (child.type === 'Object3D') {
-        return objectInfoStorage.createGroupObjectInfo(child, sceneId)
+        return objectInfoStorage.createGroupObjectInfo(
+          child,
+          sceneId,
+          objectInfoId
+        )
       }
     })
     .filter(child => child !== undefined)

@@ -11,7 +11,6 @@ export const meshObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_MESH'),
   id: z.string(),
   sceneId: z.string(),
-  childrenIds: z.array(z.string()),
 })
 
 export type MeshObjectConfig = z.infer<typeof meshObjectConfigSchema>
@@ -26,16 +25,14 @@ export class MeshObjectInfo extends InSceneObjectInfo {
     data: THREE.Mesh,
     sceneId: string,
     objectInfoStorage: ObjectInfoStorage,
-    id?: string,
-    children?: InSceneObjectInfo[]
+    id?: string
   ) {
     const actualId = id ?? uuidv4()
-    super(data, actualId, sceneId, objectInfoStorage, children)
+    super(data, actualId, sceneId, objectInfoStorage)
     this.config = {
       type: 'OBJECT_3D_MESH',
       id: actualId,
       sceneId,
-      childrenIds: this.children.map(child => child.config.id),
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()

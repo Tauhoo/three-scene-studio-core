@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import { LightObjectInfo } from './LightObjectInfo'
 import { ObjectInfoStorage } from '../ObjectInfoStorage'
-import { InSceneObjectInfo } from '../InSceneObjectInfo'
 
 export class DirectionalLightObjectInfo extends LightObjectInfo {
   declare data: THREE.DirectionalLight
@@ -9,10 +8,9 @@ export class DirectionalLightObjectInfo extends LightObjectInfo {
     data: THREE.DirectionalLight,
     sceneId: string,
     objectInfoStorage: ObjectInfoStorage,
-    id?: string,
-    children?: InSceneObjectInfo[]
+    id?: string
   ) {
-    super(data, sceneId, objectInfoStorage, id, children)
+    super(data, sceneId, objectInfoStorage, id)
   }
 
   helper(value: boolean) {
