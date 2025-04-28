@@ -26,6 +26,7 @@ import { CameraSwitcherInfo } from './CameraSwitcherObjectInfo'
 import { SceneSwitcherInfo } from './SceneSwitcherObjectInfo'
 import Switcher from '../utils/Switcher'
 import { parse, predictNodeValueType } from '../utils'
+import { MaterialObjectInfo } from './material'
 
 type SceneMap = Map<string, Map<string, THREE.Object3D>>
 type InSceneObjectInfoConfigMap = Map<string, InSceneObjectInfoConfig>
@@ -82,6 +83,7 @@ class ObjectInfoStorageConfigLoader {
     config: ObjectInfoStorageConfig
   ) {
     const sceneMap = this.createSceneMap(gltf)
+    this.loadMaterialObjectInfoList(gltf, config.materialObjectInfos)
     this.loadInSceneObjectInfoList(config.inSceneObjectInfos, sceneMap)
     this.loadCameraObjectInfoList(gltf, config.cameraObjectInfos)
     this.loadAnimationObjectInfoList(gltf, config.animationObjectInfos)
@@ -90,6 +92,15 @@ class ObjectInfoStorageConfigLoader {
       sceneSwitcher,
       config.uniqueObjectInfos
     )
+  }
+
+  // TODO: Implement this
+  loadMaterialObjectInfoList(
+    gltf: GLTF,
+    materialObjectInfoConfigList: ObjectConfig[]
+  ): MaterialObjectInfo[] {
+    const materialObjectInfos: MaterialObjectInfo[] = []
+    return materialObjectInfos
   }
 
   loadCameraObjectInfoList(

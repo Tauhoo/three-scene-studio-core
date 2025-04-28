@@ -27,8 +27,10 @@ import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 import { FormulaNode } from '../utils'
 import ObjectInfoStorageConfigLoader from './ObjectInfoStorageConfigLoader'
 import { Clock } from '../Clock'
+import { MaterialObjectInfo } from './material'
 
 export const objectInfoStorageConfigSchema = z.object({
+  materialObjectInfos: z.array(objectConfigSchema),
   inSceneObjectInfos: z.array(inSceneObjectInfoConfigSchema),
   uniqueObjectInfos: z.object({
     cameraSwitcher: objectConfigSchema.nullable(),
@@ -185,6 +187,10 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     this.set(objectInfo.config.id, objectInfo)
   }
 
+  getMaterialObjectInfos() {
+    return this.getAll().filter(value => value instanceof MaterialObjectInfo)
+  }
+
   getSceneSwitcherObjectInfo(): SceneSwitcherInfo | null {
     const sceneSwitcherInfos = this.getAll().filter(
       value => value instanceof SceneSwitcherInfo
@@ -257,6 +263,9 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     const cameraSwitcherObjectInfo = this.getCameraSwitcherObjectInfo()
     const sceneSwitcherObjectInfo = this.getSceneSwitcherObjectInfo()
     const result = {
+      materialObjectInfos: this.getMaterialObjectInfos().map(objectInfo =>
+        objectInfo.serialize()
+      ),
       inSceneObjectInfos: this.getInSceneObjectInfos().map(objectInfo =>
         objectInfo.serialize()
       ),
