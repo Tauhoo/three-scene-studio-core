@@ -55,6 +55,7 @@ export class Loader {
     })
 
     const gltf = await loader.loadAsync(url)
+
     if (json === null) return this.loadGLTF(gltf)
 
     // update camera matrix

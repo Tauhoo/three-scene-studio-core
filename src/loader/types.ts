@@ -71,6 +71,13 @@ export type BoneLoadedInfo = {
   children: InSceneLoadedInfo[]
 }
 
+export type MaterialLoadedInfo = {
+  id: string
+  type: 'MATERIAL'
+  name: string
+  data: THREE.Material
+}
+
 export const loadedInfoType = [
   'ANIMATION',
   'CAMERA',
@@ -80,6 +87,7 @@ export const loadedInfoType = [
   'LIGHT',
   'SKIN_MESH',
   'BONE',
+  'MATERIAL',
 ] as const
 
 export type LoadedInfoType = (typeof loadedInfoType)[number]

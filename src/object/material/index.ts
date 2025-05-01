@@ -1,5 +1,7 @@
 export * from './MeshBasicMaterialObjectInfo'
 export * from './MeshStandardMaterialObjectInfo'
 export * from './MeshPhysicalMaterialObjectInfo'
+export * from './MeshDefaultStandardMaterialObjectInfo'
 export * from './MaterialObjectInfo'
 export * from './createMaterialObjectFromNative'
+export * from './constant'

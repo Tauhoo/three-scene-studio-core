@@ -11,6 +11,7 @@ import {
   AnimationLoadedInfo,
   CameraLoadedInfo,
   InSceneLoadedInfo,
+  MaterialLoadedInfo,
   SceneLoadedInfo,
 } from './types'
 export * from './types'
@@ -26,6 +27,7 @@ export type GLTFLoadResult = {
   animations: AnimationLoadedInfo[]
   scenes: SceneLoadedInfo[]
   cameras: CameraLoadedInfo[]
+  materials: MaterialLoadedInfo[]
 }
 
 export const loadGltfFile = (url: string, options: GLTFLoaderOptions) => {
@@ -42,14 +44,35 @@ export const loadGltfFile = (url: string, options: GLTFLoaderOptions) => {
     loader.load(
       url,
       gltf => {
+        const materialSet: Set<THREE.Material> = new Set()
+        for (const scene of gltf.scenes) {
+          scene.traverse(child => {
+            if (child instanceof THREE.Mesh) {
+              if (Array.isArray(child.material)) {
+                for (const material of child.material) {
+                  materialSet.add(material)
+                }
+              } else {
+                materialSet.add(child.material)
+              }
+            }
+          })
+        }
+
         const result: GLTFLoadResult = {
+          materials: [...materialSet].map(material => ({
+            id: uuidv4(),
+            type: 'MATERIAL',
+            name: material.name,
+            data: material,
+          })),
           animations: gltf.animations.map(animation => ({
             id: uuidv4(),
             type: 'ANIMATION',
             name: animation.name,
             data: animation,
           })),
-          scenes: gltf.scenes.map(createSceneLoadedInfo),
+          scenes: gltf.scenes.map(value => createSceneLoadedInfo(value)),
           cameras: gltf.cameras.map(camera => ({
             id: uuidv4(),
             type: 'CAMERA',

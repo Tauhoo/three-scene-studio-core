@@ -24,10 +24,15 @@ import {
 } from './InSceneObjectInfo'
 import { z } from 'zod'
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
-import { FormulaNode } from '../utils'
+import { errorResponse, FormulaNode } from '../utils'
 import ObjectInfoStorageConfigLoader from './ObjectInfoStorageConfigLoader'
 import { Clock } from '../Clock'
-import { MaterialObjectInfo } from './material'
+import {
+  createMaterialObjectInfoFromNative,
+  defaultMaterial,
+  MaterialObjectInfo,
+  MeshDefaultStandardMaterialObjectInfo,
+} from './material'
 
 export const objectInfoStorageConfigSchema = z.object({
   materialObjectInfos: z.array(objectConfigSchema),
@@ -179,6 +184,37 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     id?: string
   ) {
     const result = new FormulaObjectInfo(this.clock, formulaNode, initValue, id)
+    this.set(result.config.id, result)
+    return result
+  }
+
+  createMaterialObjectInfo(material: THREE.Material, id?: string) {
+    if (material === defaultMaterial) {
+      throw errorResponse(
+        'RECREATE_DEFAULT_MATERIAL',
+        'Cannot create default material'
+      )
+    }
+    const result = createMaterialObjectInfoFromNative(material, id)
+    this.set(result.config.id, result)
+    return result
+  }
+
+  createDefaultStandardMaterialObjectInfo(id?: string) {
+    if (
+      this.getMaterialObjectInfos().some(
+        value => value.data === defaultMaterial
+      )
+    ) {
+      throw errorResponse(
+        'RECREATE_DEFAULT_MATERIAL',
+        'Cannot create default material'
+      )
+    }
+    const result = new MeshDefaultStandardMaterialObjectInfo(
+      defaultMaterial,
+      id
+    )
     this.set(result.config.id, result)
     return result
   }

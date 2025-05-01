@@ -6,19 +6,8 @@ import { MeshPhysicalMaterialObjectInfo } from './MeshPhysicalMaterialObjectInfo
 
 export function createMaterialObjectInfoFromNative(
   material: THREE.Material,
-  objectInfoStorage: ObjectInfoStorage,
   id?: string
 ) {
-  const objectInfoId = material.userData[
-    'THREE_SCENE_STUDIO.OBJECT_INFO_ID'
-  ] as string | undefined
-  if (objectInfoId !== undefined) {
-    const objectInfo = objectInfoStorage.get(objectInfoId)
-    if (objectInfo !== null) {
-      return objectInfo
-    }
-  }
-
   if (material instanceof THREE.MeshPhysicalMaterial) {
     const result = new MeshPhysicalMaterialObjectInfo(material, id)
     return result

@@ -6,6 +6,8 @@ import { ObjectInfoStorage } from './ObjectInfoStorage'
 import EventDispatcher from '../utils/EventDispatcher'
 import { ObjectPath } from './ObjectInfo'
 import { SystemValueType } from '../utils'
+import { MaterialObjectInfo } from './material'
+import { getMaterialObjectInfos } from './material/getMeshMaterialObject'
 
 export const meshObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_MESH'),
@@ -20,6 +22,7 @@ export class MeshObjectInfo extends InSceneObjectInfo {
   readonly data: THREE.Mesh
   readonly eventDispatcher: EventDispatcher<InSceneObjectInfoEvent>
   private boxHelper: THREE.BoxHelper | null = null
+  readonly material: MaterialObjectInfo | null | (MaterialObjectInfo | null)[]
 
   constructor(
     data: THREE.Mesh,
@@ -29,6 +32,9 @@ export class MeshObjectInfo extends InSceneObjectInfo {
   ) {
     const actualId = id ?? uuidv4()
     super(data, actualId, sceneId, objectInfoStorage)
+
+    this.material = getMaterialObjectInfos(data, objectInfoStorage)
+
     this.config = {
       type: 'OBJECT_3D_MESH',
       id: actualId,

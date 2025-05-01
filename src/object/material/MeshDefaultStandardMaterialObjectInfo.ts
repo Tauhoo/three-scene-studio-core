@@ -1,11 +1,9 @@
 import * as THREE from 'three'
-import {
-  MaterialObjectInfo,
-  materialObjectInfoPropertyTypeDefinition,
-} from './MaterialObjectInfo'
+import { materialObjectInfoPropertyTypeDefinition } from './MaterialObjectInfo'
 import { MapTypeDefinition } from '../property'
+import { MeshStandardMaterialObjectInfo } from './MeshStandardMaterialObjectInfo'
 
-export const meshStandardMaterialObjectInfoPropertyTypeDefinition: MapTypeDefinition =
+export const meshDefaultStandardMaterialObjectInfoPropertyTypeDefinition: MapTypeDefinition =
   {
     type: 'MAP',
     map: {
@@ -44,11 +42,12 @@ export const meshStandardMaterialObjectInfoPropertyTypeDefinition: MapTypeDefini
     },
   }
 
-export class MeshStandardMaterialObjectInfo extends MaterialObjectInfo {
+export class MeshDefaultStandardMaterialObjectInfo extends MeshStandardMaterialObjectInfo {
   propertyTypeDefinition: MapTypeDefinition =
-    meshStandardMaterialObjectInfoPropertyTypeDefinition
+    meshDefaultStandardMaterialObjectInfoPropertyTypeDefinition
 
   constructor(data: THREE.MeshStandardMaterial, id?: string) {
+    data.userData['THREE_SCENE_STUDIO.DEFAULT_MATERIAL'] = true
     super(data, id)
   }
 }

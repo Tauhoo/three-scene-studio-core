@@ -82,6 +82,7 @@ export class ThreeSceneStudioManager {
     this.objectInfoManager.objectInfoStorage.createCameraSwitcherObjectInfo(
       this.cameraSwitcher
     )
+    this.objectInfoManager.objectInfoStorage.createDefaultStandardMaterialObjectInfo()
 
     // setup system variables
     this.variableManager.createContainerHeightVariable('CONTAINER_HEIGHT', 'ch')
