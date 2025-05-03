@@ -34,7 +34,6 @@ export class MeshObjectInfo extends InSceneObjectInfo {
     super(data, actualId, sceneId, objectInfoStorage)
 
     this.material = getMaterialObjectInfos(data, objectInfoStorage)
-
     this.config = {
       type: 'OBJECT_3D_MESH',
       id: actualId,

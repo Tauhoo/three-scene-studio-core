@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { ObjectInfoStorage } from '../ObjectInfoStorage'
 import { MeshStandardMaterialObjectInfo } from './MeshStandardMaterialObjectInfo'
 import { MeshBasicMaterialObjectInfo } from './MeshBasicMaterialObjectInfo'
 import { MeshPhysicalMaterialObjectInfo } from './MeshPhysicalMaterialObjectInfo'

@@ -195,6 +195,7 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
         'Cannot create default material'
       )
     }
+
     const result = createMaterialObjectInfoFromNative(material, id)
     this.set(result.config.id, result)
     return result

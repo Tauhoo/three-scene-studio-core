@@ -79,8 +79,6 @@ export class Loader {
   }
 
   loadGLTF(gltf: GLTF) {
-    console.log('DEBUG: gltf', gltf)
-
     const dummySceneName = gltf.userData['THREE_SCENE_STUDIO.DUMMY_SCENE_NAME']
     const config = gltf.userData['THREE_SCENE_STUDIO.CONFIG']
     const extraData = gltf.userData['THREE_SCENE_STUDIO.EXTRA_DATA']

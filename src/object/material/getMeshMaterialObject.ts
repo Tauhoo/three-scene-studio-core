@@ -11,7 +11,6 @@ export const getMaterialObjectInfos = (
   for (const materialInfo of objectInfoStorage.getMaterialObjectInfos()) {
     materialMap.set(materialInfo.data, materialInfo)
   }
-
   if (Array.isArray(mesh.material)) {
     // list of materials
     let result: (MaterialObjectInfo | null)[] = []
@@ -22,7 +21,7 @@ export const getMaterialObjectInfos = (
       }
 
       const materialInfo = materialMap.get(material)
-      if (materialInfo) {
+      if (materialInfo !== undefined) {
         result.push(materialInfo)
       } else {
         result.push(objectInfoStorage.createMaterialObjectInfo(material))
@@ -35,7 +34,7 @@ export const getMaterialObjectInfos = (
     } else {
       // single material
       const materialInfo = materialMap.get(mesh.material)
-      if (materialInfo) {
+      if (materialInfo !== undefined) {
         return materialInfo
       } else {
         return objectInfoStorage.createMaterialObjectInfo(mesh.material)
