@@ -85,7 +85,7 @@ export abstract class ObjectInfo {
       }
     } else if (systemValueType === 'COLOR') {
       if (
-        value.r !== undefined &&
+        value[0] !== undefined &&
         objectValue[objectPath[objectPath.length - 1]].r !== value[0]
       ) {
         objectValue[objectPath[objectPath.length - 1]].r = value[0]
@@ -93,7 +93,7 @@ export abstract class ObjectInfo {
       }
 
       if (
-        value.g !== undefined &&
+        value[1] !== undefined &&
         objectValue[objectPath[objectPath.length - 1]].g !== value[1]
       ) {
         objectValue[objectPath[objectPath.length - 1]].g = value[1]
@@ -101,7 +101,7 @@ export abstract class ObjectInfo {
       }
 
       if (
-        value.b !== undefined &&
+        value[2] !== undefined &&
         objectValue[objectPath[objectPath.length - 1]].b !== value[2]
       ) {
         objectValue[objectPath[objectPath.length - 1]].b = value[2]

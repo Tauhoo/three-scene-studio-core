@@ -111,6 +111,12 @@ export function parseSystemValue(value: any) {
 }
 
 export function systemValueToString(value: any) {
+  if (value instanceof THREE.Color) {
+    return successResponse(
+      '[' + value.r + ', ' + value.g + ', ' + value.b + ']'
+    )
+  }
+
   if (value instanceof THREE.Vector3) {
     return successResponse('[' + value.toArray().join(', ') + ']')
   }
@@ -146,6 +152,10 @@ export function systemValueToString(value: any) {
 
   if (typeof value === 'string') {
     return successResponse(value)
+  }
+
+  if (typeof value === 'boolean') {
+    return successResponse(value ? '1' : '0')
   }
 
   return errorResponse('INVALID_SYSTEM_VALUE', 'non of system value found')
