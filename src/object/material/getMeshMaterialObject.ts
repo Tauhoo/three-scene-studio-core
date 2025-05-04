@@ -13,10 +13,10 @@ export const getMaterialObjectInfos = (
   }
   if (Array.isArray(mesh.material)) {
     // list of materials
-    let result: (MaterialObjectInfo | null)[] = []
+    let result: MaterialObjectInfo[] = []
     for (const material of mesh.material) {
       if (material === defaultMaterial) {
-        result.push(null)
+        result.push(objectInfoStorage.getDefaultStandardMaterialObjectInfo())
         continue
       }
 
@@ -30,7 +30,7 @@ export const getMaterialObjectInfos = (
     return result
   } else {
     if (mesh.material === defaultMaterial) {
-      return null
+      return objectInfoStorage.getDefaultStandardMaterialObjectInfo()
     } else {
       // single material
       const materialInfo = materialMap.get(mesh.material)

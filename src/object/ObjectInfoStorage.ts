@@ -11,7 +11,7 @@ import { objectConfigSchema, ObjectInfo } from './ObjectInfo'
 import { SceneObjectInfo } from './SceneObjectInfo'
 import { BoneObjectInfo } from './BoneObjectInfo'
 import { createLightObjectFromNative } from './light'
-import { MeshObjectInfo } from './MeshObjectInfo'
+import { MaterialRouterIds, MeshObjectInfo } from './MeshObjectInfo'
 import { GroupObjectInfo } from './GroupObjectInfo'
 import { SkinMeshObjectInfo } from './SkinMeshObjectInfo'
 import { SceneSwitcherInfo } from './SceneSwitcherObjectInfo'
@@ -97,24 +97,20 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     return result
   }
 
-  createBoneObjectInfo(
-    bone: THREE.Bone,
-    sceneId: string,
-
-    id?: string
-  ) {
+  createBoneObjectInfo(bone: THREE.Bone, sceneId: string, id?: string) {
     const result = new BoneObjectInfo(bone, sceneId, this, id)
     this.set(result.config.id, result)
     return result
   }
 
-  createLightObjectInfo(
-    light: THREE.Light,
-    sceneId: string,
-
-    id?: string
-  ) {
+  createLightObjectInfo(light: THREE.Light, sceneId: string, id?: string) {
     const result = createLightObjectFromNative(light, this, sceneId, id)
+    this.set(result.config.id, result)
+    return result
+  }
+
+  createGroupObjectInfo(group: THREE.Object3D, sceneId: string, id?: string) {
+    const result = new GroupObjectInfo(group, sceneId, this, id)
     this.set(result.config.id, result)
     return result
   }
@@ -122,21 +118,16 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   createMeshObjectInfo(
     mesh: THREE.Mesh,
     sceneId: string,
-
+    materialRouterIds: MaterialRouterIds,
     id?: string
   ) {
-    const result = new MeshObjectInfo(mesh, sceneId, this, id)
-    this.set(result.config.id, result)
-    return result
-  }
-
-  createGroupObjectInfo(
-    group: THREE.Object3D,
-    sceneId: string,
-
-    id?: string
-  ) {
-    const result = new GroupObjectInfo(group, sceneId, this, id)
+    const result = new MeshObjectInfo(
+      mesh,
+      sceneId,
+      materialRouterIds,
+      this,
+      id
+    )
     this.set(result.config.id, result)
     return result
   }
@@ -144,10 +135,16 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   createSkinMeshObjectInfo(
     mesh: THREE.SkinnedMesh,
     sceneId: string,
-
+    materialRouterIds: MaterialRouterIds,
     id?: string
   ) {
-    const result = new SkinMeshObjectInfo(mesh, sceneId, this, id)
+    const result = new SkinMeshObjectInfo(
+      mesh,
+      sceneId,
+      materialRouterIds,
+      this,
+      id
+    )
     this.set(result.config.id, result)
     return result
   }
@@ -202,22 +199,24 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   }
 
   createDefaultStandardMaterialObjectInfo(id?: string) {
-    if (
-      this.getMaterialObjectInfos().some(
-        value => value.data === defaultMaterial
-      )
-    ) {
-      throw errorResponse(
-        'RECREATE_DEFAULT_MATERIAL',
-        'Cannot create default material'
-      )
-    }
+    const findResult = this.getMaterialObjectInfos().find(
+      value => value.data === defaultMaterial
+    )
+    if (findResult !== undefined) return findResult
     const result = new MeshDefaultStandardMaterialObjectInfo(
       defaultMaterial,
       id
     )
     this.set(result.config.id, result)
     return result
+  }
+
+  getDefaultStandardMaterialObjectInfo() {
+    return (
+      this.getMaterialObjectInfos().find(
+        value => value.data === defaultMaterial
+      ) ?? this.createDefaultStandardMaterialObjectInfo()
+    )
   }
 
   setObjectInfo(objectInfo: ObjectInfo) {

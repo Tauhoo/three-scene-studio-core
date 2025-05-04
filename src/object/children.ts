@@ -27,6 +27,9 @@ export const getChildren = (
         return objectInfoStorage.createSkinMeshObjectInfo(
           child,
           sceneId,
+          Array.isArray(child.material)
+            ? Array(child.material.length).fill(null)
+            : null,
           objectInfoId
         )
       }
@@ -35,6 +38,9 @@ export const getChildren = (
         return objectInfoStorage.createMeshObjectInfo(
           child,
           sceneId,
+          Array.isArray(child.material)
+            ? Array(child.material.length).fill(null)
+            : null,
           objectInfoId
         )
       }
