@@ -1,2 +1,2 @@
-export * from './MaterialRouter'
+export * from './MaterialRouterObjectInfo'
 export * from './MaterialRouterData'

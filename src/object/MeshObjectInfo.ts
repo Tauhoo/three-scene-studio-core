@@ -10,19 +10,20 @@ import { getMaterialObjectInfos } from './material/getMeshMaterialObject'
 import {
   getMeshMaterialInfo,
   MeshMaterialInfo,
-  materialRouterIdsSchema,
+  MaterialRouterObjectInfoIdsSchema,
 } from './material/getMaterialInfo'
-import MaterialRouter from './material/MaterialRouter/MaterialRouter'
+import { MaterialRouterObjectInfo } from './material/MaterialRouter'
 
 export const meshObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_MESH'),
   id: z.string(),
   sceneId: z.string(),
-  materialRouterIds: materialRouterIdsSchema,
+  MaterialRouterObjectInfoIds: MaterialRouterObjectInfoIdsSchema,
 })
 
 export type MeshObjectConfig = z.infer<typeof meshObjectConfigSchema>
-export type MaterialRouterIds = MeshObjectConfig['materialRouterIds']
+export type MaterialRouterObjectInfoIds =
+  MeshObjectConfig['MaterialRouterObjectInfoIds']
 
 export class MeshObjectInfo extends InSceneObjectInfo {
   readonly config: MeshObjectConfig
@@ -34,7 +35,7 @@ export class MeshObjectInfo extends InSceneObjectInfo {
   constructor(
     data: THREE.Mesh,
     sceneId: string,
-    materialRouterIds: MaterialRouterIds,
+    materialRouterObjectInfoIds: MaterialRouterObjectInfoIds,
     objectInfoStorage: ObjectInfoStorage,
     id?: string
   ) {
@@ -44,24 +45,27 @@ export class MeshObjectInfo extends InSceneObjectInfo {
     const materialObjectInfos = getMaterialObjectInfos(data, objectInfoStorage)
     const meshMaterialInfoResult = getMeshMaterialInfo(
       materialObjectInfos,
-      materialRouterIds,
+      materialRouterObjectInfoIds,
       objectInfoStorage
     )
 
-    let newMaterialRouterIds: MaterialRouterIds
+    let newMaterialRouterObjectInfoIds: MaterialRouterObjectInfoIds
     if (meshMaterialInfoResult.status === 'ERROR') {
-      newMaterialRouterIds = Array.isArray(materialObjectInfos)
+      newMaterialRouterObjectInfoIds = Array.isArray(materialObjectInfos)
         ? Array(materialObjectInfos.length).fill(null)
         : null
       this.material = materialObjectInfos
     } else {
       if (Array.isArray(meshMaterialInfoResult.data)) {
-        newMaterialRouterIds = meshMaterialInfoResult.data.map(material =>
-          material instanceof MaterialRouter ? material.config.id : null
+        newMaterialRouterObjectInfoIds = meshMaterialInfoResult.data.map(
+          material =>
+            material instanceof MaterialRouterObjectInfo
+              ? material.config.id
+              : null
         )
       } else {
-        newMaterialRouterIds =
-          meshMaterialInfoResult.data instanceof MaterialRouter
+        newMaterialRouterObjectInfoIds =
+          meshMaterialInfoResult.data instanceof MaterialRouterObjectInfo
             ? meshMaterialInfoResult.data.config.id
             : null
       }
@@ -72,7 +76,7 @@ export class MeshObjectInfo extends InSceneObjectInfo {
       type: 'OBJECT_3D_MESH',
       id: actualId,
       sceneId,
-      materialRouterIds: newMaterialRouterIds,
+      MaterialRouterObjectInfoIds: newMaterialRouterObjectInfoIds,
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()

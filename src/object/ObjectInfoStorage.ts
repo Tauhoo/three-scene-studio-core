@@ -11,7 +11,7 @@ import { objectConfigSchema, ObjectInfo } from './ObjectInfo'
 import { SceneObjectInfo } from './SceneObjectInfo'
 import { BoneObjectInfo } from './BoneObjectInfo'
 import { createLightObjectFromNative } from './light'
-import { MaterialRouterIds, MeshObjectInfo } from './MeshObjectInfo'
+import { MaterialRouterObjectInfoIds, MeshObjectInfo } from './MeshObjectInfo'
 import { GroupObjectInfo } from './GroupObjectInfo'
 import { SkinMeshObjectInfo } from './SkinMeshObjectInfo'
 import { SceneSwitcherInfo } from './SceneSwitcherObjectInfo'
@@ -31,6 +31,7 @@ import {
   createMaterialObjectInfoFromNative,
   defaultMaterial,
   MaterialObjectInfo,
+  MaterialRouterObjectInfo,
   MeshDefaultStandardMaterialObjectInfo,
 } from './material'
 
@@ -118,13 +119,13 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   createMeshObjectInfo(
     mesh: THREE.Mesh,
     sceneId: string,
-    materialRouterIds: MaterialRouterIds,
+    MaterialRouterObjectInfoIds: MaterialRouterObjectInfoIds,
     id?: string
   ) {
     const result = new MeshObjectInfo(
       mesh,
       sceneId,
-      materialRouterIds,
+      MaterialRouterObjectInfoIds,
       this,
       id
     )
@@ -135,13 +136,13 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   createSkinMeshObjectInfo(
     mesh: THREE.SkinnedMesh,
     sceneId: string,
-    materialRouterIds: MaterialRouterIds,
+    MaterialRouterObjectInfoIds: MaterialRouterObjectInfoIds,
     id?: string
   ) {
     const result = new SkinMeshObjectInfo(
       mesh,
       sceneId,
-      materialRouterIds,
+      MaterialRouterObjectInfoIds,
       this,
       id
     )
@@ -211,11 +212,27 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     return result
   }
 
+  createMaterialRouterObjectInfo(
+    name: string,
+    materials: MaterialObjectInfo[],
+    id?: string
+  ) {
+    const result = new MaterialRouterObjectInfo(name, materials, id)
+    this.set(result.config.id, result)
+    return result
+  }
+
   getDefaultStandardMaterialObjectInfo() {
     return (
       this.getMaterialObjectInfos().find(
         value => value.data === defaultMaterial
       ) ?? this.createDefaultStandardMaterialObjectInfo()
+    )
+  }
+
+  getMaterialRouterObjectInfos() {
+    return this.getAll().filter(
+      value => value instanceof MaterialRouterObjectInfo
     )
   }
 

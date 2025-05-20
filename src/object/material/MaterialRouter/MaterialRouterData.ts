@@ -1,7 +1,7 @@
 import Switcher from '../../../utils/Switcher'
 import { MaterialObjectInfo } from '../MaterialObjectInfo'
 
-class MaterialRouterData {
+export class MaterialRouterData {
   name: string
   switcher: Switcher<MaterialObjectInfo>
   constructor(name: string, data: MaterialObjectInfo[]) {

@@ -7,20 +7,20 @@ import EventDispatcher, { EventPacket } from '../utils/EventDispatcher'
 import { ObjectInfo, ObjectPath } from './ObjectInfo'
 import { BoneObjectInfo } from './BoneObjectInfo'
 import { SystemValueType } from '../utils'
-import { MaterialRouterIds } from './MeshObjectInfo'
+import { MaterialRouterObjectInfoIds } from './MeshObjectInfo'
 import { MeshMaterialInfo } from './material/getMaterialInfo'
 import {
   getMeshMaterialInfo,
-  materialRouterIdsSchema,
+  MaterialRouterObjectInfoIdsSchema,
 } from './material/getMaterialInfo'
 import { getMaterialObjectInfos } from './material/getMeshMaterialObject'
-import MaterialRouter from './material/MaterialRouter/MaterialRouter'
+import { MaterialRouterObjectInfo } from './material/MaterialRouter'
 
 export const skinMeshObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_SKIN_MESH'),
   id: z.string(),
   sceneId: z.string(),
-  materialRouterIds: materialRouterIdsSchema,
+  MaterialRouterObjectInfoIds: MaterialRouterObjectInfoIdsSchema,
 })
 
 export type SkinMeshObjectConfig = z.infer<typeof skinMeshObjectConfigSchema>
@@ -38,7 +38,7 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
   constructor(
     data: THREE.SkinnedMesh,
     sceneId: string,
-    materialRouterIds: MaterialRouterIds,
+    materialRouterObjectInfoIds: MaterialRouterObjectInfoIds,
     objectInfoStorage: ObjectInfoStorage,
     id?: string
   ) {
@@ -48,24 +48,27 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
     const materialObjectInfos = getMaterialObjectInfos(data, objectInfoStorage)
     const meshMaterialInfoResult = getMeshMaterialInfo(
       materialObjectInfos,
-      materialRouterIds,
+      materialRouterObjectInfoIds,
       objectInfoStorage
     )
 
-    let newMaterialRouterIds: MaterialRouterIds
+    let newMaterialRouterObjectInfoIds: MaterialRouterObjectInfoIds
     if (meshMaterialInfoResult.status === 'ERROR') {
-      newMaterialRouterIds = Array.isArray(materialObjectInfos)
+      newMaterialRouterObjectInfoIds = Array.isArray(materialObjectInfos)
         ? Array(materialObjectInfos.length).fill(null)
         : null
       this.material = materialObjectInfos
     } else {
       if (Array.isArray(meshMaterialInfoResult.data)) {
-        newMaterialRouterIds = meshMaterialInfoResult.data.map(material =>
-          material instanceof MaterialRouter ? material.config.id : null
+        newMaterialRouterObjectInfoIds = meshMaterialInfoResult.data.map(
+          material =>
+            material instanceof MaterialRouterObjectInfo
+              ? material.config.id
+              : null
         )
       } else {
-        newMaterialRouterIds =
-          meshMaterialInfoResult.data instanceof MaterialRouter
+        newMaterialRouterObjectInfoIds =
+          meshMaterialInfoResult.data instanceof MaterialRouterObjectInfo
             ? meshMaterialInfoResult.data.config.id
             : null
       }
@@ -76,7 +79,7 @@ export class SkinMeshObjectInfo extends InSceneObjectInfo {
       type: 'OBJECT_3D_SKIN_MESH',
       id: actualId,
       sceneId,
-      materialRouterIds: newMaterialRouterIds,
+      MaterialRouterObjectInfoIds: newMaterialRouterObjectInfoIds,
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()
