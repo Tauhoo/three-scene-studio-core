@@ -217,7 +217,7 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     materials: MaterialObjectInfo[],
     id?: string
   ) {
-    const result = new MaterialRouterObjectInfo(name, materials, id)
+    const result = new MaterialRouterObjectInfo(name, materials, this, id)
     this.set(result.config.id, result)
     return result
   }

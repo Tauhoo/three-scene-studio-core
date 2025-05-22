@@ -5,6 +5,7 @@ import { ObjectInfo, ObjectInfoEvent } from '../../ObjectInfo'
 import EventDispatcher from '../../../utils/EventDispatcher'
 import { MeshDefaultStandardMaterialObjectInfo } from '../MeshDefaultStandardMaterialObjectInfo'
 import { MaterialRouterData } from './MaterialRouterData'
+import { ObjectInfoStorage } from '../../ObjectInfoStorage'
 
 export const MaterialRouterObjectInfoConfigSchema = z.object({
   type: z.literal('MATERIAL_ROUTER'),
@@ -21,7 +22,14 @@ export class MaterialRouterObjectInfo extends ObjectInfo {
   eventDispatcher: EventDispatcher<ObjectInfoEvent>
   config: MaterialRouterObjectInfoConfig
   data: MaterialRouterData
-  constructor(name: string, data: MaterialObjectInfo[], id?: string) {
+  objectInfoStorage: ObjectInfoStorage
+
+  constructor(
+    name: string,
+    data: MaterialObjectInfo[],
+    objectInfoStorage: ObjectInfoStorage,
+    id?: string
+  ) {
     super()
     this.config = {
       type: 'MATERIAL_ROUTER',
@@ -33,7 +41,13 @@ export class MaterialRouterObjectInfo extends ObjectInfo {
           : material.config.id
       ),
     }
-    this.data = new MaterialRouterData(name, data)
+    this.objectInfoStorage = objectInfoStorage
+    this.data = new MaterialRouterData(name, data, this.objectInfoStorage)
     this.eventDispatcher = new EventDispatcher()
+  }
+
+  destroy() {
+    this.data.destroy()
+    super.destroy()
   }
 }

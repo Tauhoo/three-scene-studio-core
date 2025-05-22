@@ -4,7 +4,7 @@ import { InSceneObjectInfo, InSceneObjectInfoEvent } from './InSceneObjectInfo'
 import { v4 as uuidv4 } from 'uuid'
 import { ObjectInfoStorage } from './ObjectInfoStorage'
 import EventDispatcher from '../utils/EventDispatcher'
-import { ObjectPath } from './ObjectInfo'
+import { ObjectInfo, ObjectPath } from './ObjectInfo'
 import { SystemValueType } from '../utils'
 import { getMaterialObjectInfos } from './material/getMeshMaterialObject'
 import {
@@ -13,24 +13,25 @@ import {
   MaterialRouterObjectInfoIdsSchema,
 } from './material/getMaterialInfo'
 import { MaterialRouterObjectInfo } from './material/MaterialRouter'
+import { MaterialObjectInfo } from './material/MaterialObjectInfo'
 
 export const meshObjectConfigSchema = z.object({
   type: z.literal('OBJECT_3D_MESH'),
   id: z.string(),
   sceneId: z.string(),
-  MaterialRouterObjectInfoIds: MaterialRouterObjectInfoIdsSchema,
+  materialRouterObjectInfoIds: MaterialRouterObjectInfoIdsSchema,
 })
 
 export type MeshObjectConfig = z.infer<typeof meshObjectConfigSchema>
 export type MaterialRouterObjectInfoIds =
-  MeshObjectConfig['MaterialRouterObjectInfoIds']
+  MeshObjectConfig['materialRouterObjectInfoIds']
 
 export class MeshObjectInfo extends InSceneObjectInfo {
   readonly config: MeshObjectConfig
   readonly data: THREE.Mesh
   readonly eventDispatcher: EventDispatcher<InSceneObjectInfoEvent>
   private boxHelper: THREE.BoxHelper | null = null
-  readonly material: MeshMaterialInfo
+  material: MeshMaterialInfo
 
   constructor(
     data: THREE.Mesh,
@@ -71,12 +72,13 @@ export class MeshObjectInfo extends InSceneObjectInfo {
       }
       this.material = meshMaterialInfoResult.data
     }
+    this.registerMaterialEvent()
 
     this.config = {
       type: 'OBJECT_3D_MESH',
       id: actualId,
       sceneId,
-      MaterialRouterObjectInfoIds: newMaterialRouterObjectInfoIds,
+      materialRouterObjectInfoIds: newMaterialRouterObjectInfoIds,
     }
     this.data = data
     this.eventDispatcher = new EventDispatcher()
@@ -110,7 +112,100 @@ export class MeshObjectInfo extends InSceneObjectInfo {
     super.helper(value)
   }
 
+  onMaterialDestroyed = (objectInfo: ObjectInfo) => {
+    this.unregisterMaterialEvent()
+    const materialObjectInfo =
+      this.objectInfoStorage.getDefaultStandardMaterialObjectInfo()
+    if (Array.isArray(this.material)) {
+      for (let i = 0; i < this.material.length; i++) {
+        if (this.material[i] === objectInfo) {
+          this.material[i] = materialObjectInfo
+          if (Array.isArray(this.config.materialRouterObjectInfoIds)) {
+            this.config.materialRouterObjectInfoIds[i] = null
+          }
+        }
+      }
+      this.data.material = this.material.map(material =>
+        material.data instanceof THREE.Material
+          ? material.data
+          : materialObjectInfo.data
+      )
+    }
+
+    if (objectInfo === this.material) {
+      this.material = materialObjectInfo
+      this.data.material = materialObjectInfo.data
+      this.config.materialRouterObjectInfoIds = null
+    }
+    this.registerMaterialEvent()
+  }
+
+  private registerMaterialEvent() {
+    if (Array.isArray(this.material)) {
+      for (const material of this.material) {
+        if (material instanceof MaterialRouterObjectInfo) {
+          material.eventDispatcher.addListener(
+            'DESTROY',
+            this.onMaterialDestroyed
+          )
+        }
+        if (material instanceof MaterialObjectInfo) {
+          material.eventDispatcher.addListener(
+            'DESTROY',
+            this.onMaterialDestroyed
+          )
+        }
+      }
+    } else {
+      if (this.material instanceof MaterialRouterObjectInfo) {
+        this.material.eventDispatcher.addListener(
+          'DESTROY',
+          this.onMaterialDestroyed
+        )
+      }
+      if (this.material instanceof MaterialObjectInfo) {
+        this.material.eventDispatcher.addListener(
+          'DESTROY',
+          this.onMaterialDestroyed
+        )
+      }
+    }
+  }
+
+  private unregisterMaterialEvent() {
+    if (Array.isArray(this.material)) {
+      for (const material of this.material) {
+        if (material instanceof MaterialRouterObjectInfo) {
+          material.eventDispatcher.removeListener(
+            'DESTROY',
+            this.onMaterialDestroyed
+          )
+        }
+        if (material instanceof MaterialObjectInfo) {
+          material.eventDispatcher.removeListener(
+            'DESTROY',
+            this.onMaterialDestroyed
+          )
+        }
+      }
+    } else {
+      if (this.material instanceof MaterialRouterObjectInfo) {
+        this.material.eventDispatcher.removeListener(
+          'DESTROY',
+          this.onMaterialDestroyed
+        )
+      }
+      if (this.material instanceof MaterialObjectInfo) {
+        this.material.eventDispatcher.removeListener(
+          'DESTROY',
+          this.onMaterialDestroyed
+        )
+      }
+    }
+  }
+
   destroy(): void {
+    this.unregisterMaterialEvent()
     if (this.boxHelper) {
       this.helper(false)
     }

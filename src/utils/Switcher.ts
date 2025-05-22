@@ -1,12 +1,31 @@
 import EventDispatcher from './EventDispatcher'
 
-type EventPackage = {
-  type: 'INDEX_CHANGE'
-  data: {
-    from: number
-    to: number
-  }
-}
+type EventPackage =
+  | {
+      type: 'INDEX_CHANGE'
+      data: {
+        from: number
+        to: number
+      }
+    }
+  | {
+      type: 'SET'
+      data: {
+        index: number
+      }
+    }
+  | {
+      type: 'ADD'
+      data: {
+        index: number
+      }
+    }
+  | {
+      type: 'REMOVE'
+      data: {
+        indexes: number[]
+      }
+    }
 
 class Switcher<T> extends EventDispatcher<EventPackage> {
   values: T[]
@@ -20,11 +39,26 @@ class Switcher<T> extends EventDispatcher<EventPackage> {
   }
 
   remove(value: T) {
-    this.values = this.values.filter(v => v !== value)
+    let indexes: number[] = []
+    this.values = this.values.filter((v, i) => {
+      if (v !== value) {
+        indexes.push(i)
+        return true
+      } else {
+        return false
+      }
+    })
+    this.dispatch('REMOVE', { indexes: indexes })
   }
 
   add(value: T) {
     this.values.push(value)
+    this.dispatch('ADD', { index: this.values.length - 1 })
+  }
+
+  set(value: T, index: number) {
+    this.values[index] = value
+    this.dispatch('SET', { index })
   }
 
   get current() {

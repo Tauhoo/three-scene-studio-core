@@ -257,7 +257,7 @@ class ObjectInfoStorageConfigLoader {
       return this.objectInfoStorage.createMeshObjectInfo(
         objectData,
         inSceneObjectInfo.sceneId,
-        parseResult.data.MaterialRouterObjectInfoIds,
+        parseResult.data.materialRouterObjectInfoIds,
         inSceneObjectInfo.id
       )
     }
