@@ -272,7 +272,7 @@ class ObjectInfoStorageConfigLoader {
       return this.objectInfoStorage.createSkinMeshObjectInfo(
         objectData,
         inSceneObjectInfo.sceneId,
-        parseResult.data.MaterialRouterObjectInfoIds,
+        parseResult.data.materialRouterObjectInfoIds,
         inSceneObjectInfo.id
       )
     }

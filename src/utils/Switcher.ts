@@ -38,6 +38,11 @@ class Switcher<T> extends EventDispatcher<EventPackage> {
     this.name = name
   }
 
+  removeWithIndex(index: number) {
+    this.values.splice(index, 1)
+    this.dispatch('REMOVE', { indexes: [index] })
+  }
+
   remove(value: T) {
     let indexes: number[] = []
     this.values = this.values.filter((v, i) => {

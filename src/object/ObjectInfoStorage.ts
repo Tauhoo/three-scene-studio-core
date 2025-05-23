@@ -11,7 +11,7 @@ import { objectConfigSchema, ObjectInfo } from './ObjectInfo'
 import { SceneObjectInfo } from './SceneObjectInfo'
 import { BoneObjectInfo } from './BoneObjectInfo'
 import { createLightObjectFromNative } from './light'
-import { MaterialRouterObjectInfoIds, MeshObjectInfo } from './MeshObjectInfo'
+import { MeshObjectInfo } from './MeshObjectInfo'
 import { GroupObjectInfo } from './GroupObjectInfo'
 import { SkinMeshObjectInfo } from './SkinMeshObjectInfo'
 import { SceneSwitcherInfo } from './SceneSwitcherObjectInfo'
@@ -34,6 +34,7 @@ import {
   MaterialRouterObjectInfo,
   MeshDefaultStandardMaterialObjectInfo,
 } from './material'
+import { MaterialRouterObjectInfoIds } from './MaterialOwnerObjectInfo'
 
 export const objectInfoStorageConfigSchema = z.object({
   materialObjectInfos: z.array(objectConfigSchema),
@@ -119,13 +120,13 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   createMeshObjectInfo(
     mesh: THREE.Mesh,
     sceneId: string,
-    MaterialRouterObjectInfoIds: MaterialRouterObjectInfoIds,
+    materialRouterObjectInfoIds: MaterialRouterObjectInfoIds,
     id?: string
   ) {
     const result = new MeshObjectInfo(
       mesh,
       sceneId,
-      MaterialRouterObjectInfoIds,
+      materialRouterObjectInfoIds,
       this,
       id
     )
@@ -136,13 +137,13 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   createSkinMeshObjectInfo(
     mesh: THREE.SkinnedMesh,
     sceneId: string,
-    MaterialRouterObjectInfoIds: MaterialRouterObjectInfoIds,
+    materialRouterObjectInfoIds: MaterialRouterObjectInfoIds,
     id?: string
   ) {
     const result = new SkinMeshObjectInfo(
       mesh,
       sceneId,
-      MaterialRouterObjectInfoIds,
+      materialRouterObjectInfoIds,
       this,
       id
     )
