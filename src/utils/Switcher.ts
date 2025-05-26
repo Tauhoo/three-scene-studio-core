@@ -26,6 +26,12 @@ type EventPackage =
         indexes: number[]
       }
     }
+  | {
+      type: 'CURRENT_CHANGE'
+      data: {
+        index: number
+      }
+    }
 
 class Switcher<T> extends EventDispatcher<EventPackage> {
   values: T[]
@@ -41,11 +47,18 @@ class Switcher<T> extends EventDispatcher<EventPackage> {
   removeWithIndex(index: number) {
     this.values.splice(index, 1)
     this.dispatch('REMOVE', { indexes: [index] })
+    if (this._index === index) {
+      this.dispatch('CURRENT_CHANGE', { index: this._index })
+    }
   }
 
   remove(value: T) {
     let indexes: number[] = []
+    let needUpdate = false
     this.values = this.values.filter((v, i) => {
+      if (i <= this._index) {
+        needUpdate = true
+      }
       if (v !== value) {
         indexes.push(i)
         return true
@@ -54,6 +67,9 @@ class Switcher<T> extends EventDispatcher<EventPackage> {
       }
     })
     this.dispatch('REMOVE', { indexes: indexes })
+    if (needUpdate) {
+      this.dispatch('CURRENT_CHANGE', { index: this._index })
+    }
   }
 
   add(value: T) {
@@ -64,6 +80,9 @@ class Switcher<T> extends EventDispatcher<EventPackage> {
   set(value: T, index: number) {
     this.values[index] = value
     this.dispatch('SET', { index })
+    if (index === this._index) {
+      this.dispatch('CURRENT_CHANGE', { index: this._index })
+    }
   }
 
   get current() {
@@ -88,6 +107,7 @@ class Switcher<T> extends EventDispatcher<EventPackage> {
     if (from === value) return
     this._index = value
     this.dispatch('INDEX_CHANGE', { from, to: value })
+    this.dispatch('CURRENT_CHANGE', { index: this._index })
   }
 }
 

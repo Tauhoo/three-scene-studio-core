@@ -5,6 +5,7 @@ import {
 } from './InSceneObjectInfo'
 import {
   getMeshMaterialInfo,
+  MaterialInfo,
   MaterialRouterObjectInfoIdsSchema,
   MeshMaterialInfo,
 } from './material/getMaterialInfo'
@@ -95,7 +96,52 @@ export abstract class MaterialOwnerObjectInfo extends InSceneObjectInfo {
     return this.material.config.id
   }
 
-  onMaterialDestroyed = (objectInfo: ObjectInfo) => {
+  swapMaterial(material: MaterialInfo, indices: number[] = [0]) {
+    this.unregisterMaterialEvent()
+    if (Array.isArray(this.material) && Array.isArray(this.data.material)) {
+      this.config.materialRouterObjectInfoIds = Array(
+        this.material.length
+      ).fill(null)
+      for (const index of indices) {
+        // update material object info
+        this.material[index] = material
+
+        // update three.js material
+        if (material instanceof MaterialObjectInfo) {
+          this.data.material[index] = material.data
+        }
+
+        // update material router object info ids in config
+        if (material instanceof MaterialRouterObjectInfo) {
+          this.config.materialRouterObjectInfoIds[index] = material.config.id
+        }
+      }
+    }
+
+    if (!Array.isArray(this.material) && !Array.isArray(this.data.material)) {
+      // update three.js material
+      this.material = material
+
+      // update material object info
+      if (material instanceof MaterialObjectInfo) {
+        this.data.material = material.data
+      }
+
+      // update material router object info ids in config
+      if (material instanceof MaterialRouterObjectInfo) {
+        this.config.materialRouterObjectInfoIds = material.config.id
+      } else {
+        this.config.materialRouterObjectInfoIds = null
+      }
+    }
+
+    this.registerMaterialEvent()
+    this.eventDispatcher.dispatch('MATERIAL_CHANGED', {
+      material: this.material,
+    })
+  }
+
+  private onMaterialDestroyed = (objectInfo: ObjectInfo) => {
     this.unregisterMaterialEvent()
     const materialObjectInfo =
       this.objectInfoStorage.getDefaultStandardMaterialObjectInfo()
@@ -126,15 +172,37 @@ export abstract class MaterialOwnerObjectInfo extends InSceneObjectInfo {
     })
   }
 
+  materialRouterChangeMaterialHandlers: Map<number, () => void> = new Map()
+  private onMaterialRouterChangeMaterial = (index: number) => () => {
+    if (Array.isArray(this.data.material) && Array.isArray(this.material)) {
+      const targetMaterial = this.material[index]
+      if (targetMaterial instanceof MaterialRouterObjectInfo) {
+        this.data.material[index] =
+          targetMaterial.data.switcher.current?.data ?? defaultMaterial
+      }
+    } else {
+      if (this.material instanceof MaterialRouterObjectInfo) {
+        this.data.material =
+          this.material.data.switcher.current?.data ?? defaultMaterial
+      }
+    }
+  }
+
   private registerMaterialEvent() {
     if (Array.isArray(this.material)) {
-      for (const material of this.material) {
+      for (let i = 0; i < this.material.length; i++) {
+        const material = this.material[i]
+
         if (material instanceof MaterialRouterObjectInfo) {
           material.eventDispatcher.addListener(
             'DESTROY',
             this.onMaterialDestroyed
           )
+          const handler = this.onMaterialRouterChangeMaterial(i)
+          material.data.switcher.addListener('CURRENT_CHANGE', handler)
+          this.materialRouterChangeMaterialHandlers.set(i, handler)
         }
+
         if (material instanceof MaterialObjectInfo) {
           material.eventDispatcher.addListener(
             'DESTROY',
@@ -148,6 +216,9 @@ export abstract class MaterialOwnerObjectInfo extends InSceneObjectInfo {
           'DESTROY',
           this.onMaterialDestroyed
         )
+        const handler = this.onMaterialRouterChangeMaterial(0)
+        this.material.data.switcher.addListener('CURRENT_CHANGE', handler)
+        this.materialRouterChangeMaterialHandlers.set(0, handler)
       }
       if (this.material instanceof MaterialObjectInfo) {
         this.material.eventDispatcher.addListener(
@@ -160,13 +231,20 @@ export abstract class MaterialOwnerObjectInfo extends InSceneObjectInfo {
 
   private unregisterMaterialEvent() {
     if (Array.isArray(this.material)) {
-      for (const material of this.material) {
+      for (let i = 0; i < this.material.length; i++) {
+        const material = this.material[i]
         if (material instanceof MaterialRouterObjectInfo) {
           material.eventDispatcher.removeListener(
             'DESTROY',
             this.onMaterialDestroyed
           )
+          const handler = this.materialRouterChangeMaterialHandlers.get(i)
+          if (handler) {
+            material.data.switcher.removeListener('CURRENT_CHANGE', handler)
+            this.materialRouterChangeMaterialHandlers.delete(i)
+          }
         }
+
         if (material instanceof MaterialObjectInfo) {
           material.eventDispatcher.removeListener(
             'DESTROY',
@@ -180,7 +258,13 @@ export abstract class MaterialOwnerObjectInfo extends InSceneObjectInfo {
           'DESTROY',
           this.onMaterialDestroyed
         )
+        const handler = this.materialRouterChangeMaterialHandlers.get(0)
+        if (handler) {
+          this.material.data.switcher.addListener('CURRENT_CHANGE', handler)
+          this.materialRouterChangeMaterialHandlers.delete(0)
+        }
       }
+
       if (this.material instanceof MaterialObjectInfo) {
         this.material.eventDispatcher.removeListener(
           'DESTROY',
