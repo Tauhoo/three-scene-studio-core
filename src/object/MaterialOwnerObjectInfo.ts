@@ -44,11 +44,17 @@ export abstract class MaterialOwnerObjectInfo extends InSceneObjectInfo {
   constructor(
     data: THREE.Mesh,
     sceneId: string,
-    materialRouterObjectInfoIds: MaterialRouterObjectInfoIds,
-    objectInfoStorage: ObjectInfoStorage,
-    id: string
+    objectInfoStorage: ObjectInfoStorage
   ) {
-    super(data, id, sceneId, objectInfoStorage)
+    super(data, sceneId, objectInfoStorage)
+    const defaultMaterialRouterObjectInfoIds = Array.isArray(data.material)
+      ? Array(data.material.length).fill(null)
+      : null
+    const materialRouterObjectInfoIds: MaterialRouterObjectInfoIds = data
+      .userData['THREE_SCENE_STUDIO.OBJECT_CONFIG']
+      ? data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG']
+          .materialRouterObjectInfoIds
+      : defaultMaterialRouterObjectInfoIds
 
     const materialObjectInfos = getMaterialObjectInfos(data, objectInfoStorage)
     const meshMaterialInfoResult = getMeshMaterialInfo(

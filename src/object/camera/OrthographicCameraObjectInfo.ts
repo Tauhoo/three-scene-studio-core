@@ -21,8 +21,8 @@ export class OrthographicCameraObjectInfo extends CameraObjectInfo {
   propertyTypeDefinition: MapTypeDefinition =
     orthographicCameraObjectInfoPropertyTypeDefinition
   declare data: THREE.OrthographicCamera
-  constructor(data: THREE.OrthographicCamera, id?: string) {
-    super(data, id)
+  constructor(data: THREE.OrthographicCamera) {
+    super(data)
   }
 
   setValue(objectPath: ObjectPath, value: any, valueType?: SystemValueType) {

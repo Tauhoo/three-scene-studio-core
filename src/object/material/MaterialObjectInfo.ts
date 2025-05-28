@@ -69,13 +69,15 @@ export class MaterialObjectInfo extends ObjectInfo {
   readonly data: THREE.Material
   readonly eventDispatcher: EventDispatcher<InSceneObjectInfoEvent>
 
-  constructor(data: THREE.Material, id?: string) {
-    const actualId = id ?? uuidv4()
+  constructor(data: THREE.Material) {
     super()
+    const actualId =
+      data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG']?.id ?? uuidv4()
     this.config = {
       type: 'OBJECT_3D_MATERIAL',
       id: actualId,
     }
+    data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG'] = this.config
     this.data = data
     this.eventDispatcher = new EventDispatcher()
   }

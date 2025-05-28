@@ -26,18 +26,16 @@ export class SceneObjectInfo extends InSceneObjectInfo {
   private axisHelper: THREE.AxesHelper | null = null
   private gridHelper: THREE.GridHelper | null = null
 
-  constructor(
-    data: THREE.Scene,
-    objectInfoStorage: ObjectInfoStorage,
-    id?: string
-  ) {
-    const actualId = id ?? uuidv4()
-    super(data, actualId, actualId, objectInfoStorage)
+  constructor(data: THREE.Scene, objectInfoStorage: ObjectInfoStorage) {
+    const actualId =
+      data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG']?.id ?? uuidv4()
+    super(data, actualId, objectInfoStorage)
     this.config = {
       type: 'OBJECT_3D_SCENE',
       id: actualId,
       sceneId: actualId,
     }
+    data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG'] = this.config
     this.data = data
     this.animationMixer = new THREE.AnimationMixer(this.data)
     this.eventDispatcher = new EventDispatcher()

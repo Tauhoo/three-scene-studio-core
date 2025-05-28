@@ -7,10 +7,9 @@ export class PointLightObjectInfo extends LightObjectInfo {
   constructor(
     data: THREE.PointLight,
     sceneId: string,
-    objectInfoStorage: ObjectInfoStorage,
-    id?: string
+    objectInfoStorage: ObjectInfoStorage
   ) {
-    super(data, sceneId, objectInfoStorage, id)
+    super(data, sceneId, objectInfoStorage)
   }
 
   helper(value: boolean) {

@@ -24,16 +24,17 @@ export class BoneObjectInfo extends InSceneObjectInfo {
   constructor(
     data: THREE.Bone,
     sceneId: string,
-    objectInfoStorage: ObjectInfoStorage,
-    id?: string
+    objectInfoStorage: ObjectInfoStorage
   ) {
-    const actualId = id ?? uuidv4()
-    super(data, actualId, sceneId, objectInfoStorage)
+    super(data, sceneId, objectInfoStorage)
+    const actualId =
+      data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG']?.id ?? uuidv4()
     this.config = {
       type: 'OBJECT_3D_BONE',
       id: actualId,
       sceneId,
     }
+    data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG'] = this.config
     this.data = data
     this.eventDispatcher = new EventDispatcher()
   }

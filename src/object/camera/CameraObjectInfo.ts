@@ -38,14 +38,15 @@ export class CameraObjectInfo extends ObjectInfo {
   readonly eventDispatcher: EventDispatcher<CameraObjectInfoEvent>
   private cameraHelper: THREE.CameraHelper | null = null
 
-  constructor(data: THREE.Camera, id?: string) {
+  constructor(data: THREE.Camera) {
     super()
-    const actualId = id ?? uuidv4()
-    data.userData['THREE_SCENE_STUDIO.OBJECT_INFO_ID'] = actualId
+    const actualId =
+      data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG']?.id ?? uuidv4()
     this.config = {
       type: 'OBJECT_3D_CAMERA',
       id: actualId,
     }
+    data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG'] = this.config
     this.data = data
     this.eventDispatcher = new EventDispatcher()
 

@@ -27,24 +27,18 @@ export class MeshObjectInfo extends MaterialOwnerObjectInfo {
   constructor(
     data: THREE.Mesh,
     sceneId: string,
-    materialRouterObjectInfoIds: MaterialRouterObjectInfoIds,
-    objectInfoStorage: ObjectInfoStorage,
-    id?: string
+    objectInfoStorage: ObjectInfoStorage
   ) {
-    const actualId = id ?? uuidv4()
-    super(
-      data,
-      sceneId,
-      materialRouterObjectInfoIds,
-      objectInfoStorage,
-      actualId
-    )
+    super(data, sceneId, objectInfoStorage)
+    const actualId =
+      data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG']?.id ?? uuidv4()
     this.config = {
       type: 'OBJECT_3D_MESH',
       id: actualId,
       sceneId,
       materialRouterObjectInfoIds: this.getMaterialRouterObjectInfoIds(),
     }
+    data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG'] = this.config
     this.eventDispatcher = new EventDispatcher()
     this.data = data
   }

@@ -50,7 +50,7 @@ export class MeshPhysicalMaterialObjectInfo extends MeshStandardMaterialObjectIn
   propertyTypeDefinition: MapTypeDefinition =
     meshPhysicalMaterialObjectInfoPropertyTypeDefinition
 
-  constructor(data: THREE.MeshPhysicalMaterial, id?: string) {
-    super(data, id)
+  constructor(data: THREE.MeshPhysicalMaterial) {
+    super(data)
   }
 }

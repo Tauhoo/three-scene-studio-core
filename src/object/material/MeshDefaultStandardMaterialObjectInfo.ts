@@ -46,8 +46,8 @@ export class MeshDefaultStandardMaterialObjectInfo extends MeshStandardMaterialO
   propertyTypeDefinition: MapTypeDefinition =
     meshDefaultStandardMaterialObjectInfoPropertyTypeDefinition
 
-  constructor(data: THREE.MeshStandardMaterial, id?: string) {
+  constructor(data: THREE.MeshStandardMaterial) {
+    super(data)
     data.userData['THREE_SCENE_STUDIO.DEFAULT_MATERIAL'] = true
-    super(data, id)
   }
 }

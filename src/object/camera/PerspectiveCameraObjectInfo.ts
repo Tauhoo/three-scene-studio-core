@@ -19,8 +19,8 @@ export class PerspectiveCameraObjectInfo extends CameraObjectInfo {
   propertyTypeDefinition: MapTypeDefinition =
     perspectiveCameraObjectInfoPropertyTypeDefinition
   declare data: THREE.PerspectiveCamera
-  constructor(data: THREE.PerspectiveCamera, id?: string) {
-    super(data, id)
+  constructor(data: THREE.PerspectiveCamera) {
+    super(data)
   }
 
   setValue(objectPath: ObjectPath, value: any, valueType?: SystemValueType) {

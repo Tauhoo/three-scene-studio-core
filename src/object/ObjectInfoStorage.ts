@@ -34,17 +34,14 @@ import {
   MaterialRouterObjectInfo,
   MeshDefaultStandardMaterialObjectInfo,
 } from './material'
-import { MaterialRouterObjectInfoIds } from './MaterialOwnerObjectInfo'
 
 export const objectInfoStorageConfigSchema = z.object({
-  materialObjectInfos: z.array(objectConfigSchema),
-  inSceneObjectInfos: z.array(inSceneObjectInfoConfigSchema),
+  materialRouterObjectInfos: z.array(objectConfigSchema),
   uniqueObjectInfos: z.object({
     cameraSwitcher: objectConfigSchema.nullable(),
     sceneSwitcher: objectConfigSchema.nullable(),
   }),
   animationObjectInfos: z.array(objectConfigSchema),
-  cameraObjectInfos: z.array(objectConfigSchema),
 })
 
 export type ObjectInfoStorageConfig = z.infer<
@@ -56,33 +53,25 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     super(value => value)
   }
 
-  createSceneObjectInfo(
-    group: THREE.Group,
-
-    id?: string
-  ) {
+  createSceneObjectInfo(group: THREE.Group) {
     const scene = new THREE.Scene()
     scene.add(...group.children)
     scene.name = group.name
-    const result = new SceneObjectInfo(scene, this, id)
+    const result = new SceneObjectInfo(scene, this)
     this.set(result.config.id, result)
     return result
   }
 
-  createEmptySceneObjectInfo(
-    name: string,
-
-    id?: string
-  ) {
+  createEmptySceneObjectInfo(name: string) {
     const scene = new THREE.Scene()
     scene.name = name
-    const result = new SceneObjectInfo(scene, this, id)
+    const result = new SceneObjectInfo(scene, this)
     this.set(result.config.id, result)
     return result
   }
 
-  createCameraObjectInfo(camera: THREE.Camera, id?: string) {
-    const result = createCameraObjectFromNative(camera, id)
+  createCameraObjectInfo(camera: THREE.Camera) {
+    const result = createCameraObjectFromNative(camera)
     this.set(result.config.id, result)
     return result
   }
@@ -99,54 +88,32 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     return result
   }
 
-  createBoneObjectInfo(bone: THREE.Bone, sceneId: string, id?: string) {
-    const result = new BoneObjectInfo(bone, sceneId, this, id)
+  createBoneObjectInfo(bone: THREE.Bone, sceneId: string) {
+    const result = new BoneObjectInfo(bone, sceneId, this)
     this.set(result.config.id, result)
     return result
   }
 
-  createLightObjectInfo(light: THREE.Light, sceneId: string, id?: string) {
-    const result = createLightObjectFromNative(light, this, sceneId, id)
+  createLightObjectInfo(light: THREE.Light, sceneId: string) {
+    const result = createLightObjectFromNative(light, this, sceneId)
     this.set(result.config.id, result)
     return result
   }
 
-  createGroupObjectInfo(group: THREE.Object3D, sceneId: string, id?: string) {
-    const result = new GroupObjectInfo(group, sceneId, this, id)
+  createGroupObjectInfo(group: THREE.Object3D, sceneId: string) {
+    const result = new GroupObjectInfo(group, sceneId, this)
     this.set(result.config.id, result)
     return result
   }
 
-  createMeshObjectInfo(
-    mesh: THREE.Mesh,
-    sceneId: string,
-    materialRouterObjectInfoIds: MaterialRouterObjectInfoIds,
-    id?: string
-  ) {
-    const result = new MeshObjectInfo(
-      mesh,
-      sceneId,
-      materialRouterObjectInfoIds,
-      this,
-      id
-    )
+  createMeshObjectInfo(mesh: THREE.Mesh, sceneId: string) {
+    const result = new MeshObjectInfo(mesh, sceneId, this)
     this.set(result.config.id, result)
     return result
   }
 
-  createSkinMeshObjectInfo(
-    mesh: THREE.SkinnedMesh,
-    sceneId: string,
-    materialRouterObjectInfoIds: MaterialRouterObjectInfoIds,
-    id?: string
-  ) {
-    const result = new SkinMeshObjectInfo(
-      mesh,
-      sceneId,
-      materialRouterObjectInfoIds,
-      this,
-      id
-    )
+  createSkinMeshObjectInfo(mesh: THREE.SkinnedMesh, sceneId: string) {
+    const result = new SkinMeshObjectInfo(mesh, sceneId, this)
     this.set(result.config.id, result)
     return result
   }
@@ -187,7 +154,7 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     return result
   }
 
-  createMaterialObjectInfo(material: THREE.Material, id?: string) {
+  createMaterialObjectInfo(material: THREE.Material) {
     if (material === defaultMaterial) {
       throw errorResponse(
         'RECREATE_DEFAULT_MATERIAL',
@@ -195,20 +162,17 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
       )
     }
 
-    const result = createMaterialObjectInfoFromNative(material, id)
+    const result = createMaterialObjectInfoFromNative(material)
     this.set(result.config.id, result)
     return result
   }
 
-  createDefaultStandardMaterialObjectInfo(id?: string) {
+  createDefaultStandardMaterialObjectInfo() {
     const findResult = this.getMaterialObjectInfos().find(
       value => value.data === defaultMaterial
     )
     if (findResult !== undefined) return findResult
-    const result = new MeshDefaultStandardMaterialObjectInfo(
-      defaultMaterial,
-      id
-    )
+    const result = new MeshDefaultStandardMaterialObjectInfo(defaultMaterial)
     this.set(result.config.id, result)
     return result
   }
@@ -317,11 +281,8 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     const cameraSwitcherObjectInfo = this.getCameraSwitcherObjectInfo()
     const sceneSwitcherObjectInfo = this.getSceneSwitcherObjectInfo()
     const result = {
-      materialObjectInfos: this.getMaterialObjectInfos().map(objectInfo =>
-        objectInfo.serialize()
-      ),
-      inSceneObjectInfos: this.getInSceneObjectInfos().map(objectInfo =>
-        objectInfo.serialize()
+      materialRouterObjectInfos: this.getMaterialRouterObjectInfos().map(
+        objectInfo => objectInfo.serialize()
       ),
       uniqueObjectInfos: {
         cameraSwitcher:
@@ -334,9 +295,6 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
             : sceneSwitcherObjectInfo.serialize(),
       },
       animationObjectInfos: this.getAnimationObjectInfos().map(objectInfo =>
-        objectInfo.serialize()
-      ),
-      cameraObjectInfos: this.getCameraObjectInfos().map(objectInfo =>
         objectInfo.serialize()
       ),
     }

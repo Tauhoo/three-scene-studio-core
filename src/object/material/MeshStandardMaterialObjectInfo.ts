@@ -48,7 +48,7 @@ export class MeshStandardMaterialObjectInfo extends MaterialObjectInfo {
   propertyTypeDefinition: MapTypeDefinition =
     meshStandardMaterialObjectInfoPropertyTypeDefinition
 
-  constructor(data: THREE.MeshStandardMaterial, id?: string) {
-    super(data, id)
+  constructor(data: THREE.MeshStandardMaterial) {
+    super(data)
   }
 }

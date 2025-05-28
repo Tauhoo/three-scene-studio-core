@@ -7,9 +7,8 @@ export class AmbientLightObjectInfo extends LightObjectInfo {
   constructor(
     data: THREE.AmbientLight,
     sceneId: string,
-    objectInfoStorage: ObjectInfoStorage,
-    id?: string
+    objectInfoStorage: ObjectInfoStorage
   ) {
-    super(data, sceneId, objectInfoStorage, id)
+    super(data, sceneId, objectInfoStorage)
   }
 }

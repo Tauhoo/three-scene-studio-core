@@ -70,12 +70,10 @@ export abstract class InSceneObjectInfo extends ObjectInfo {
 
   constructor(
     data: THREE.Object3D,
-    id: string,
     sceneId: string,
     objectInfoStorage: ObjectInfoStorage
   ) {
     super()
-    data.userData['THREE_SCENE_STUDIO.OBJECT_INFO_ID'] = id
     this.objectInfoStorage = objectInfoStorage
     this.children = getChildren(data, sceneId, objectInfoStorage)
     for (const child of this.children) {
