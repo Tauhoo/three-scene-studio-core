@@ -13,6 +13,7 @@ import {
   InSceneLoadedInfo,
   MaterialLoadedInfo,
   SceneLoadedInfo,
+  TextureLoadedInfo,
 } from './types'
 export * from './types'
 import { v4 as uuidv4 } from 'uuid'
@@ -28,6 +29,7 @@ export type GLTFLoadResult = {
   scenes: SceneLoadedInfo[]
   cameras: CameraLoadedInfo[]
   materials: MaterialLoadedInfo[]
+  textures: TextureLoadedInfo[]
 }
 
 export const loadGltfFile = (url: string, options: GLTFLoaderOptions) => {
@@ -59,13 +61,21 @@ export const loadGltfFile = (url: string, options: GLTFLoaderOptions) => {
           })
         }
 
-        const result: GLTFLoadResult = {
-          materials: [...materialSet].map(material => ({
+        const materialList: MaterialLoadedInfo[] = [...materialSet].map(
+          material => ({
             id: uuidv4(),
             type: 'MATERIAL',
             name: material.name,
             data: material,
-          })),
+          })
+        )
+
+        const textureList: TextureLoadedInfo[] = materialList.flatMap(
+          material => createTextureLoadedInfoFromMaterial(material.data)
+        )
+
+        const result: GLTFLoadResult = {
+          materials: materialList,
           animations: gltf.animations.map(animation => ({
             id: uuidv4(),
             type: 'ANIMATION',
@@ -79,6 +89,7 @@ export const loadGltfFile = (url: string, options: GLTFLoaderOptions) => {
             name: camera.name,
             data: camera,
           })),
+          textures: textureList,
         }
 
         resolve(successResponse(result))
@@ -102,6 +113,23 @@ export function createSceneLoadedInfo(group: THREE.Group): SceneLoadedInfo {
       .map(child => createLoadedInfo(child))
       .filter(value => value !== null),
   }
+}
+
+export function createTextureLoadedInfoFromMaterial(
+  material: THREE.Material
+): TextureLoadedInfo[] {
+  const textureList: TextureLoadedInfo[] = []
+  for (const value of Object.values(material)) {
+    if (value instanceof THREE.Texture) {
+      textureList.push({
+        id: uuidv4(),
+        type: 'TEXTURE',
+        name: value.name,
+        data: value,
+      })
+    }
+  }
+  return textureList
 }
 
 export function createLoadedInfo(

@@ -78,6 +78,13 @@ export type MaterialLoadedInfo = {
   data: THREE.Material
 }
 
+export type TextureLoadedInfo = {
+  id: string
+  type: 'TEXTURE'
+  name: string
+  data: THREE.Texture
+}
+
 export const loadedInfoType = [
   'ANIMATION',
   'CAMERA',

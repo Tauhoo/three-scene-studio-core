@@ -11,12 +11,16 @@ export const getMaterialObjectInfos = (
   for (const materialInfo of objectInfoStorage.getMaterialObjectInfos()) {
     materialMap.set(materialInfo.data, materialInfo)
   }
+
+  const defaultMaterialObjectInfo =
+    objectInfoStorage.getDefaultStandardMaterialObjectInfo()
+
   if (Array.isArray(mesh.material)) {
     // list of materials
     let result: MaterialObjectInfo[] = []
     for (const material of mesh.material) {
-      if (material === defaultMaterial) {
-        result.push(objectInfoStorage.getDefaultStandardMaterialObjectInfo())
+      if (material.userData['THREE_SCENE_STUDIO.DEFAULT_MATERIAL'] === true) {
+        result.push(defaultMaterialObjectInfo)
         continue
       }
 
@@ -24,20 +28,22 @@ export const getMaterialObjectInfos = (
       if (materialInfo !== undefined) {
         result.push(materialInfo)
       } else {
-        result.push(objectInfoStorage.createMaterialObjectInfo(material))
+        result.push(defaultMaterialObjectInfo)
       }
     }
     return result
   } else {
-    if (mesh.material === defaultMaterial) {
-      return objectInfoStorage.getDefaultStandardMaterialObjectInfo()
+    if (
+      mesh.material.userData['THREE_SCENE_STUDIO.DEFAULT_MATERIAL'] === true
+    ) {
+      return defaultMaterialObjectInfo
     } else {
       // single material
       const materialInfo = materialMap.get(mesh.material)
       if (materialInfo !== undefined) {
         return materialInfo
       } else {
-        return objectInfoStorage.createMaterialObjectInfo(mesh.material)
+        return defaultMaterialObjectInfo
       }
     }
   }

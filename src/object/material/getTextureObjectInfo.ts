@@ -12,25 +12,18 @@ export function getTextureObjectInfo<K extends readonly string[]>(
   mapKeys: K
 ) {
   const textureObjectInfoMap = Object.fromEntries(
-    objectInfoStorage
-      .getTextureObjectInfos()
-      .map(value => [value.config.id, value])
+    objectInfoStorage.getTextureObjectInfos().map(value => [value.data, value])
   )
   let result: any = {}
   for (const key of mapKeys) {
     const value = (material as any)[key]
-    if (value instanceof THREE.Texture) {
-      const textureObjectInfo =
-        textureObjectInfoMap[
-          value.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG']?.id
-        ]
-      if (!textureObjectInfo) {
-        result[key] = objectInfoStorage.createTextureObjectInfo(value)
-      } else {
-        result[key] = textureObjectInfo
-      }
+
+    const textureObjectInfo = textureObjectInfoMap[value]
+    if (textureObjectInfo) {
+      result[key] = textureObjectInfo
     } else {
       result[key] = null
+      ;(material as any)[key] = null
     }
   }
   return result as TextureObjectInfoMap<K>
