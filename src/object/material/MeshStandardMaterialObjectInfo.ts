@@ -4,6 +4,19 @@ import {
   materialObjectInfoPropertyTypeDefinition,
 } from './MaterialObjectInfo'
 import { MapTypeDefinition } from '../property'
+import { z } from 'zod'
+import { v4 as uuidv4 } from 'uuid'
+import { ObjectInfoStorage } from '../ObjectInfoStorage'
+import { TextureObjectInfoMap } from './getTextureObjectInfo'
+
+export const meshStandardMaterialObjectConfigSchema = z.object({
+  type: z.literal('MESH_STANDARD_MATERIAL'),
+  id: z.string(),
+})
+
+export type MeshStandardMaterialObjectConfig = z.infer<
+  typeof meshStandardMaterialObjectConfigSchema
+>
 
 export const meshStandardMaterialObjectInfoPropertyTypeDefinition: MapTypeDefinition =
   {
@@ -44,11 +57,38 @@ export const meshStandardMaterialObjectInfoPropertyTypeDefinition: MapTypeDefini
     },
   }
 
+export const meshStandardMaterialMapKeys = [
+  'map',
+  'aoMap',
+  'envMap',
+  'bumpMap',
+  'alphaMap',
+  'lightMap',
+  'normalMap',
+  'emissiveMap',
+  'roughnessMap',
+  'metalnessMap',
+  'displacementMap',
+] as const
 export class MeshStandardMaterialObjectInfo extends MaterialObjectInfo {
+  readonly config: MeshStandardMaterialObjectConfig
   propertyTypeDefinition: MapTypeDefinition =
     meshStandardMaterialObjectInfoPropertyTypeDefinition
+  declare readonly textureObjectInfoMap: TextureObjectInfoMap<
+    typeof meshStandardMaterialMapKeys
+  >
 
-  constructor(data: THREE.MeshStandardMaterial) {
-    super(data)
+  constructor(
+    data: THREE.MeshStandardMaterial,
+    objectInfoStorage: ObjectInfoStorage
+  ) {
+    super(data, objectInfoStorage, meshStandardMaterialMapKeys)
+    const actualId =
+      data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG']?.id ?? uuidv4()
+    this.config = {
+      type: 'MESH_STANDARD_MATERIAL',
+      id: actualId,
+    }
+    data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG'] = this.config
   }
 }

@@ -10,6 +10,7 @@ import {
 import { CameraObjectInfo } from './camera'
 import Switcher from '../utils/Switcher'
 import {
+  getMapKeysFromNative,
   MaterialObjectInfo,
   MaterialRouterObjectInfoConfigSchema,
 } from './material'
@@ -24,6 +25,7 @@ class ObjectInfoStorageConfigLoader {
     config: ObjectInfoStorageConfig
   ) {
     // ThreeJS GLTF loading
+    this.loadTextureObjectInfoList(gltf)
     this.loadMaterialObjectInfoList(gltf)
     this.loadMaterialRouterObjectInfoList(config)
     this.loadInSceneObjectInfoList(gltf)
@@ -40,15 +42,42 @@ class ObjectInfoStorageConfigLoader {
     )
   }
 
-  loadMaterialObjectInfoList(gltf: GLTF) {
+  loadTextureObjectInfoList(gltf: GLTF) {
+    const textureSet = new Set<THREE.Texture>()
     for (const scene of gltf.scenes) {
       scene.traverse(object => {
         if (object instanceof THREE.Mesh) {
-          const result = this.objectInfoStorage.createMaterialObjectInfo(
-            object.material
-          )
+          if (object.material instanceof THREE.Material) {
+            const material: any = object.material
+            const mapKeys = getMapKeysFromNative(material)
+            for (const key of mapKeys) {
+              const texture = material[key]
+              if (texture instanceof THREE.Texture) {
+                textureSet.add(texture)
+              }
+            }
+          }
         }
       })
+    }
+
+    for (const texture of textureSet) {
+      this.objectInfoStorage.createTextureObjectInfo(texture)
+    }
+  }
+
+  loadMaterialObjectInfoList(gltf: GLTF) {
+    const materialSet = new Set<THREE.Material>()
+    for (const scene of gltf.scenes) {
+      scene.traverse(object => {
+        if (object instanceof THREE.Mesh) {
+          materialSet.add(object.material)
+        }
+      })
+    }
+
+    for (const material of materialSet) {
+      this.objectInfoStorage.createMaterialObjectInfo(material)
     }
   }
 

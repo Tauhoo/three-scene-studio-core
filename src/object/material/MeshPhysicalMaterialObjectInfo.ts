@@ -1,10 +1,20 @@
 import * as THREE from 'three'
-import { MaterialObjectInfo } from './MaterialObjectInfo'
 import { MapTypeDefinition } from '../property'
-import {
-  MeshStandardMaterialObjectInfo,
-  meshStandardMaterialObjectInfoPropertyTypeDefinition,
-} from './MeshStandardMaterialObjectInfo'
+import { meshStandardMaterialObjectInfoPropertyTypeDefinition } from './MeshStandardMaterialObjectInfo'
+import { z } from 'zod'
+import { v4 as uuidv4 } from 'uuid'
+import { MaterialObjectInfo } from './MaterialObjectInfo'
+import { ObjectInfoStorage } from '../ObjectInfoStorage'
+import { TextureObjectInfoMap } from './getTextureObjectInfo'
+
+export const meshPhysicalMaterialObjectConfigSchema = z.object({
+  type: z.literal('MESH_PHYSICAL_MATERIAL'),
+  id: z.string(),
+})
+
+export type MeshPhysicalMaterialObjectConfig = z.infer<
+  typeof meshPhysicalMaterialObjectConfigSchema
+>
 
 const meshPhysicalMaterialObjectInfoPropertyTypeDefinition: MapTypeDefinition =
   {
@@ -46,11 +56,50 @@ const meshPhysicalMaterialObjectInfoPropertyTypeDefinition: MapTypeDefinition =
     },
   }
 
-export class MeshPhysicalMaterialObjectInfo extends MeshStandardMaterialObjectInfo {
+export const meshPhysicalMaterialMapKeys = [
+  'map',
+  'aoMap',
+  'envMap',
+  'bumpMap',
+  'alphaMap',
+  'lightMap',
+  'normalMap',
+  'emissiveMap',
+  'clearcoatMap',
+  'roughnessMap',
+  'thicknessMap',
+  'metalnessMap',
+  'anisotropyMap',
+  'sheenColorMap',
+  'iridescenceMap',
+  'displacementMap',
+  'transmissionMap',
+  'specularColorMap',
+  'sheenRoughnessMap',
+  'clearcoatNormalMap',
+  'specularIntensityMap',
+  'clearcoatRoughnessMap',
+  'iridescenceThicknessMap',
+] as const
+export class MeshPhysicalMaterialObjectInfo extends MaterialObjectInfo {
+  readonly config: MeshPhysicalMaterialObjectConfig
   propertyTypeDefinition: MapTypeDefinition =
     meshPhysicalMaterialObjectInfoPropertyTypeDefinition
+  declare readonly textureObjectInfoMap: TextureObjectInfoMap<
+    typeof meshPhysicalMaterialMapKeys
+  >
 
-  constructor(data: THREE.MeshPhysicalMaterial) {
-    super(data)
+  constructor(
+    data: THREE.MeshPhysicalMaterial,
+    objectInfoStorage: ObjectInfoStorage
+  ) {
+    super(data, objectInfoStorage, meshPhysicalMaterialMapKeys)
+    const actualId =
+      data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG']?.id ?? uuidv4()
+    this.config = {
+      type: 'MESH_PHYSICAL_MATERIAL',
+      id: actualId,
+    }
+    data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG'] = this.config
   }
 }

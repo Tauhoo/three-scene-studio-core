@@ -1,17 +1,13 @@
 import * as THREE from 'three'
-import * as z from 'zod'
-import { InSceneObjectInfoEvent } from '../InSceneObjectInfo'
-import { v4 as uuidv4 } from 'uuid'
-import EventDispatcher from '../../utils/EventDispatcher'
+import EventDispatcher, { EventPacket } from '../../utils/EventDispatcher'
 import { MapTypeDefinition } from '../property'
-import { ObjectInfo } from '../ObjectInfo'
-
-export const materialObjectConfigSchema = z.object({
-  type: z.literal('OBJECT_3D_MATERIAL'),
-  id: z.string(),
-})
-
-export type MaterialObjectConfig = z.infer<typeof materialObjectConfigSchema>
+import { ObjectInfo, ObjectInfoEvent } from '../ObjectInfo'
+import {
+  getTextureObjectInfo,
+  TextureObjectInfoMap,
+} from './getTextureObjectInfo'
+import { ObjectInfoStorage } from '../ObjectInfoStorage'
+import { TextureObjectInfo } from '../TextureObjectInfo'
 
 export const materialObjectInfoPropertyTypeDefinition: MapTypeDefinition = {
   type: 'MAP',
@@ -62,23 +58,85 @@ export const materialObjectInfoPropertyTypeDefinition: MapTypeDefinition = {
   },
 }
 
-export class MaterialObjectInfo extends ObjectInfo {
+export type MaterialObjectInfoEvent =
+  | EventPacket<'TEXTURE_UPDATED', MaterialObjectInfo>
+  | ObjectInfoEvent
+
+export abstract class MaterialObjectInfo extends ObjectInfo {
   propertyTypeDefinition: MapTypeDefinition =
     materialObjectInfoPropertyTypeDefinition
-  readonly config: MaterialObjectConfig
   readonly data: THREE.Material
-  readonly eventDispatcher: EventDispatcher<InSceneObjectInfoEvent>
+  readonly eventDispatcher: EventDispatcher<MaterialObjectInfoEvent>
+  readonly textureObjectInfoMap: TextureObjectInfoMap
 
-  constructor(data: THREE.Material) {
+  constructor(
+    data: THREE.Material,
+    objectInfoStorage: ObjectInfoStorage,
+    mapKeys: readonly string[]
+  ) {
     super()
-    const actualId =
-      data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG']?.id ?? uuidv4()
-    this.config = {
-      type: 'OBJECT_3D_MATERIAL',
-      id: actualId,
-    }
-    data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG'] = this.config
     this.data = data
     this.eventDispatcher = new EventDispatcher()
+    this.textureObjectInfoMap = getTextureObjectInfo(
+      objectInfoStorage,
+      data,
+      mapKeys
+    )
+    this.registerEvent()
+  }
+
+  private onTextureDestroyed = (objectInfo: ObjectInfo) => {
+    for (const key in this.textureObjectInfoMap) {
+      const textureObjectInfo = this.textureObjectInfoMap[key]
+      if (textureObjectInfo === objectInfo) {
+        this.textureObjectInfoMap[key] = null
+        ;(this.data as any)[key] = null
+        this.data.needsUpdate = true
+      }
+    }
+    this.eventDispatcher.dispatch('TEXTURE_UPDATED', this)
+  }
+
+  private registerEvent() {
+    for (const textureObjectInfo of Object.values(this.textureObjectInfoMap)) {
+      if (textureObjectInfo !== null) {
+        textureObjectInfo.eventDispatcher.addListener(
+          'DESTROY',
+          this.onTextureDestroyed
+        )
+      }
+    }
+  }
+
+  private unregisterEvent() {
+    for (const textureObjectInfo of Object.values(this.textureObjectInfoMap)) {
+      if (textureObjectInfo !== null) {
+        textureObjectInfo.eventDispatcher.removeListener(
+          'DESTROY',
+          this.onTextureDestroyed
+        )
+      }
+    }
+  }
+
+  replaceTexture(key: string, textureObjectInfo: TextureObjectInfo | null) {
+    const existTexture = this.textureObjectInfoMap[key]
+    if (existTexture !== null) {
+      existTexture.eventDispatcher.removeListener(
+        'DESTROY',
+        this.onTextureDestroyed
+      )
+    }
+    this.textureObjectInfoMap[key] = textureObjectInfo
+    if (textureObjectInfo !== null) {
+      textureObjectInfo.eventDispatcher.addListener(
+        'DESTROY',
+        this.onTextureDestroyed
+      )
+    }
+  }
+
+  destroy() {
+    this.unregisterEvent()
   }
 }

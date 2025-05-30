@@ -10,7 +10,6 @@ import {
   materialOwnerObjectConfigSchema,
   MaterialOwnerObjectInfo,
   MaterialOwnerObjectInfoEvent,
-  MaterialRouterObjectInfoIds,
 } from './MaterialOwnerObjectInfo'
 
 export const meshObjectConfigSchema = materialOwnerObjectConfigSchema.extend({

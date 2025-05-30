@@ -34,6 +34,7 @@ import {
   MaterialRouterObjectInfo,
   MeshDefaultStandardMaterialObjectInfo,
 } from './material'
+import { TextureObjectInfo } from './TextureObjectInfo'
 
 export const objectInfoStorageConfigSchema = z.object({
   materialRouterObjectInfos: z.array(objectConfigSchema),
@@ -162,7 +163,7 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
       )
     }
 
-    const result = createMaterialObjectInfoFromNative(material)
+    const result = createMaterialObjectInfoFromNative(material, this)
     this.set(result.config.id, result)
     return result
   }
@@ -172,7 +173,10 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
       value => value.data === defaultMaterial
     )
     if (findResult !== undefined) return findResult
-    const result = new MeshDefaultStandardMaterialObjectInfo(defaultMaterial)
+    const result = new MeshDefaultStandardMaterialObjectInfo(
+      defaultMaterial,
+      this
+    )
     this.set(result.config.id, result)
     return result
   }
@@ -185,6 +189,16 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
     const result = new MaterialRouterObjectInfo(name, materials, this, id)
     this.set(result.config.id, result)
     return result
+  }
+
+  createTextureObjectInfo(texture: THREE.Texture) {
+    const result = new TextureObjectInfo(texture)
+    this.set(result.config.id, result)
+    return result
+  }
+
+  getTextureObjectInfos() {
+    return this.getAll().filter(value => value instanceof TextureObjectInfo)
   }
 
   getDefaultStandardMaterialObjectInfo() {

@@ -1,8 +1,21 @@
 import * as THREE from 'three'
-import { materialObjectInfoPropertyTypeDefinition } from './MaterialObjectInfo'
+import {
+  MaterialObjectInfo,
+  materialObjectInfoPropertyTypeDefinition,
+} from './MaterialObjectInfo'
 import { MapTypeDefinition } from '../property'
-import { MeshStandardMaterialObjectInfo } from './MeshStandardMaterialObjectInfo'
+import { z } from 'zod'
+import { v4 as uuidv4 } from 'uuid'
+import { ObjectInfoStorage } from '../ObjectInfoStorage'
 
+export const meshDefaultStandardMaterialObjectConfigSchema = z.object({
+  type: z.literal('MESH_DEFAULT_STANDARD_MATERIAL'),
+  id: z.string(),
+})
+
+export type MeshDefaultStandardMaterialObjectConfig = z.infer<
+  typeof meshDefaultStandardMaterialObjectConfigSchema
+>
 export const meshDefaultStandardMaterialObjectInfoPropertyTypeDefinition: MapTypeDefinition =
   {
     type: 'MAP',
@@ -42,12 +55,23 @@ export const meshDefaultStandardMaterialObjectInfoPropertyTypeDefinition: MapTyp
     },
   }
 
-export class MeshDefaultStandardMaterialObjectInfo extends MeshStandardMaterialObjectInfo {
+export class MeshDefaultStandardMaterialObjectInfo extends MaterialObjectInfo {
+  readonly config: MeshDefaultStandardMaterialObjectConfig
   propertyTypeDefinition: MapTypeDefinition =
     meshDefaultStandardMaterialObjectInfoPropertyTypeDefinition
 
-  constructor(data: THREE.MeshStandardMaterial) {
-    super(data)
+  constructor(
+    data: THREE.MeshStandardMaterial,
+    objectInfoStorage: ObjectInfoStorage
+  ) {
+    super(data, objectInfoStorage, [])
+    const actualId =
+      data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG']?.id ?? uuidv4()
+    this.config = {
+      type: 'MESH_DEFAULT_STANDARD_MATERIAL',
+      id: actualId,
+    }
+    data.userData['THREE_SCENE_STUDIO.OBJECT_CONFIG'] = this.config
     data.userData['THREE_SCENE_STUDIO.DEFAULT_MATERIAL'] = true
   }
 }

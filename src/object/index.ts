@@ -13,6 +13,7 @@ export * from './SkinMeshObjectInfo'
 export * from './light'
 export * from './GroupObjectInfo'
 export * from './material'
+export * from './TextureObjectInfo'
 export * from './camera'
 
 export * from './ObjectInfoManager'
