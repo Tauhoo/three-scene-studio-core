@@ -85,6 +85,36 @@ export abstract class MaterialObjectInfo extends ObjectInfo {
     this.registerEvent()
   }
 
+  updateTextureMap(key: string, textureObjectInfo: TextureObjectInfo | null) {
+    if (
+      this.textureObjectInfoMap[key] === textureObjectInfo ||
+      this.textureObjectInfoMap[key] === undefined
+    ) {
+      return
+    }
+
+    const existTexture = this.textureObjectInfoMap[key]
+    if (existTexture !== null) {
+      existTexture.eventDispatcher.removeListener(
+        'DESTROY',
+        this.onTextureDestroyed
+      )
+    }
+
+    this.textureObjectInfoMap[key] = textureObjectInfo
+    ;(this.data as any)[key] = textureObjectInfo?.data ?? null
+    this.data.needsUpdate = true
+
+    if (textureObjectInfo !== null) {
+      textureObjectInfo.eventDispatcher.addListener(
+        'DESTROY',
+        this.onTextureDestroyed
+      )
+    }
+
+    this.eventDispatcher.dispatch('TEXTURE_UPDATED', this)
+  }
+
   private onTextureDestroyed = (objectInfo: ObjectInfo) => {
     for (const key in this.textureObjectInfoMap) {
       const textureObjectInfo = this.textureObjectInfoMap[key]
@@ -116,23 +146,6 @@ export abstract class MaterialObjectInfo extends ObjectInfo {
           this.onTextureDestroyed
         )
       }
-    }
-  }
-
-  replaceTexture(key: string, textureObjectInfo: TextureObjectInfo | null) {
-    const existTexture = this.textureObjectInfoMap[key]
-    if (existTexture !== null) {
-      existTexture.eventDispatcher.removeListener(
-        'DESTROY',
-        this.onTextureDestroyed
-      )
-    }
-    this.textureObjectInfoMap[key] = textureObjectInfo
-    if (textureObjectInfo !== null) {
-      textureObjectInfo.eventDispatcher.addListener(
-        'DESTROY',
-        this.onTextureDestroyed
-      )
     }
   }
 

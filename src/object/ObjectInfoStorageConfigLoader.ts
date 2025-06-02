@@ -71,7 +71,13 @@ class ObjectInfoStorageConfigLoader {
     for (const scene of gltf.scenes) {
       scene.traverse(object => {
         if (object instanceof THREE.Mesh) {
-          materialSet.add(object.material)
+          if (object.material instanceof THREE.Material) {
+            materialSet.add(object.material)
+          } else if (Array.isArray(object.material)) {
+            for (const material of object.material) {
+              materialSet.add(material)
+            }
+          }
         }
       })
     }

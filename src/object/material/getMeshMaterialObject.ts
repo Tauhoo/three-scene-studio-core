@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import { ObjectInfoStorage } from '../ObjectInfoStorage'
 import { MaterialObjectInfo } from './MaterialObjectInfo'
-import { defaultMaterial } from './constant'
 
 export const getMaterialObjectInfos = (
   mesh: THREE.Mesh,
