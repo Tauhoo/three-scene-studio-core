@@ -23,36 +23,36 @@ const meshPhysicalMaterialObjectInfoPropertyTypeDefinition: MapTypeDefinition =
       ...meshStandardMaterialObjectInfoPropertyTypeDefinition.map,
       // anisotropyRotation?: number;
       // anisotropyMap?: Texture | null;
+      anisotropy: { type: 'NUMBER' },
       // clearcoatMap: Texture | null;
-      clearcoatRoughness: { type: 'NUMBER' },
+      clearcoat: { type: 'NUMBER' },
       // clearcoatRoughnessMap: Texture | null;
-      clearcoatNormalScale: { type: 'VECTOR_2D' },
+      clearcoatRoughness: { type: 'NUMBER' },
       // clearcoatNormalMap: Texture | null;
+      clearcoatNormalScale: { type: 'VECTOR_2D' },
       ior: { type: 'NUMBER' },
       reflectivity: { type: 'NUMBER' },
       // iridescenceMap: Texture | null;
+      iridescence: { type: 'NUMBER' },
       iridescenceIOR: { type: 'NUMBER' },
-      iridescenceThicknessRange: { type: 'VECTOR' },
       // iridescenceThicknessMap: Texture | null;
-      sheenColor: { type: 'COLOR' },
+      iridescenceThicknessRange: { type: 'VECTOR' },
       // sheenColorMap: Texture | null;
-      sheenRoughness: { type: 'NUMBER' },
+      sheenColor: { type: 'COLOR' },
+      sheen: { type: 'NUMBER' },
       // sheenRoughnessMap: Texture | null;
+      sheenRoughness: { type: 'NUMBER' },
       // transmissionMap: Texture | null;
-      thickness: { type: 'NUMBER' },
+      transmission: { type: 'NUMBER' },
       // thicknessMap: Texture | null;
+      thickness: { type: 'NUMBER' },
       attenuationDistance: { type: 'NUMBER' },
       attenuationColor: { type: 'COLOR' },
-      specularIntensity: { type: 'NUMBER' },
       // specularIntensityMap: Texture | null;
-      specularColor: { type: 'COLOR' },
+      specularIntensity: { type: 'NUMBER' },
       // specularColorMap: Texture | null;
-      anisotropy: { type: 'NUMBER' },
-      clearcoat: { type: 'NUMBER' },
-      iridescence: { type: 'NUMBER' },
+      specularColor: { type: 'COLOR' },
       dispersion: { type: 'NUMBER' },
-      sheen: { type: 'NUMBER' },
-      transmission: { type: 'NUMBER' },
     },
   }
 
