@@ -151,5 +151,6 @@ export abstract class MaterialObjectInfo extends ObjectInfo {
 
   destroy() {
     this.unregisterEvent()
+    super.destroy()
   }
 }

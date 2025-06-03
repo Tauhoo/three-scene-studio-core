@@ -46,7 +46,7 @@ export const meshStandardMaterialObjectInfoPropertyTypeDefinition: MapTypeDefini
       // metalnessMap: Texture | null;
       // alphaMap: Texture | null;
       // envMap: Texture | null;
-      // envMapRotation: Euler;
+      envMapRotation: { type: 'EULER' },
       envMapIntensity: { type: 'NUMBER' },
       wireframe: { type: 'BOOLEAN' },
       wireframeLinewidth: { type: 'NUMBER' },
