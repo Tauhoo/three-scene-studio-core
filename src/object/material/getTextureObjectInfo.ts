@@ -11,14 +11,15 @@ export function getTextureObjectInfo<K extends readonly string[]>(
   material: THREE.Material,
   mapKeys: K
 ) {
-  const textureObjectInfoMap = Object.fromEntries(
-    objectInfoStorage.getTextureObjectInfos().map(value => [value.data, value])
-  )
+  const textureObjectInfoMap: Map<THREE.Texture, TextureObjectInfo> = new Map()
+  for (const value of objectInfoStorage.getTextureObjectInfos()) {
+    textureObjectInfoMap.set(value.data, value)
+  }
   let result: any = {}
   for (const key of mapKeys) {
     const value = (material as any)[key]
 
-    const textureObjectInfo = textureObjectInfoMap[value]
+    const textureObjectInfo = textureObjectInfoMap.get(value)
     if (textureObjectInfo) {
       result[key] = textureObjectInfo
     } else {

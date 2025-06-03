@@ -32,8 +32,8 @@ export const meshStandardMaterialObjectInfoPropertyTypeDefinition: MapTypeDefini
       // aoMap: Texture | null;
       aoMapIntensity: { type: 'NUMBER' },
       emissive: { type: 'COLOR' },
-      emissiveIntensity: { type: 'NUMBER' },
       // emissiveMap: Texture | null;
+      emissiveIntensity: { type: 'NUMBER' },
       // bumpMap: Texture | null;
       bumpScale: { type: 'NUMBER' },
       // normalMap: Texture | null;
