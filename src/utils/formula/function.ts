@@ -133,7 +133,7 @@ export const functionInfos: FunctionInfo[] = [
         output: 'NUMBER',
       },
       {
-        input: ['NUMBER', 'NUMBER'],
+        input: ['VECTOR', 'NUMBER'],
         output: 'VECTOR',
       },
     ],
