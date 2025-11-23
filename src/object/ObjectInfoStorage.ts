@@ -18,10 +18,7 @@ import { SceneSwitcherInfo } from './SceneSwitcherObjectInfo'
 import { CameraSwitcherInfo } from './CameraSwitcherObjectInfo'
 import Switcher from '../utils/Switcher'
 import { FormulaObjectInfo } from './FormulaObjectInfo'
-import {
-  InSceneObjectInfo,
-  inSceneObjectInfoConfigSchema,
-} from './InSceneObjectInfo'
+import { InSceneObjectInfo } from './InSceneObjectInfo'
 import { z } from 'zod'
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 import { errorResponse, FormulaNode } from '../utils'
@@ -35,6 +32,7 @@ import {
   MeshDefaultStandardMaterialObjectInfo,
 } from './material'
 import { TextureObjectInfo } from './TextureObjectInfo'
+import Context from '../utils/Context'
 
 export const objectInfoStorageConfigSchema = z.object({
   materialRouterObjectInfos: z.array(objectConfigSchema),
@@ -50,7 +48,7 @@ export type ObjectInfoStorageConfig = z.infer<
 >
 
 export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
-  constructor(private clock: Clock) {
+  constructor(private clock: Clock, private context: Context) {
     super(value => value)
   }
 
@@ -72,13 +70,13 @@ export class ObjectInfoStorage extends DataStorage<string, ObjectInfo> {
   }
 
   createCameraObjectInfo(camera: THREE.Camera) {
-    const result = createCameraObjectFromNative(camera)
+    const result = createCameraObjectFromNative(camera, this.context)
     this.set(result.config.id, result)
     return result
   }
 
   createCameraObjectInfoFromInfo(info: CameraInfo) {
-    const camera = createCameraObjectFromInfo(info)
+    const camera = createCameraObjectFromInfo(info, this.context)
     this.set(camera.config.id, camera)
     return camera
   }

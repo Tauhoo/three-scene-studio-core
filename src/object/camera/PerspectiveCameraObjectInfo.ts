@@ -6,6 +6,7 @@ import {
 import { ObjectPath } from '../ObjectInfo'
 import { MapTypeDefinition } from '../property'
 import { SystemValueType } from '../../utils'
+import Context from '../../utils/Context'
 
 const perspectiveCameraObjectInfoPropertyTypeDefinition: MapTypeDefinition = {
   type: 'MAP',
@@ -19,8 +20,14 @@ export class PerspectiveCameraObjectInfo extends CameraObjectInfo {
   propertyTypeDefinition: MapTypeDefinition =
     perspectiveCameraObjectInfoPropertyTypeDefinition
   declare data: THREE.PerspectiveCamera
-  constructor(data: THREE.PerspectiveCamera) {
+  constructor(data: THREE.PerspectiveCamera, private context: Context) {
     super(data)
+    context.addListener('CANVAS_RESIZE', this.onCanvasResize)
+  }
+
+  onCanvasResize = (data: { width: number; height: number }) => {
+    this.data.aspect = data.width / data.height
+    this.data.updateProjectionMatrix()
   }
 
   setValue(objectPath: ObjectPath, value: any, valueType?: SystemValueType) {
@@ -33,5 +40,10 @@ export class PerspectiveCameraObjectInfo extends CameraObjectInfo {
       this.data.updateProjectionMatrix()
     }
     return result
+  }
+
+  destroy = () => {
+    this.context.removeListener('CANVAS_RESIZE', this.onCanvasResize)
+    super.destroy()
   }
 }

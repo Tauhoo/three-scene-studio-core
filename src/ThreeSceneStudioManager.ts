@@ -57,7 +57,7 @@ export class ThreeSceneStudioManager {
 
     this.clock = new Clock(this.context)
 
-    this.objectInfoManager = new ObjectInfoManager(this.clock)
+    this.objectInfoManager = new ObjectInfoManager(this.clock, this.context)
 
     this.objectInfoManager.objectInfoStorage.addListener(
       'ADD',

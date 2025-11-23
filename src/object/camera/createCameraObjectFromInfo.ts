@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { PerspectiveCameraObjectInfo } from './PerspectiveCameraObjectInfo'
 import { OrthographicCameraObjectInfo } from './OrthographicCameraObjectInfo'
+import Context from '../../utils/Context'
 
 export type SharedCameraInfo = {
   name: string
@@ -23,7 +24,7 @@ export type OrthographicCameraInfo = {
 export type CameraInfo = SharedCameraInfo &
   (PerspectiveCameraInfo | OrthographicCameraInfo)
 
-export function createCameraObjectFromInfo(info: CameraInfo) {
+export function createCameraObjectFromInfo(info: CameraInfo, context: Context) {
   if (info.type === 'perspective') {
     const camera = new THREE.PerspectiveCamera(
       info.fov,
@@ -31,7 +32,7 @@ export function createCameraObjectFromInfo(info: CameraInfo) {
       info.near,
       info.far
     )
-    const result = new PerspectiveCameraObjectInfo(camera)
+    const result = new PerspectiveCameraObjectInfo(camera, context)
     result.data.name = info.name
     return result
   } else {
@@ -43,7 +44,7 @@ export function createCameraObjectFromInfo(info: CameraInfo) {
       info.near,
       info.far
     )
-    const result = new OrthographicCameraObjectInfo(camera)
+    const result = new OrthographicCameraObjectInfo(camera, context)
     result.data.name = info.name
     return result
   }

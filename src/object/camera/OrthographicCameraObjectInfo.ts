@@ -6,6 +6,7 @@ import {
 import { ObjectPath } from '../ObjectInfo'
 import { MapTypeDefinition } from '../property'
 import { SystemValueType } from '../../utils'
+import Context from '../../utils/Context'
 
 const orthographicCameraObjectInfoPropertyTypeDefinition: MapTypeDefinition = {
   type: 'MAP',
@@ -21,8 +22,17 @@ export class OrthographicCameraObjectInfo extends CameraObjectInfo {
   propertyTypeDefinition: MapTypeDefinition =
     orthographicCameraObjectInfoPropertyTypeDefinition
   declare data: THREE.OrthographicCamera
-  constructor(data: THREE.OrthographicCamera) {
+  constructor(data: THREE.OrthographicCamera, private context: Context) {
     super(data)
+    context.addListener('CANVAS_RESIZE', this.onCanvasResize)
+  }
+
+  onCanvasResize = (data: { width: number; height: number }) => {
+    this.data.left = -data.width / 2
+    this.data.right = data.width / 2
+    this.data.top = data.height / 2
+    this.data.bottom = -data.height / 2
+    this.data.updateProjectionMatrix()
   }
 
   setValue(objectPath: ObjectPath, value: any, valueType?: SystemValueType) {
@@ -41,5 +51,10 @@ export class OrthographicCameraObjectInfo extends CameraObjectInfo {
       this.data.updateProjectionMatrix()
     }
     return result
+  }
+
+  destroy = () => {
+    this.context.removeListener('CANVAS_RESIZE', this.onCanvasResize)
+    super.destroy()
   }
 }
