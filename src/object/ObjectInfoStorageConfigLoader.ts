@@ -28,6 +28,7 @@ class ObjectInfoStorageConfigLoader {
     this.loadTextureObjectInfoList(gltf)
     this.loadMaterialObjectInfoList(gltf)
     this.loadMaterialRouterObjectInfoList(config)
+
     this.loadInSceneObjectInfoList(gltf)
     this.loadCameraObjectInfoList(gltf)
 

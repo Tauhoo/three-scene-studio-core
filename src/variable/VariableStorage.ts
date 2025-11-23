@@ -11,8 +11,9 @@ import { VariableGroup } from './types'
 import { FormulaVariable, GlobalFormulaVariable } from './formula'
 import { ContainerWidthVariable } from './ContainerWidthVariable'
 import { ContainerHeightVariable } from './ContainerHeightVariable'
-import { errorResponse, successResponse } from '../utils'
+import { errorResponse, NodeValueInfo, successResponse } from '../utils'
 import NameManager from '../NameManager'
+import { ExternalVariable } from './ExternalVariable'
 
 export const variableStorageConfigSchema = z.object({
   variables: z.array(variableConfigSchema),
@@ -192,6 +193,23 @@ export class VariableStorage extends EventDispatcher<VariableStorageEvent> {
             config.ref,
             config.id
           )
+        )
+      }
+      case 'EXTERNAL': {
+        let value: NodeValueInfo
+        if (typeof config.value === 'number') {
+          value = {
+            valueType: 'NUMBER',
+            value: config.value,
+          }
+        } else {
+          value = {
+            valueType: 'VECTOR',
+            value: config.value,
+          }
+        }
+        return successResponse(
+          new ExternalVariable(config.name, value, config.ref, config.id)
         )
       }
     }

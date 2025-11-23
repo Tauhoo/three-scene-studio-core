@@ -83,6 +83,9 @@ export class Loader {
     const config = gltf.userData['THREE_SCENE_STUDIO.CONFIG']
     const extraData = gltf.userData['THREE_SCENE_STUDIO.EXTRA_DATA']
     const parsedConfig = threeSceneStudioManagerConfigSchema.safeParse(config)
+    if (!parsedConfig.success) {
+      console.error('Config validation FAILED:', parsedConfig.error)
+    }
     if (!parsedConfig.success) return null
     gltf.scenes = gltf.scenes.filter(scene => scene.name !== dummySceneName)
     this.manager.loadConfig(gltf, config as ThreeSceneStudioManagerConfig)
