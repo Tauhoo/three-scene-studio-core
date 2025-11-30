@@ -63,6 +63,7 @@ class Renderer extends EventDispatcher<RendererEventPacket> {
   private onContainerResize = () => {
     const rect = this.context.canvasContainer.getBoundingClientRect()
     this.renderer.setSize(rect.width, rect.height)
+    this.render()
   }
 
   get overrideCamera() {
