@@ -69,7 +69,9 @@ export class FormulaObjectInfo extends ObjectInfo {
   setValue(objectPath: ObjectPath, value: any, valueType?: SystemValueType) {
     const result = super.setValue(objectPath, value, valueType)
     if (result.status === 'SUCCESS') {
-      this.needUpdate = result.data
+      if (!this.needUpdate && result.data) {
+        this.needUpdate = true
+      }
     } else {
       console.error(
         'fail set value to' + objectPath.join('.') + ' value ' + result
